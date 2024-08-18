@@ -1,5 +1,14 @@
 import { Part, Stat } from "./types";
 
+const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const getDaySuffix = (dayOfMonth: number) => {
+  if (dayOfMonth === 1) return "st";
+  if (dayOfMonth === 2) return "nd";
+  if (dayOfMonth === 3) return "rd";
+  if (dayOfMonth >= 4) return "th";
+};
+
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
@@ -8,7 +17,8 @@ const currentPartPointsElement = document.querySelector(`#current-points`)! as H
 const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
 
 const startPoints = 500;
-const durationOfTurnMS = 20_000;
+const secondsPerTurn = 3 || 20;
+const durationOfTurnMS = secondsPerTurn * 1000;
 const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
 
@@ -21,7 +31,6 @@ let totalPoints = 0;
 let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
-let scoreboardBuilt = false;
 
 const imageLoadState = {
   one: false,
@@ -153,7 +162,21 @@ const getDeviceInfo = () => {
   };
 };
 
+const getHumanReadableLocalTime = () => {
+  const rightNow = new Date();
+  const dayOfWeek = daysOfWeek[rightNow.getDay()];
+  const month = monthsOfYear[rightNow.getMonth()];
+  const date = rightNow.getDate();
+  const suffix = getDaySuffix(date);
+  const year = rightNow.getFullYear();
+
+  return `${dayOfWeek}, ${month} ${date}${suffix} ${year}`;
+};
+
 const gameOver = async (type: "selection" | "timer" | "win") => {
+  // Clear timer first to prevent duplicate gameOver("timer") calls.
+  clearInterval(playTimer);
+
   const gameStats = {
     correct_answers: type === "win" ? parts.length : currentPart,
     final_score: totalPoints,
@@ -162,6 +185,8 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     device_info: JSON.stringify(getDeviceInfo()),
     display_name: "",
     game_end_type: type.charAt(0),
+    local_time: getHumanReadableLocalTime(),
+    uuid: isReturningUser() ? getUserId() : createUser(),
   };
 
   databaseInsertId = (await logGame(gameStats)) || 0;
@@ -181,7 +206,6 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
   const finalScoreElement = document.querySelector(`[data-screen-active="true"] .final-score`)! as HTMLDivElement;
   finalScoreElement.innerText = totalPoints.toLocaleString();
 
-  clearInterval(playTimer);
   removeButtonListeners();
   removeImageListeners();
   buildScoreboard();
@@ -282,9 +306,6 @@ const calculateOffset = (type: "new-first" | "first-tie" | "on-scoreboard" | "of
 };
 
 const buildScoreboard = async () => {
-  if (scoreboardBuilt) return;
-  scoreboardBuilt = true;
-
   try {
     const allStats: Stat[] = await getStats();
     const lowestHighScore = allStats[allStats.length - 1].final_score;
@@ -295,7 +316,7 @@ const buildScoreboard = async () => {
 
     if (totalPoints === highestScore) {
       // Tied for first or new first place
-      showInputPlayerNameModal();
+      if (totalPoints > 0) showInputPlayerNameModal();
 
       // Check 2nd row for equal score
       const secondRowScore = allStats[1].final_score;
@@ -303,7 +324,7 @@ const buildScoreboard = async () => {
 
       calculateOffset(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
     } else if (totalPoints >= lowestHighScore) {
-      showInputPlayerNameModal();
+      if (totalPoints > 0) showInputPlayerNameModal();
       calculateOffset("on-scoreboard", highestScore);
     } else {
       calculateOffset("off-scoreboard", lowestHighScore);
@@ -324,7 +345,6 @@ const buildScoreboard = async () => {
       tr.setAttribute("id", `scoreboard-${stat.id}`);
 
       const rankCell = document.createElement("td");
-      // const gameOverCell = document.createElement("td");
       const nameCell = document.createElement("td");
       const scoreCell = document.createElement("td");
       const partsCell = document.createElement("td");
@@ -332,25 +352,19 @@ const buildScoreboard = async () => {
 
       const ranking = getRanking(stat.final_score);
 
-      // const gameOverType = stat.game_end_type === "w" ? "Win" : stat.game_end_type === "s" ? "Selection Loss" : "Timeout Loss";
-      const gameEnd = formatDateForScoreboard(stat.game_end_date_time);
-
       rankCell.classList.add("rank");
-      // gameOverCell.classList.add("gameOver");
       nameCell.classList.add("playerName");
       scoreCell.classList.add("score");
       partsCell.classList.add("parts");
       dateCell.classList.add("date");
 
       rankCell.innerText = ranking + "";
-      // gameOverCell.innerText = gameOverType;
       nameCell.innerText = stat.display_name;
       scoreCell.innerText = stat.final_score.toLocaleString();
       partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
-      dateCell.innerText = gameEnd;
+      dateCell.innerText = stat.local_time;
 
       tr.appendChild(rankCell);
-      // tr.appendChild(gameOverCell);
       tr.appendChild(nameCell);
       tr.appendChild(scoreCell);
       tr.appendChild(partsCell);
@@ -362,7 +376,7 @@ const buildScoreboard = async () => {
     }
 
     tableBodyElement.setAttribute("data-active", "true");
-    highlightMyScore();
+    if (totalPoints > 0) highlightMyScore();
   } catch (e) {
     console.error(e);
   }
@@ -373,29 +387,6 @@ const highlightMyScore = () => {
   if (myRow) {
     myRow.style.outline = `2px solid red`;
   }
-};
-
-const formatDateForScoreboard = (dateObject: string) => {
-  const [date] = dateObject.split(" ");
-  const [year, month, day] = date.split("-");
-
-  const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-  // SQL to Javascript off by 1 fix.
-  const m = monthsOfYear[Number(month) - 1];
-
-  const getDaySuffix = (dayOfMonth: number) => {
-    if (dayOfMonth === 1) return "st";
-    if (dayOfMonth === 2) return "nd";
-    if (dayOfMonth === 3) return "rd";
-    if (dayOfMonth >= 4) return "th";
-  };
-
-  const d = `${day}${getDaySuffix(Number(day))}`;
-
-  const dateOutput = `${m} ${d}, ${year}`;
-
-  return dateOutput;
 };
 
 const removeButtonListeners = () => {
@@ -476,6 +467,17 @@ const getStats = async () => {
   } catch (e) {
     console.error(e);
   }
+};
+
+// I don't need or want 36 characters.
+const createUUID = () => crypto.randomUUID().substring(0, 13);
+const getUserId = () => localStorage.getItem("uuid");
+const isReturningUser = () => !!localStorage.getItem("uuid");
+
+const createUser = () => {
+  const uuidNew = createUUID();
+  localStorage.setItem("uuid", uuidNew);
+  return uuidNew;
 };
 
 const testFunction = () => {

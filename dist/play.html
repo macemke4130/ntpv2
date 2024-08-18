@@ -51,11 +51,10 @@
           <thead>
             <tr>
               <th scope="col">Ranking</th>
-              <!-- <th scope="col">Game Over</th> -->
               <th scope="col">Name</th>
               <th scope="col">Final Score</th>
               <th scope="col">Parts Named</th>
-              <th scope="col">Date</th>
+              <th scope="col">Local Time</th>
             </tr>
           </thead>
           <tbody data-active="false"></tbody>
@@ -67,7 +66,7 @@
           <div id="player-title">Enter your name for the scoreboard</div>
           <label>
             Name
-            <input id="player-name-text" type="text" />
+            <input id="player-name-text" type="text" autocomplete="off" />
             <div id="player-name-buttons">
               <button id="submit-player-name">Submit</button>
               <button id="cancel-player-name">Cancel</button>
