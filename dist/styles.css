@@ -1,0 +1,88 @@
+:root {
+  --bg-color: #343239;
+  --btn-color: #00000060;
+  --btn-border-color: #ffffff60;
+  --backdrop-color: rgba(0, 0, 0, 0.6);
+  --text-color: rgb(205, 205, 205);
+  --btn-border: 1px solid var(--btn-border-color);
+}
+
+*::selection {
+  background: black;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: system-ui, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  background: var(--btn-color);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding-bottom: 3rem;
+}
+
+dialog {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+dialog::backdrop {
+  background: var(--backdrop-color);
+}
+
+.credit {
+  margin: 1rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+#camera {
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+#filmstrip {
+  display: flex;
+
+  img {
+    width: 25vw;
+  }
+}
+
+.start-game {
+  display: block;
+  margin: 0 auto;
+  font-size: 2rem;
+  width: fit-content;
+  padding: 1.5rem 2rem;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  border: var(--btn-border);
+  background: var(--btn-color);
+}

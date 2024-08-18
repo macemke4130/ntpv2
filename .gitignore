@@ -1,0 +1,6 @@
+node_modules
+namethatpart.db
+todo.md
+dbConnect.js
+server.js
+dist/*.js

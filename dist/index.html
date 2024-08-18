@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./index.css" />
+    <title>Name That Part</title>
+  </head>
+  <body>
+    <header>
+      <div id="camera" aria-hidden="true">
+        <div id="filmstrip"></div>
+      </div>
+    </header>
+    <main>
+      <h1>Name That Part!</h1>
+      <h2>
+        <div>The game for discerning bicyle mechanics and nerds alike.</div>
+        <span>Choose wisely or perish.</span>
+      </h2>
+      <ul>
+        <li><span id="total-parts">00</span> parts currently in game</li>
+        <li>Last part added on <span id="date-updated">00/00/2024</span></li>
+        <li>2 photos, 4 options</li>
+        <li>20 seconds per part to choose</li>
+        <li>Points drop for every moment of hesitation</li>
+        <li>If the points reach zero, game over</li>
+        <li>If you choose wrong, game over</li>
+        <li>Are you good enough to join the Scoreboard?</li>
+      </ul>
+      <div class="credit">
+        This game was created, funded and is maintained by <a href="https://www.lucasmace.com/" target="_blank">Lucas Mace</a>.
+        <div><a href="./about.html">Learn More</a></div>
+      </div>
+      <a class="start-game" href="./play.html">Start Game</a>
+    </main>
+
+    <script>
+      // TS Hack. Fix later.
+      var exports = {};
+    </script>
+    <script src="./filmstrip.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

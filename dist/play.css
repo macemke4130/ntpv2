@@ -1,0 +1,166 @@
+section[aria-label="Images"] {
+  display: flex;
+  justify-content: space-between;
+
+  [data-quiz-image] {
+    width: 50%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    background: #c6c6c6;
+
+    transition-property: filter;
+    transition-duration: 100ms;
+    transition-timing-function: linear;
+  }
+
+  [data-blur="true"] {
+    filter: blur(20px);
+  }
+
+  [data-blur="false"] {
+    filter: blur(0);
+  }
+}
+
+section[aria-label="Answers"] {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 0.5rem;
+
+  [data-quiz-button] {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 3rem;
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+    border: var(--btn-border);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+  }
+}
+
+[data-game-curtain="down"] {
+  display: none;
+}
+
+[data-screen-active="false"] {
+  display: none;
+}
+
+#preload {
+  display: block;
+  width: 0;
+  height: 0;
+  position: absolute;
+  overflow: hidden;
+  z-index: 2;
+}
+
+section[aria-label="Score"] {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+
+  div {
+    text-align: center;
+  }
+}
+
+table {
+  width: 100%;
+
+  tbody tr:nth-child(odd) {
+    background: var(--btn-color);
+  }
+
+  th {
+    width: 23.75%;
+  }
+
+  th:first-of-type {
+    width: 5%;
+  }
+
+  td {
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+#scoreboard:has(tbody[data-active="false"]) {
+  display: none;
+}
+
+#player-name {
+  width: 40rem;
+
+  #player-title {
+    text-align: center;
+    padding-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    input {
+      text-align: center;
+      font-size: 1.25rem;
+      width: 80%;
+      margin-top: 0.25rem;
+    }
+  }
+
+  #player-name-buttons {
+    padding-top: 1rem;
+
+    button {
+      background: var(--btn-color);
+      color: var(--text-color);
+      border: var(--btn-border);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      margin: 0 0.5rem;
+    }
+  }
+}
+
+.game-over-title {
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+.final-score-title {
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.final-score {
+  font-size: 2rem;
+  text-align: center;
+}
+
+.scoreboard-offset {
+  text-align: center;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+.play-again {
+  display: block;
+  margin: 1rem auto;
+  font-size: 1.5rem;
+  width: fit-content;
+  padding: 1rem 1.5rem;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  border: var(--btn-border);
+  background: var(--btn-color);
+  cursor: pointer;
+}

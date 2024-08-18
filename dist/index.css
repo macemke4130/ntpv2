@@ -1,0 +1,30 @@
+main {
+  h1,
+  h2 {
+    text-align: center;
+  }
+  h1 {
+    font-size: 4rem;
+    margin: 0.5rem 0 0 0;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin: 0;
+
+    span {
+      font-size: 1.75rem;
+    }
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    font-size: 1.25rem;
+
+    li {
+      padding: 0 0 0.5rem 0;
+      text-align: center;
+    }
+  }
+}

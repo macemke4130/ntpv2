@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./play.css" />
+    <title>Name That Part</title>
+  </head>
+  <body>
+    <button id="testing">Test Button</button>
+    <main>
+      <div data-game-curtain="up">
+        <section aria-label="Images">
+          <img data-quiz-image="one" data-blur="true" alt="" loading="eager" />
+          <img data-quiz-image="two" data-blur="true" alt="" loading="eager" />
+        </section>
+        <section aria-label="Answers">
+          <button data-quiz-button="-1"></button>
+          <button data-quiz-button="-1"></button>
+          <button data-quiz-button="-1"></button>
+          <button data-quiz-button="-1"></button>
+        </section>
+        <section aria-label="Score">
+          <div>
+            <div>Possible Points</div>
+            <div id="current-points"></div>
+          </div>
+          <div>
+            <div>Total Points</div>
+            <div id="total-points">0</div>
+          </div>
+        </section>
+      </div>
+      <div data-game-over>
+        <section data-game-end-type="win" data-screen-active="false">
+          <h2 class="game-over-title">You Win!</h2>
+          <div class="final-score-title">Total Points</div>
+          <div class="final-score"></div>
+          <div class="scoreboard-offset"></div>
+          <button class="play-again">Play Again?</button>
+        </section>
+        <section data-game-end-type="loss" data-screen-active="false">
+          <h2 class="game-over-title">You Lose!</h2>
+          <div class="final-score-title">Total Points</div>
+          <div class="final-score"></div>
+          <div class="scoreboard-offset"></div>
+          <button class="play-again">Play Again?</button>
+        </section>
+        <table id="scoreboard">
+          <thead>
+            <tr>
+              <th scope="col">Ranking</th>
+              <!-- <th scope="col">Game Over</th> -->
+              <th scope="col">Name</th>
+              <th scope="col">Final Score</th>
+              <th scope="col">Parts Named</th>
+              <th scope="col">Date</th>
+            </tr>
+          </thead>
+          <tbody data-active="false"></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <dialog id="player-name">
+        <div id="player-form-container">
+          <div id="player-title">Enter your name for the scoreboard</div>
+          <label>
+            Name
+            <input id="player-name-text" type="text" />
+            <div id="player-name-buttons">
+              <button id="submit-player-name">Submit</button>
+              <button id="cancel-player-name">Cancel</button>
+            </div>
+          </label>
+        </div>
+      </dialog>
+    </main>
+
+    <div id="preload" aria-hidden="true">
+      <img alt="" />
+      <img alt="" />
+    </div>
+
+    <script>
+      // TS Hack. Fix later.
+      var exports = {};
+    </script>
+    <script src="./play.js"></script>
+  </body>
+</html>
