@@ -17,7 +17,7 @@ const currentPartPointsElement = document.querySelector(`#current-points`)! as H
 const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
 
 const startPoints = 500;
-const secondsPerTurn = 3 || 20;
+const secondsPerTurn = 20;
 const durationOfTurnMS = secondsPerTurn * 1000;
 const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
@@ -194,17 +194,14 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
   const gameCurtain = document.querySelector(`[data-game-curtain]`)! as HTMLElement;
   gameCurtain.setAttribute("data-game-curtain", "down");
 
-  // Why is there more than 1 button?
-  const playAgainButtons = document.querySelectorAll(`.play-again`)! as NodeListOf<HTMLButtonElement>;
-  playAgainButtons.forEach((button) => {
-    button.addEventListener("click", () => window.location.reload());
-  });
-
   const gameOverScreenElement = document.querySelector(`[data-game-end-type="${type === "win" ? "win" : "loss"}"]`)! as HTMLElement;
   gameOverScreenElement.setAttribute("data-screen-active", "true");
 
   const finalScoreElement = document.querySelector(`[data-screen-active="true"] .final-score`)! as HTMLDivElement;
   finalScoreElement.innerText = totalPoints.toLocaleString();
+
+  const playAgainButton = document.querySelector(`[data-screen-active="true"] .play-again`)! as HTMLButtonElement;
+  playAgainButton.addEventListener("click", () => window.location.reload());
 
   removeButtonListeners();
   removeImageListeners();
@@ -212,6 +209,8 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
 };
 
 const showInputPlayerNameModal = () => {
+  window.addEventListener("keydown", submitPlayerNameWithEnterKey);
+
   const playerNameDialogElement = document.querySelector(`#player-name`)! as HTMLDialogElement;
   playerNameDialogElement.showModal();
 
@@ -222,9 +221,34 @@ const showInputPlayerNameModal = () => {
   cancelPlayerNameButton.addEventListener("click", () => playerNameDialogElement.close());
 };
 
+const submitPlayerNameWithEnterKey = (event: KeyboardEvent) => {
+  if (event.key !== "Enter") return;
+  submitPlayerNameToDatabase();
+};
+
+const updateLocalPlayerNameList = (playerName: string) => {
+  const localPlayers = localStorage.getItem("playerNames");
+  let playerNames = playerName;
+
+  if (localPlayers) {
+    const nameList = localPlayers.split(", ");
+    const uniqueNames: Set<string> = new Set();
+
+    for (const name of nameList) uniqueNames.add(name);
+    uniqueNames.add(playerName);
+
+    playerNames = Array.from(uniqueNames).join(", ");
+  }
+
+  localStorage.setItem("playerNames", playerNames);
+};
+
+// TODO: Strip Commas from name
 const submitPlayerNameToDatabase = async () => {
   const playerNameInputElement = document.querySelector(`#player-name-text`)! as HTMLInputElement;
-  const playerName = playerNameInputElement.value;
+  const playerName = playerNameInputElement.value.trim();
+
+  updateLocalPlayerNameList(playerName);
 
   const method = "POST";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -256,6 +280,7 @@ const displayFakePlayerName = (playerName: string) => {
 const closePlayerNameModal = () => {
   const playerNameDialogElement = document.querySelector(`#player-name`)! as HTMLDialogElement;
   playerNameDialogElement.close();
+  window.removeEventListener("keydown", submitPlayerNameWithEnterKey);
 };
 
 const calculateOffset = (type: "new-first" | "first-tie" | "on-scoreboard" | "off-scoreboard", score: number) => {
