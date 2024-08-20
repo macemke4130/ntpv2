@@ -173,6 +173,22 @@ const getHumanReadableLocalTime = () => {
   return `${dayOfWeek}, ${month} ${date}${suffix} ${year}`;
 };
 
+const updateUsersDatabase = async (uuid: string) => {
+  const method = "POST";
+  const headers = { "Content-Type": "application/json", Accept: "application/json" };
+
+  const body = JSON.stringify(uuid);
+  const options = { method, headers, body };
+
+  try {
+    const request = await fetch("http://localhost:3001/api/user", options);
+    const jsonData: any = await request.json();
+    return jsonData.insertId;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 const gameOver = async (type: "selection" | "timer" | "win") => {
   // Clear timer first to prevent duplicate gameOver("timer") calls.
   clearInterval(playTimer);
@@ -186,7 +202,7 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     display_name: "",
     game_end_type: type.charAt(0),
     local_time: getHumanReadableLocalTime(),
-    uuid: isReturningUser() ? getUserId() : createUser(),
+    uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
   };
 
   databaseInsertId = (await logGame(gameStats)) || 0;
@@ -241,9 +257,33 @@ const updateLocalPlayerNameList = (playerName: string) => {
   }
 
   localStorage.setItem("playerNames", playerNames);
+
+  updateDatabaseUserNamesList();
 };
 
-// TODO: Strip Commas from name
+const updateDatabaseUserNamesList = async () => {
+  const method = "POST";
+  const headers = { "Content-Type": "application/json", Accept: "application/json" };
+
+  const playerData = {
+    uuid: getLocalUUID(),
+    playerNames: getLocalPlayerNames(),
+  };
+
+  const body = JSON.stringify(playerData);
+  const options = { method, headers, body };
+
+  try {
+    const request = await fetch("http://localhost:3001/api/user/players", options);
+    const jsonData: any = await request.json();
+
+    if (jsonData !== "Success") throw new Error("Error updating player names with UUID.");
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+// TODO: Strip Commas from name input value
 const submitPlayerNameToDatabase = async () => {
   const playerNameInputElement = document.querySelector(`#player-name-text`)! as HTMLInputElement;
   const playerName = playerNameInputElement.value.trim();
@@ -266,6 +306,28 @@ const submitPlayerNameToDatabase = async () => {
     const jsonData: any = await request.json();
 
     if (jsonData === "Success") displayFakePlayerName(playerName);
+  } catch (e) {
+    console.error(e);
+  }
+
+  checkUserInDatabase();
+};
+
+const checkUserInDatabase = async () => {
+  const method = "GET";
+  const headers = { "Content-Type": "application/json", Accept: "application/json" };
+
+  const options = { method, headers };
+
+  try {
+    const request = await fetch(`http://localhost:3001/api/user/${getLocalUUID()}`, options);
+    const jsonData = await request.json();
+
+    if (jsonData.uuid) {
+      updateDatabaseUserNamesList();
+    } else {
+      // insertUserInDatabase();
+    }
   } catch (e) {
     console.error(e);
   }
@@ -496,18 +558,21 @@ const getStats = async () => {
 
 // I don't need or want 36 characters.
 const createUUID = () => crypto.randomUUID().substring(0, 13);
-const getUserId = () => localStorage.getItem("uuid");
+const getLocalUUID = () => localStorage.getItem("uuid") || "";
 const isReturningUser = () => !!localStorage.getItem("uuid");
+const getLocalPlayerNames = () => localStorage.getItem("playerNames") || "";
 
-const createUser = () => {
+const createLocalUUID = () => {
   const uuidNew = createUUID();
   localStorage.setItem("uuid", uuidNew);
   return uuidNew;
 };
 
 const testFunction = () => {
-  totalPoints = 3682;
-  gameOver("win");
+  // totalPoints = 3682;
+  // gameOver("win");
+
+  updateDatabaseUserNamesList();
 };
 
 const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
