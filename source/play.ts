@@ -37,6 +37,9 @@ const imageLoadState = {
   two: false,
 };
 
+// Gets all parts data, shuffles the order, sets to state
+// and calls first part for user. This is the first function
+// called to start the game.
 const getParts = async () => {
   try {
     const request = await fetch("./quiz.json");
@@ -51,6 +54,7 @@ const getParts = async () => {
   }
 };
 
+// Called after every correct answer from imageLoaded().
 const resetTimer = () => {
   currentPartPointsElement.innerText = startPoints + "";
   currentPoints = startPoints;
@@ -66,6 +70,7 @@ const resetTimer = () => {
   }, timerInterval);
 };
 
+// Loads the next two photos (1 next part) into the cache.
 const preloadNextPart = () => {
   const nextPart = parts[currentPart + 1];
 
@@ -76,18 +81,21 @@ const preloadNextPart = () => {
   }
 };
 
+// User has chosen an answer.
 const answerClick = (event: MouseEvent) => {
-  if (!correctAnswer) return;
-
   const target = event.currentTarget as HTMLButtonElement;
   const answer = target.innerHTML;
 
+  // Correct answer was chosen.
   if (answer === correctAnswer) {
+    // Game Win if this was the final part.
     if (currentPart === parts.length - 1) {
       gameOver("win");
       return;
     }
 
+    // More parts remain in [parts].
+    // Prepare state for next turn.
     currentPart++;
     updateTotalPoints();
     clearInterval(playTimer);
@@ -97,24 +105,32 @@ const answerClick = (event: MouseEvent) => {
     addImageLoadListeners();
     loadPartImages(currentPart);
   } else {
+    // Wrong answer was chosen.
     gameOver("selection");
   }
 };
 
+// Clear DOM element.
 const clearCurrentPoints = () => {
   currentPartPointsElement.innerText = "";
 };
 
+// Blank out current button answers.
 const clearAnswers = () => {
   quizButtonElements.forEach((answer) => (answer.innerText = ""));
 };
 
+// Mostly useful for slower connections.
 const blurPartImages = (blur: boolean) => {
   quizImageElements.forEach((image) => {
     image.setAttribute("data-blur", blur ? "true" : "false");
   });
 };
 
+// Update the <img> elements with the currentPart src attributes.
+// There are two <img> load listeners waiting for the load event
+// to continue with the game. This is mostly useful for slower
+// connections, but provides seamless play with fast connections.
 const loadPartImages = (partNumber: number) => {
   const part = parts[partNumber];
 
@@ -125,10 +141,11 @@ const loadPartImages = (partNumber: number) => {
   preloadNextPart();
 };
 
+// Populate all answer buttons with currentPart answers.
 const loadAnswers = (partNumber: number) => {
   const part = parts[partNumber];
 
-  // Store correct value string before shuffle.
+  // Store correct value to state before shuffle.
   correctAnswer = part.answers[0];
 
   const shuffledAnswers = [...part.answers].sort(() => 0.5 - Math.random());
@@ -140,11 +157,14 @@ const loadAnswers = (partNumber: number) => {
   });
 };
 
+// On correct answer, update totalPoints state.
 const updateTotalPoints = () => {
   totalPoints = totalPoints + currentPoints;
   totalPointsElement.innerText = totalPoints.toLocaleString();
 };
 
+// Logs duration of game in seconds.
+// Used for stat table in database.
 const totalGameDuration = () => {
   const rightNow = Date.now();
   const totalMS = rightNow - gameStartTimeMS;
@@ -152,6 +172,7 @@ const totalGameDuration = () => {
   return totalSeconds;
 };
 
+// Used for stat table in database.
 const getDeviceInfo = () => {
   const nav = window.navigator;
 
@@ -162,6 +183,7 @@ const getDeviceInfo = () => {
   };
 };
 
+// Builds human readable string for the scoreboard table.
 const getHumanReadableLocalTime = () => {
   const rightNow = new Date();
   const dayOfWeek = daysOfWeek[rightNow.getDay()];
@@ -173,22 +195,8 @@ const getHumanReadableLocalTime = () => {
   return `${dayOfWeek}, ${month} ${date}${suffix} ${year}`;
 };
 
-const updateUsersDatabase = async (uuid: string) => {
-  const method = "POST";
-  const headers = { "Content-Type": "application/json", Accept: "application/json" };
-
-  const body = JSON.stringify(uuid);
-  const options = { method, headers, body };
-
-  try {
-    const request = await fetch("http://localhost:3001/api/user", options);
-    const jsonData: any = await request.json();
-    return jsonData.insertId;
-  } catch (e) {
-    console.error(e);
-  }
-};
-
+// Called when a user selects a wrong answer, their time runs
+// out, or when they win the game.
 const gameOver = async (type: "selection" | "timer" | "win") => {
   // Clear timer first to prevent duplicate gameOver("timer") calls.
   clearInterval(playTimer);
@@ -205,6 +213,8 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
   };
 
+  // Sets database insertId to state for use if the user
+  // hits the scoreboard and logs the game to the database.
   databaseInsertId = (await logGame(gameStats)) || 0;
 
   const gameCurtain = document.querySelector(`[data-game-curtain]`)! as HTMLElement;
@@ -219,11 +229,13 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
   const playAgainButton = document.querySelector(`[data-screen-active="true"] .play-again`)! as HTMLButtonElement;
   playAgainButton.addEventListener("click", () => window.location.reload());
 
+  // Clean up listeners and build scoreboard.
   removeButtonListeners();
   removeImageListeners();
   buildScoreboard();
 };
 
+// Shows <dialog> for inputing player name and assigns functions to buttons.
 const showInputPlayerNameModal = () => {
   window.addEventListener("keydown", submitPlayerNameWithEnterKey);
 
@@ -234,14 +246,31 @@ const showInputPlayerNameModal = () => {
   submitPlayerNameButton.addEventListener("click", submitPlayerNameToDatabase);
 
   const cancelPlayerNameButton = document.querySelector(`#cancel-player-name`)! as HTMLButtonElement;
-  cancelPlayerNameButton.addEventListener("click", () => playerNameDialogElement.close());
+  cancelPlayerNameButton.addEventListener("click", closePlayerNameModal);
 };
 
+// Close <dialog> for player name and clean up listener.
+const closePlayerNameModal = () => {
+  const playerNameDialogElement = document.querySelector(`#player-name`)! as HTMLDialogElement;
+  playerNameDialogElement.close();
+  window.removeEventListener("keydown", submitPlayerNameWithEnterKey);
+};
+
+// Name is already updated in the database, but here we are just finding
+// the corresponding table cell and updating its innerText property.
+const displayFakePlayerName = (playerName: string) => {
+  const recordNameCell = document.querySelector(`#scoreboard-${databaseInsertId} .playerName`)! as HTMLTableCellElement;
+  recordNameCell.innerText = playerName;
+  closePlayerNameModal();
+};
+
+// Only listening for this event when the input play name <dialog> is open.
 const submitPlayerNameWithEnterKey = (event: KeyboardEvent) => {
   if (event.key !== "Enter") return;
   submitPlayerNameToDatabase();
 };
 
+// Update the list of player names on this machine in localStorage.
 const updateLocalPlayerNameList = (playerName: string) => {
   const localPlayers = localStorage.getItem("playerNames");
   let playerNames = playerName;
@@ -261,6 +290,7 @@ const updateLocalPlayerNameList = (playerName: string) => {
   updateDatabaseUserNamesList();
 };
 
+// Updates users table with the current players names at this machine.
 const updateDatabaseUserNamesList = async () => {
   const method = "POST";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -283,10 +313,11 @@ const updateDatabaseUserNamesList = async () => {
   }
 };
 
-// TODO: Strip Commas from name input value
 const submitPlayerNameToDatabase = async () => {
   const playerNameInputElement = document.querySelector(`#player-name-text`)! as HTMLInputElement;
-  const playerName = playerNameInputElement.value.trim();
+
+  // @ts-ignore - replaceAll()
+  const playerName = playerNameInputElement.value.trim().replaceAll(",", "");
 
   updateLocalPlayerNameList(playerName);
 
@@ -334,6 +365,8 @@ const insertUserInDatabase = async () => {
   }
 };
 
+// If api endpoint returns false we will add the new UUID to the database,
+// otherwise we update the existing user's player_name column.
 const checkUserInDatabase = async () => {
   const method = "GET";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -342,30 +375,20 @@ const checkUserInDatabase = async () => {
 
   try {
     const request = await fetch(`http://localhost:3001/api/user/${getLocalUUID()}`, options);
+    const uuidExistsInDatabase = await request.json();
 
-    if (request.status === 404) {
-      insertUserInDatabase();
-    } else {
+    if (uuidExistsInDatabase) {
       updateDatabaseUserNamesList();
+    } else {
+      insertUserInDatabase();
     }
   } catch (e) {
     console.error(e);
   }
 };
 
-const displayFakePlayerName = (playerName: string) => {
-  const recordNameCell = document.querySelector(`#scoreboard-${databaseInsertId} .playerName`)! as HTMLTableCellElement;
-  recordNameCell.innerText = playerName;
-  closePlayerNameModal();
-};
-
-const closePlayerNameModal = () => {
-  const playerNameDialogElement = document.querySelector(`#player-name`)! as HTMLDialogElement;
-  playerNameDialogElement.close();
-  window.removeEventListener("keydown", submitPlayerNameWithEnterKey);
-};
-
-const calculateOffset = (type: "new-first" | "first-tie" | "on-scoreboard" | "off-scoreboard", score: number) => {
+// Builds a motivational string based on what place a user is closest to getting.
+const calculatePointDifference = (type: "new-first" | "first-tie" | "on-scoreboard" | "off-scoreboard", score: number) => {
   const scoreboardOffsetElement = document.querySelector(`[data-screen-active="true"] .scoreboard-offset`)! as HTMLDivElement;
 
   switch (type) {
@@ -412,6 +435,7 @@ const calculateOffset = (type: "new-first" | "first-tie" | "on-scoreboard" | "of
   }
 };
 
+// Builds DOM <table> with stats after the game is saved in the database.
 const buildScoreboard = async () => {
   try {
     const allStats: Stat[] = await getStats();
@@ -429,16 +453,18 @@ const buildScoreboard = async () => {
       const secondRowScore = allStats[1].final_score;
       const secondRowIsEqual = secondRowScore === totalPoints;
 
-      calculateOffset(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
+      calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
     } else if (totalPoints >= lowestHighScore) {
       if (totalPoints > 0) showInputPlayerNameModal();
-      calculateOffset("on-scoreboard", highestScore);
+      calculatePointDifference("on-scoreboard", highestScore);
     } else {
-      calculateOffset("off-scoreboard", lowestHighScore);
+      calculatePointDifference("off-scoreboard", lowestHighScore);
     }
 
     const tableBodyElement = document.querySelector(`#scoreboard tbody`)! as HTMLTableElement;
 
+    // Building rank numbers for scoreboard.
+    // Useful for tie scores.
     let previousRank = 0;
     let previousScore = 0;
 
@@ -489,6 +515,8 @@ const buildScoreboard = async () => {
   }
 };
 
+// Shows user where their score is on the database.
+// TODO: Add scrollTo()
 const highlightMyScore = () => {
   const myRow = document.querySelector(`#scoreboard-${databaseInsertId}`) as HTMLTableRowElement;
   if (myRow) {
@@ -496,6 +524,7 @@ const highlightMyScore = () => {
   }
 };
 
+// Answer choice buttons.
 const removeButtonListeners = () => {
   for (const quizButton of quizButtonElements) {
     quizButton.removeEventListener("click", answerClick);
@@ -508,6 +537,8 @@ const removeImageListeners = () => {
   });
 };
 
+// Function is important for moving the game forward.
+// Will be called each time both part images are finished loading.
 const imageLoaded = (event: Event) => {
   const target = event.target as HTMLImageElement;
   const imageName = target.dataset.quizImage as keyof typeof imageLoadState;
@@ -528,6 +559,7 @@ const imageLoaded = (event: Event) => {
   }
 };
 
+// For calculating total game time.
 const logStartTime = () => {
   gameStartTimeMS = Date.now();
 };
@@ -538,6 +570,7 @@ const addImageLoadListeners = () => {
   });
 };
 
+// Game over. Log game stats to database.
 const logGame = async (gameData: any) => {
   const method = "POST";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -581,11 +614,14 @@ const createLocalUUID = () => {
   return uuidNew;
 };
 
+// Add listeners to answer buttons.
 for (const quizButton of quizButtonElements) {
   quizButton.addEventListener("click", answerClick);
 }
 
 addImageLoadListeners();
+
+// Start game.
 getParts();
 
 const testFunction = () => {
