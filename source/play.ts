@@ -313,6 +313,27 @@ const submitPlayerNameToDatabase = async () => {
   checkUserInDatabase();
 };
 
+const insertUserInDatabase = async () => {
+  const method = "POST";
+  const headers = { "Content-Type": "application/json", Accept: "application/json" };
+
+  const playerData = {
+    uuid: getLocalUUID(),
+    playerNames: getLocalPlayerNames(),
+  };
+
+  const body = JSON.stringify(playerData);
+  const options = { method, headers, body };
+
+  try {
+    const request = await fetch("http://localhost:3001/api/user/new-user", options);
+    const jsonData: any = await request.json();
+    return jsonData.insertId;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 const checkUserInDatabase = async () => {
   const method = "GET";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -321,12 +342,11 @@ const checkUserInDatabase = async () => {
 
   try {
     const request = await fetch(`http://localhost:3001/api/user/${getLocalUUID()}`, options);
-    const jsonData = await request.json();
 
-    if (jsonData.uuid) {
-      updateDatabaseUserNamesList();
+    if (request.status === 404) {
+      insertUserInDatabase();
     } else {
-      // insertUserInDatabase();
+      updateDatabaseUserNamesList();
     }
   } catch (e) {
     console.error(e);
@@ -518,13 +538,6 @@ const addImageLoadListeners = () => {
   });
 };
 
-for (const quizButton of quizButtonElements) {
-  quizButton.addEventListener("click", answerClick);
-}
-
-addImageLoadListeners();
-getParts();
-
 const logGame = async (gameData: any) => {
   const method = "POST";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -567,6 +580,13 @@ const createLocalUUID = () => {
   localStorage.setItem("uuid", uuidNew);
   return uuidNew;
 };
+
+for (const quizButton of quizButtonElements) {
+  quizButton.addEventListener("click", answerClick);
+}
+
+addImageLoadListeners();
+getParts();
 
 const testFunction = () => {
   // totalPoints = 3682;
