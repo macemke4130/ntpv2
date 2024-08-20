@@ -164,3 +164,25 @@ table {
   background: var(--btn-color);
   cursor: pointer;
 }
+
+#countdown-to-start {
+  position: fixed;
+  inset: 0;
+  background: var(--btn-color);
+  display: grid;
+  place-items: center;
+}
+
+#countdown-container {
+  display: grid;
+  place-items: center;
+  width: 12rem;
+  height: 12rem;
+  border: var(--btn-border);
+  background: var(--btn-color);
+}
+
+#countdown-seconds {
+  font-weight: bold;
+  font-size: 10rem;
+}

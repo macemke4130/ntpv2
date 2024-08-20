@@ -47,8 +47,6 @@ const getParts = async () => {
 
     const shuffledParts = [...jsonData.parts].sort(() => 0.5 - Math.random());
     parts = shuffledParts;
-
-    loadPartImages(0);
   } catch (e) {
     console.error(e);
   }
@@ -531,6 +529,12 @@ const removeButtonListeners = () => {
   }
 };
 
+const addAnswerButtonListeners = () => {
+  for (const quizButton of quizButtonElements) {
+    quizButton.addEventListener("click", answerClick);
+  }
+};
+
 const removeImageListeners = () => {
   quizImageElements.forEach((image) => {
     image.removeEventListener("load", imageLoaded);
@@ -614,15 +618,42 @@ const createLocalUUID = () => {
   return uuidNew;
 };
 
-// Add listeners to answer buttons.
-for (const quizButton of quizButtonElements) {
-  quizButton.addEventListener("click", answerClick);
-}
+// Removing HTML comments from DOM just because.
+const removeCommentsFromDOM = () => {
+  const commentSpans = document.querySelectorAll(".comment") as NodeListOf<HTMLSpanElement>;
+
+  if (commentSpans.length) {
+    for (const comment of commentSpans) comment.remove();
+  }
+};
+
+const beginCountdownToStart = () => {
+  let secondsUntilStart = 3;
+  const countdownToStartCurtainElement = document.querySelector("#countdown-to-start")! as HTMLDivElement;
+  const countdownSecondsElement = document.querySelector("#countdown-seconds")! as HTMLSpanElement;
+  countdownSecondsElement.innerText = secondsUntilStart + "";
+
+  const countdownTimer = setInterval(() => {
+    if (secondsUntilStart === 1) {
+      clearInterval(countdownTimer);
+      countdownToStartCurtainElement.remove();
+
+      // Start game.
+      loadPartImages(0);
+    }
+
+    secondsUntilStart--;
+    countdownSecondsElement.innerText = secondsUntilStart + "";
+  }, 1000);
+};
 
 addImageLoadListeners();
-
-// Start game.
+addAnswerButtonListeners();
+removeCommentsFromDOM();
 getParts();
+beginCountdownToStart();
+
+// ---------- TEST FUNCTIONS ----------
 
 const testFunction = () => {
   // totalPoints = 3682;
