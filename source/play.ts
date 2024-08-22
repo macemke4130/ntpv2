@@ -1,5 +1,7 @@
 import { Part, Stat } from "./types";
 
+const dbHost = "" || "http://127.0.0.1:3001";
+
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const getDaySuffix = (dayOfMonth: number) => {
@@ -227,10 +229,71 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
   const playAgainButton = document.querySelector(`[data-screen-active="true"] .play-again`)! as HTMLButtonElement;
   playAgainButton.addEventListener("click", () => window.location.reload());
 
-  // Clean up listeners and build scoreboard.
+  // Clean up listeners and build elements.
   removeButtonListeners();
   removeImageListeners();
   buildScoreboard();
+  buildShareButton();
+  checkFunScore();
+};
+
+const checkFunScore = () => {
+  const funScoreElement = document.querySelector(`[data-screen-active="true"] .fun-score`)! as HTMLDivElement;
+
+  if (totalPoints === 13) {
+    funScoreElement.innerText = "Bad Luck.";
+    return;
+  }
+
+  if (totalPoints === 69) {
+    funScoreElement.innerText = "Nice.";
+    return;
+  }
+
+  if (totalPoints === 420) {
+    funScoreElement.innerText = "Blaze It.";
+    return;
+  }
+
+  if (totalPoints === 666) {
+    funScoreElement.innerText = "Hail Satan.";
+    return;
+  }
+
+  // Suggested by Brennan
+  if (totalPoints === 777) {
+    funScoreElement.innerText = "Jackpot.";
+    return;
+  }
+};
+
+const buildShareButton = () => {
+  // There are two buttons at the moment, so we need to grab the button in the active section.
+  const shareButtonElement = document.querySelector(`[data-screen-active="true"] .share`)! as HTMLButtonElement;
+
+  const canShare = navigator.canShare;
+
+  if (!canShare) {
+    console.log(canShare);
+    shareButtonElement.remove();
+    return;
+  }
+
+  const shareData = {
+    url: "https://www.namethatpart.com",
+    text: `Think you're a real bicycle nerd? Test your skills with "Name That Part"!`,
+    title: "Name That Part - Bicycle Game",
+  };
+
+  const shareGame = async () => {
+    try {
+      await window.navigator.share(shareData);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  shareButtonElement.addEventListener("click", shareGame);
 };
 
 // Shows <dialog> for inputing player name and assigns functions to buttons.
@@ -302,7 +365,7 @@ const updateDatabaseUserNamesList = async () => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch("http://localhost:3001/api/user/players", options);
+    const request = await fetch(`${dbHost}/api/user/players`, options);
     const jsonData: any = await request.json();
 
     if (jsonData !== "Success") throw new Error("Error updating player names with UUID.");
@@ -331,7 +394,7 @@ const submitPlayerNameToDatabase = async () => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch("http://localhost:3001/api/player-name", options);
+    const request = await fetch(`${dbHost}/api/player-name`, options);
     const jsonData: any = await request.json();
 
     if (jsonData === "Success") displayFakePlayerName(playerName);
@@ -355,7 +418,7 @@ const insertUserInDatabase = async () => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch("http://localhost:3001/api/user/new-user", options);
+    const request = await fetch(`${dbHost}/api/user/new-user`, options);
     const jsonData: any = await request.json();
     return jsonData.insertId;
   } catch (e) {
@@ -372,7 +435,7 @@ const checkUserInDatabase = async () => {
   const options = { method, headers };
 
   try {
-    const request = await fetch(`http://localhost:3001/api/user/${getLocalUUID()}`, options);
+    const request = await fetch(`${dbHost}/api/user/${getLocalUUID()}`, options);
     const uuidExistsInDatabase = await request.json();
 
     if (uuidExistsInDatabase) {
@@ -583,7 +646,7 @@ const logGame = async (gameData: any) => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch("http://localhost:3001/api/loggame", options);
+    const request = await fetch(`${dbHost}/api/loggame`, options);
     const jsonData: any = await request.json();
     return jsonData.insertId;
   } catch (e) {
@@ -598,7 +661,7 @@ const getStats = async () => {
   const options = { method, headers };
 
   try {
-    const request = await fetch("http://localhost:3001/api/stats", options);
+    const request = await fetch(`${dbHost}/api/stats`, options);
     const jsonData = await request.json();
     return jsonData;
   } catch (e) {
@@ -640,11 +703,20 @@ const beginCountdownToStart = () => {
 
       // Start game.
       loadPartImages(0);
+      focusStage();
     }
 
     secondsUntilStart--;
     countdownSecondsElement.innerText = secondsUntilStart + "";
   }, 1000);
+};
+
+const focusStage = () => {
+  const blurryElements = document.querySelectorAll(`[data-blur="true"]`)! as NodeListOf<HTMLDListElement>;
+
+  for (const element of blurryElements) {
+    element.removeAttribute("data-blur");
+  }
 };
 
 addImageLoadListeners();

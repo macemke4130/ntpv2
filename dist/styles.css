@@ -31,9 +31,16 @@ a {
 }
 
 button {
+  display: block;
+  margin: 0 auto;
+  width: fit-content;
   font-family: inherit;
+  font-size: 1rem;
   color: inherit;
+  border: var(--btn-border);
+  border-radius: 0.5rem;
   background: var(--btn-color);
+  padding: 0.5rem 1rem;
 }
 
 img {
@@ -76,13 +83,13 @@ dialog::backdrop {
 }
 
 .start-game {
-  display: block;
-  margin: 0 auto;
   font-size: 2rem;
-  width: fit-content;
   padding: 1.5rem 2rem;
   text-decoration: none;
-  border-radius: 0.5rem;
+  display: block;
+  margin: 0 auto;
+  width: fit-content;
   border: var(--btn-border);
+  border-radius: 0.5rem;
   background: var(--btn-color);
 }

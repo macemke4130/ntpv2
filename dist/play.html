@@ -8,20 +8,20 @@
     <title>Name That Part</title>
   </head>
   <body>
-    <button id="testing">Test Button</button>
+    <!-- <button id="testing">Test Button</button> -->
     <main>
       <div data-game-curtain="up">
         <section aria-label="Images">
           <img data-quiz-image="one" data-blur="true" alt="" loading="eager" />
           <img data-quiz-image="two" data-blur="true" alt="" loading="eager" />
         </section>
-        <section aria-label="Answers">
+        <section aria-label="Answers" data-blur="true">
           <button data-quiz-button="-1"></button>
           <button data-quiz-button="-1"></button>
           <button data-quiz-button="-1"></button>
           <button data-quiz-button="-1"></button>
         </section>
-        <section aria-label="Score">
+        <section aria-label="Score" data-blur="true">
           <div>
             <div>Possible Points</div>
             <div id="current-points"></div>
@@ -37,15 +37,19 @@
           <h2 class="game-over-title">You Win!</h2>
           <div class="final-score-title">Total Points</div>
           <div class="final-score"></div>
+          <div class="fun-score"></div>
           <div class="scoreboard-offset"></div>
           <button class="play-again">Play Again?</button>
+          <button class="share">Share Name That Part with friends</button>
         </section>
         <section data-game-end-type="loss" data-screen-active="false">
           <h2 class="game-over-title">You Lose!</h2>
           <div class="final-score-title">Total Points</div>
           <div class="final-score"></div>
+          <div class="fun-score"></div>
           <div class="scoreboard-offset"></div>
           <button class="play-again">Play Again?</button>
+          <button class="share">Share Name That Part with friends</button>
         </section>
         <table id="scoreboard">
           <thead>

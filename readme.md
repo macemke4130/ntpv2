@@ -8,6 +8,7 @@ This is version 2 of the game. The original version was created as I was learnin
 
 Special attention is being paid to user experience.
 
+- Buttons are now keyboard friendly. Users may use the TAB and ENTER keys to play.
 - The timer for the next part won't begin counting down until both part images have finished loading completely.
 - A countdown to start timer suggested by some user feedback.
 - The scoreboard will give feedback based on the current score and state of the scoreboard. This will hopefully promote more repeat games, something I've seen plenty of already.

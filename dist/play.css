@@ -89,6 +89,10 @@ table {
   }
 }
 
+#scoreboard {
+  margin-top: 1rem;
+}
+
 #scoreboard:has(tbody[data-active="false"]) {
   display: none;
 }
@@ -117,6 +121,8 @@ table {
   }
 
   #player-name-buttons {
+    display: flex;
+    gap: 1rem;
     padding-top: 1rem;
 
     button {
@@ -137,16 +143,22 @@ table {
 }
 
 .final-score-title {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   text-align: center;
 }
 
 .final-score {
-  font-size: 2rem;
+  font-size: 3.5rem;
   text-align: center;
 }
 
+.fun-score {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
 .scoreboard-offset {
+  font-size: 1.75rem;
   text-align: center;
   margin-top: 0.5rem;
   line-height: 1.5;
@@ -176,13 +188,18 @@ table {
 #countdown-container {
   display: grid;
   place-items: center;
-  width: 12rem;
-  height: 12rem;
+  width: 20rem;
+  height: 20rem;
   border: var(--btn-border);
+  border-radius: 100%;
   background: var(--btn-color);
 }
 
 #countdown-seconds {
   font-weight: bold;
   font-size: 10rem;
+}
+
+[data-blur="true"] {
+  filter: blur(5px);
 }
