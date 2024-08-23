@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import cors from "cors";
 import { db } from "./dbConnect.js";
 
@@ -180,6 +181,10 @@ app.get("/api/user/:uuid", (req, res) => {
     res.status(400);
     res.send(`{"code":400, "status":"${error.message}"}`);
   }
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/dist"));
 });
 
 const port = process.env.PORT || 3001;
