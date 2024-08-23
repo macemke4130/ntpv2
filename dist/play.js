@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const dbHost = "" || "http://127.0.0.1:3001";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const getDaySuffix = (dayOfMonth) => {
@@ -314,7 +313,7 @@ const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, func
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`${dbHost}/api/user/players`, options);
+        const request = yield fetch(`/api/user/players`, options);
         const jsonData = yield request.json();
         if (jsonData !== "Success")
             throw new Error("Error updating player names with UUID.");
@@ -337,7 +336,7 @@ const submitPlayerNameToDatabase = () => __awaiter(void 0, void 0, void 0, funct
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`${dbHost}/api/player-name`, options);
+        const request = yield fetch(`/api/player-name`, options);
         const jsonData = yield request.json();
         if (jsonData === "Success")
             displayFakePlayerName(playerName);
@@ -357,7 +356,7 @@ const insertUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* (
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`${dbHost}/api/user/new-user`, options);
+        const request = yield fetch(`/api/user/new-user`, options);
         const jsonData = yield request.json();
         return jsonData.insertId;
     }
@@ -372,7 +371,7 @@ const checkUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* ()
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
     try {
-        const request = yield fetch(`${dbHost}/api/user/${getLocalUUID()}`, options);
+        const request = yield fetch(`/api/user/${getLocalUUID()}`, options);
         const uuidExistsInDatabase = yield request.json();
         if (uuidExistsInDatabase) {
             updateDatabaseUserNamesList();
@@ -551,7 +550,7 @@ const logGame = (gameData) => __awaiter(void 0, void 0, void 0, function* () {
     const body = JSON.stringify(gameData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`${dbHost}/api/loggame`, options);
+        const request = yield fetch(`/api/loggame`, options);
         const jsonData = yield request.json();
         return jsonData.insertId;
     }
@@ -564,7 +563,7 @@ const getStats = () => __awaiter(void 0, void 0, void 0, function* () {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
     try {
-        const request = yield fetch(`${dbHost}/api/stats`, options);
+        const request = yield fetch(`/api/stats`, options);
         const jsonData = yield request.json();
         return jsonData;
     }
@@ -619,10 +618,10 @@ removeCommentsFromDOM();
 getParts();
 beginCountdownToStart();
 // ---------- TEST FUNCTIONS ----------
-const testFunction = () => {
-    // totalPoints = 3682;
-    // gameOver("win");
-    updateDatabaseUserNamesList();
-};
-const testButton = document.querySelector(`#testing`);
-testButton.addEventListener("click", testFunction);
+// const testFunction = () => {
+//   // totalPoints = 3682;
+//   // gameOver("win");
+//   updateDatabaseUserNamesList();
+// };
+// const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
+// testButton.addEventListener("click", testFunction);

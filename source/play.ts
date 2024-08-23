@@ -1,7 +1,5 @@
 import { Part, Stat } from "./types";
 
-const dbHost = "" || "http://127.0.0.1:3001";
-
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const getDaySuffix = (dayOfMonth: number) => {
@@ -365,7 +363,7 @@ const updateDatabaseUserNamesList = async () => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`${dbHost}/api/user/players`, options);
+    const request = await fetch(`/api/user/players`, options);
     const jsonData: any = await request.json();
 
     if (jsonData !== "Success") throw new Error("Error updating player names with UUID.");
@@ -394,7 +392,7 @@ const submitPlayerNameToDatabase = async () => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`${dbHost}/api/player-name`, options);
+    const request = await fetch(`/api/player-name`, options);
     const jsonData: any = await request.json();
 
     if (jsonData === "Success") displayFakePlayerName(playerName);
@@ -418,7 +416,7 @@ const insertUserInDatabase = async () => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`${dbHost}/api/user/new-user`, options);
+    const request = await fetch(`/api/user/new-user`, options);
     const jsonData: any = await request.json();
     return jsonData.insertId;
   } catch (e) {
@@ -435,7 +433,7 @@ const checkUserInDatabase = async () => {
   const options = { method, headers };
 
   try {
-    const request = await fetch(`${dbHost}/api/user/${getLocalUUID()}`, options);
+    const request = await fetch(`/api/user/${getLocalUUID()}`, options);
     const uuidExistsInDatabase = await request.json();
 
     if (uuidExistsInDatabase) {
@@ -646,7 +644,7 @@ const logGame = async (gameData: any) => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`${dbHost}/api/loggame`, options);
+    const request = await fetch(`/api/loggame`, options);
     const jsonData: any = await request.json();
     return jsonData.insertId;
   } catch (e) {
@@ -661,7 +659,7 @@ const getStats = async () => {
   const options = { method, headers };
 
   try {
-    const request = await fetch(`${dbHost}/api/stats`, options);
+    const request = await fetch(`/api/stats`, options);
     const jsonData = await request.json();
     return jsonData;
   } catch (e) {
@@ -727,12 +725,12 @@ beginCountdownToStart();
 
 // ---------- TEST FUNCTIONS ----------
 
-const testFunction = () => {
-  // totalPoints = 3682;
-  // gameOver("win");
+// const testFunction = () => {
+//   // totalPoints = 3682;
+//   // gameOver("win");
 
-  updateDatabaseUserNamesList();
-};
+//   updateDatabaseUserNamesList();
+// };
 
-const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
-testButton.addEventListener("click", testFunction);
+// const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
+// testButton.addEventListener("click", testFunction);
