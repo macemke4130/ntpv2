@@ -239,7 +239,6 @@ const buildShareButton = () => {
     const shareButtonElement = document.querySelector(`[data-screen-active="true"] .share`);
     const canShare = navigator.canShare;
     if (!canShare) {
-        console.log(canShare);
         shareButtonElement.remove();
         return;
     }
@@ -581,14 +580,6 @@ const createLocalUUID = () => {
     localStorage.setItem("uuid", uuidNew);
     return uuidNew;
 };
-// Removing HTML comments from DOM just because.
-const removeCommentsFromDOM = () => {
-    const commentSpans = document.querySelectorAll(".comment");
-    if (commentSpans.length) {
-        for (const comment of commentSpans)
-            comment.remove();
-    }
-};
 const beginCountdownToStart = () => {
     let secondsUntilStart = 3;
     const countdownToStartCurtainElement = document.querySelector("#countdown-to-start");
@@ -614,7 +605,6 @@ const focusStage = () => {
 };
 addImageLoadListeners();
 addAnswerButtonListeners();
-removeCommentsFromDOM();
 getParts();
 beginCountdownToStart();
 // ---------- TEST FUNCTIONS ----------

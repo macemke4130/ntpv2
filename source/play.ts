@@ -272,7 +272,6 @@ const buildShareButton = () => {
   const canShare = navigator.canShare;
 
   if (!canShare) {
-    console.log(canShare);
     shareButtonElement.remove();
     return;
   }
@@ -679,15 +678,6 @@ const createLocalUUID = () => {
   return uuidNew;
 };
 
-// Removing HTML comments from DOM just because.
-const removeCommentsFromDOM = () => {
-  const commentSpans = document.querySelectorAll(".comment") as NodeListOf<HTMLSpanElement>;
-
-  if (commentSpans.length) {
-    for (const comment of commentSpans) comment.remove();
-  }
-};
-
 const beginCountdownToStart = () => {
   let secondsUntilStart = 3;
   const countdownToStartCurtainElement = document.querySelector("#countdown-to-start")! as HTMLDivElement;
@@ -719,7 +709,6 @@ const focusStage = () => {
 
 addImageLoadListeners();
 addAnswerButtonListeners();
-removeCommentsFromDOM();
 getParts();
 beginCountdownToStart();
 

@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"nodemon source/index.ts\" \"node server.js\"",
-    "start": "node server.js",
-    "heroku-postbuild": "cd dist"
+    "start": "node server.js"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
