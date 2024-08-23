@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"nodemon source/index.ts\" \"node server.js\""
+    "dev": "concurrently \"nodemon source/index.ts\" \"node server.js\"",
+    "start": "node server.js",
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
