@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import cors from "cors";
 import { db } from "./dbConnect.js";
+const __dirname = path.resolve();
 
 const app = express();
 
@@ -187,7 +188,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname + "/dist"));
 });
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3002;
 app.listen(port, () => console.log(`\n ❤️  Server listening on port: ${port} ❤️ \n`));
 
 export default app;
