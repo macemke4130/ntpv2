@@ -212,9 +212,11 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
   };
 
-  // Logs game in database.
+  // Log game in database.
   await logGame(gameStats);
-  checkUserInDatabase();
+
+  // Log Local UUID in Database;
+  // logUUID();
 
   const gameCurtain = document.querySelector(`[data-game-curtain]`)! as HTMLElement;
   gameCurtain.setAttribute("data-game-curtain", "down");
@@ -345,8 +347,6 @@ const updateLocalPlayerNameList = (playerName: string) => {
   }
 
   localStorage.setItem("playerNames", playerNames);
-
-  updateDatabaseUserNamesList();
 };
 
 // Updates users table with the current players names at local machine.
@@ -363,7 +363,6 @@ const updateDatabaseUserNamesList = async () => {
   const options = { method, headers, body };
 
   try {
-    console.log("NOPE");
     const request = await fetch(`${dbHost}/api/users/new-players`, options);
     const jsonResponse: DBResponse = await request.json();
 
@@ -377,7 +376,7 @@ const submitPlayerNameToDatabase = async () => {
   const playerNameInputElement = document.querySelector(`#player-name-text`)! as HTMLInputElement;
 
   // @ts-ignore - replaceAll()
-  const playerName: string = playerNameInputElement.value.trim().replaceAll(",", "") || "Two Fake Name Senior"; // Testing! Delete the || fallback!
+  const playerName: string = playerNameInputElement.value.trim().replaceAll(",", "");
 
   updateLocalPlayerNameList(playerName);
 
@@ -386,7 +385,7 @@ const submitPlayerNameToDatabase = async () => {
 
   const playerData = {
     display_name: playerName,
-    id: databaseInsertId || 1, // Testing! Delete the || fallback!
+    id: databaseInsertId,
   };
 
   const body = JSON.stringify(playerData);
@@ -394,9 +393,9 @@ const submitPlayerNameToDatabase = async () => {
 
   try {
     const request = await fetch(`${dbHost}/api/stats/display-name`, options);
-    const jsonData: any = await request.json();
+    const jsonResponse: DBResponse = await request.json();
 
-    if (jsonData.status === 200) displayFakePlayerName(playerName);
+    if (jsonResponse.status === 200) displayFakePlayerName(playerName);
   } catch (e) {
     console.error(e);
   }
@@ -665,9 +664,10 @@ const getStats = async () => {
   const options = { method, headers };
 
   try {
-    const request = await fetch(`/api/stats`, options);
-    const jsonData = await request.json();
-    return jsonData;
+    const request = await fetch(`${dbHost}/api/stats`, options);
+    const jsonResponse: DBResponse = await request.json();
+
+    return jsonResponse.data;
   } catch (e) {
     console.error(e);
   }

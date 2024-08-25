@@ -4,7 +4,7 @@
 
 https://www.namethatpart.com
 
-This is version 2 of the game. The original version was created as I was learning React and GraphQL. The game does not require that aggresive of a toolset, so I wanted to rewrite the whole project from scratch using vanilla TypeScript,a simple REST API, JSON and an SQLite database.
+This is version 2 of the game. The original version was created as I was learning React and GraphQL. The game does not require that aggresive of a toolset, so I wanted to rewrite the whole project from scratch using vanilla TypeScript,a simple REST API, JSON and a MySQL database.
 
 Special attention is being paid to user experience.
 

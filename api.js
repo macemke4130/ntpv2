@@ -106,7 +106,7 @@ router.post(`${apiRoute}/users/new-players`, async (req, res) => {
 
 router.get(`${apiRoute}/stats/`, async (req, res) => {
   try {
-    const sql = await query(`SELECT * FROM stats;`);
+    const sql = await query(`SELECT * FROM stats ORDER BY final_score DESC;`);
 
     const response = {
       message: "All games in database.",
@@ -132,7 +132,14 @@ router.post(`${apiRoute}/stats/display-name`, async (req, res) => {
 
   try {
     const sql = await query(`UPDATE stats SET display_name = ? WHERE id = ?`, [display_name, id]);
-    res.json(sql);
+
+    const response = {
+      message: "Display Name successfully logged.",
+      status: 200,
+      data: sql,
+    };
+
+    res.json(response);
   } catch (e) {
     console.log(e);
   }

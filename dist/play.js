@@ -192,9 +192,10 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
         // local_time: getHumanReadableLocalTime(),
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
     };
-    // Logs game in database.
+    // Log game in database.
     yield logGame(gameStats);
-    checkUserInDatabase();
+    // Log Local UUID in Database;
+    // logUUID();
     const gameCurtain = document.querySelector(`[data-game-curtain]`);
     gameCurtain.setAttribute("data-game-curtain", "down");
     const gameOverScreenElement = document.querySelector(`[data-game-end-type="${type === "win" ? "win" : "loss"}"]`);
@@ -299,7 +300,6 @@ const updateLocalPlayerNameList = (playerName) => {
         playerNames = Array.from(uniqueNames).join(", ");
     }
     localStorage.setItem("playerNames", playerNames);
-    updateDatabaseUserNamesList();
 };
 // Updates users table with the current players names at local machine.
 const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -312,7 +312,6 @@ const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, func
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
-        console.log("NOPE");
         const request = yield fetch(`${dbHost}/api/users/new-players`, options);
         const jsonResponse = yield request.json();
         if (jsonResponse.status !== 200)
@@ -325,20 +324,20 @@ const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, func
 const submitPlayerNameToDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
     const playerNameInputElement = document.querySelector(`#player-name-text`);
     // @ts-ignore - replaceAll()
-    const playerName = playerNameInputElement.value.trim().replaceAll(",", "") || "Two Fake Name Senior"; // Testing! Delete the || fallback!
+    const playerName = playerNameInputElement.value.trim().replaceAll(",", "");
     updateLocalPlayerNameList(playerName);
     const method = "POST";
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const playerData = {
         display_name: playerName,
-        id: databaseInsertId || 1, // Testing! Delete the || fallback!
+        id: databaseInsertId,
     };
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
         const request = yield fetch(`${dbHost}/api/stats/display-name`, options);
-        const jsonData = yield request.json();
-        if (jsonData.status === 200)
+        const jsonResponse = yield request.json();
+        if (jsonResponse.status === 200)
             displayFakePlayerName(playerName);
     }
     catch (e) {
@@ -565,9 +564,9 @@ const getStats = () => __awaiter(void 0, void 0, void 0, function* () {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
     try {
-        const request = yield fetch(`/api/stats`, options);
-        const jsonData = yield request.json();
-        return jsonData;
+        const request = yield fetch(`${dbHost}/api/stats`, options);
+        const jsonResponse = yield request.json();
+        return jsonResponse.data;
     }
     catch (e) {
         console.error(e);
