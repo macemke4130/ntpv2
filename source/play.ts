@@ -1,4 +1,4 @@
-import { Part, Stat } from "./types";
+import { Part, Stat, DBResponse } from "./types";
 
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -8,6 +8,8 @@ const getDaySuffix = (dayOfMonth: number) => {
   if (dayOfMonth === 3) return "rd";
   if (dayOfMonth >= 4) return "th";
 };
+
+const dbHost = "http://127.0.0.1:3002";
 
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
@@ -204,16 +206,15 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     final_score: totalPoints,
     total_parts: parts.length,
     game_duration_in_seconds: totalGameDuration(),
-    device_info: JSON.stringify(getDeviceInfo()),
     display_name: "",
     game_end_type: type.charAt(0),
-    local_time: getHumanReadableLocalTime(),
+    // local_time: getHumanReadableLocalTime(),
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
   };
 
-  // Sets database insertId to state for use if the user
-  // hits the scoreboard and logs the game to the database.
-  databaseInsertId = (await logGame(gameStats)) || 0;
+  // Logs game in database.
+  await logGame(gameStats);
+  checkUserInDatabase();
 
   const gameCurtain = document.querySelector(`[data-game-curtain]`)! as HTMLElement;
   gameCurtain.setAttribute("data-game-curtain", "down");
@@ -348,24 +349,25 @@ const updateLocalPlayerNameList = (playerName: string) => {
   updateDatabaseUserNamesList();
 };
 
-// Updates users table with the current players names at this machine.
+// Updates users table with the current players names at local machine.
 const updateDatabaseUserNamesList = async () => {
   const method = "POST";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
 
   const playerData = {
     uuid: getLocalUUID(),
-    playerNames: getLocalPlayerNames(),
+    player_names: getLocalPlayerNames(),
   };
 
   const body = JSON.stringify(playerData);
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`/api/user/players`, options);
-    const jsonData: any = await request.json();
+    console.log("NOPE");
+    const request = await fetch(`${dbHost}/api/users/new-players`, options);
+    const jsonResponse: DBResponse = await request.json();
 
-    if (jsonData !== "Success") throw new Error("Error updating player names with UUID.");
+    if (jsonResponse.status !== 200) throw new Error("Error updating player_names");
   } catch (e) {
     console.error(e);
   }
@@ -375,7 +377,7 @@ const submitPlayerNameToDatabase = async () => {
   const playerNameInputElement = document.querySelector(`#player-name-text`)! as HTMLInputElement;
 
   // @ts-ignore - replaceAll()
-  const playerName = playerNameInputElement.value.trim().replaceAll(",", "");
+  const playerName: string = playerNameInputElement.value.trim().replaceAll(",", "") || "Two Fake Name Senior"; // Testing! Delete the || fallback!
 
   updateLocalPlayerNameList(playerName);
 
@@ -383,18 +385,18 @@ const submitPlayerNameToDatabase = async () => {
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
 
   const playerData = {
-    playerName,
-    databaseRecord: databaseInsertId,
+    display_name: playerName,
+    id: databaseInsertId || 1, // Testing! Delete the || fallback!
   };
 
   const body = JSON.stringify(playerData);
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`/api/player-name`, options);
+    const request = await fetch(`${dbHost}/api/stats/display-name`, options);
     const jsonData: any = await request.json();
 
-    if (jsonData === "Success") displayFakePlayerName(playerName);
+    if (jsonData.status === 200) displayFakePlayerName(playerName);
   } catch (e) {
     console.error(e);
   }
@@ -408,16 +410,17 @@ const insertUserInDatabase = async () => {
 
   const playerData = {
     uuid: getLocalUUID(),
-    playerNames: getLocalPlayerNames(),
+    player_names: getLocalPlayerNames(),
   };
 
   const body = JSON.stringify(playerData);
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`/api/user/new-user`, options);
-    const jsonData: any = await request.json();
-    return jsonData.insertId;
+    const request = await fetch(`${dbHost}/api/users/new-user`, options);
+    const jsonResponse: DBResponse = await request.json();
+
+    return jsonResponse.data.insertId;
   } catch (e) {
     console.error(e);
   }
@@ -432,8 +435,10 @@ const checkUserInDatabase = async () => {
   const options = { method, headers };
 
   try {
-    const request = await fetch(`/api/user/${getLocalUUID()}`, options);
-    const uuidExistsInDatabase = await request.json();
+    const request = await fetch(`${dbHost}/api/users/exists/${getLocalUUID()}`, options);
+    const jsonResponse: DBResponse = await request.json();
+
+    const uuidExistsInDatabase = jsonResponse.data;
 
     if (uuidExistsInDatabase) {
       updateDatabaseUserNamesList();
@@ -643,9 +648,11 @@ const logGame = async (gameData: any) => {
   const options = { method, headers, body };
 
   try {
-    const request = await fetch(`/api/loggame`, options);
-    const jsonData: any = await request.json();
-    return jsonData.insertId;
+    const request = await fetch(`${dbHost}/api/stats/log-game`, options);
+    const jsonResponse: DBResponse = await request.json();
+
+    // Sets database insertId to state for use if the user hits the scoreboard.
+    databaseInsertId = jsonResponse.data.insertId;
   } catch (e) {
     console.error(e);
   }
@@ -667,7 +674,8 @@ const getStats = async () => {
 };
 
 // I don't need or want 36 characters.
-const createUUID = () => crypto.randomUUID().substring(0, 13);
+// A lenth of 8 gives over 218 trillion possibilites.
+const createUUID = () => crypto.randomUUID().substring(0, 8);
 const getLocalUUID = () => localStorage.getItem("uuid") || "";
 const isReturningUser = () => !!localStorage.getItem("uuid");
 const getLocalPlayerNames = () => localStorage.getItem("playerNames") || "";
@@ -714,12 +722,9 @@ beginCountdownToStart();
 
 // ---------- TEST FUNCTIONS ----------
 
-// const testFunction = () => {
-//   // totalPoints = 3682;
-//   // gameOver("win");
+const testFunction = () => {
+  submitPlayerNameToDatabase();
+};
 
-//   updateDatabaseUserNamesList();
-// };
-
-// const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
-// testButton.addEventListener("click", testFunction);
+const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
+testButton.addEventListener("click", testFunction);

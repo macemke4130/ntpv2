@@ -21,6 +21,7 @@ const getDaySuffix = (dayOfMonth) => {
     if (dayOfMonth >= 4)
         return "th";
 };
+const dbHost = "http://127.0.0.1:3002";
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
@@ -186,15 +187,14 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
         final_score: totalPoints,
         total_parts: parts.length,
         game_duration_in_seconds: totalGameDuration(),
-        device_info: JSON.stringify(getDeviceInfo()),
         display_name: "",
         game_end_type: type.charAt(0),
-        local_time: getHumanReadableLocalTime(),
+        // local_time: getHumanReadableLocalTime(),
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
     };
-    // Sets database insertId to state for use if the user
-    // hits the scoreboard and logs the game to the database.
-    databaseInsertId = (yield logGame(gameStats)) || 0;
+    // Logs game in database.
+    yield logGame(gameStats);
+    checkUserInDatabase();
     const gameCurtain = document.querySelector(`[data-game-curtain]`);
     gameCurtain.setAttribute("data-game-curtain", "down");
     const gameOverScreenElement = document.querySelector(`[data-game-end-type="${type === "win" ? "win" : "loss"}"]`);
@@ -301,21 +301,22 @@ const updateLocalPlayerNameList = (playerName) => {
     localStorage.setItem("playerNames", playerNames);
     updateDatabaseUserNamesList();
 };
-// Updates users table with the current players names at this machine.
+// Updates users table with the current players names at local machine.
 const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, function* () {
     const method = "POST";
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const playerData = {
         uuid: getLocalUUID(),
-        playerNames: getLocalPlayerNames(),
+        player_names: getLocalPlayerNames(),
     };
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`/api/user/players`, options);
-        const jsonData = yield request.json();
-        if (jsonData !== "Success")
-            throw new Error("Error updating player names with UUID.");
+        console.log("NOPE");
+        const request = yield fetch(`${dbHost}/api/users/new-players`, options);
+        const jsonResponse = yield request.json();
+        if (jsonResponse.status !== 200)
+            throw new Error("Error updating player_names");
     }
     catch (e) {
         console.error(e);
@@ -324,20 +325,20 @@ const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, func
 const submitPlayerNameToDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
     const playerNameInputElement = document.querySelector(`#player-name-text`);
     // @ts-ignore - replaceAll()
-    const playerName = playerNameInputElement.value.trim().replaceAll(",", "");
+    const playerName = playerNameInputElement.value.trim().replaceAll(",", "") || "Two Fake Name Senior"; // Testing! Delete the || fallback!
     updateLocalPlayerNameList(playerName);
     const method = "POST";
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const playerData = {
-        playerName,
-        databaseRecord: databaseInsertId,
+        display_name: playerName,
+        id: databaseInsertId || 1, // Testing! Delete the || fallback!
     };
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`/api/player-name`, options);
+        const request = yield fetch(`${dbHost}/api/stats/display-name`, options);
         const jsonData = yield request.json();
-        if (jsonData === "Success")
+        if (jsonData.status === 200)
             displayFakePlayerName(playerName);
     }
     catch (e) {
@@ -350,14 +351,14 @@ const insertUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* (
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const playerData = {
         uuid: getLocalUUID(),
-        playerNames: getLocalPlayerNames(),
+        player_names: getLocalPlayerNames(),
     };
     const body = JSON.stringify(playerData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`/api/user/new-user`, options);
-        const jsonData = yield request.json();
-        return jsonData.insertId;
+        const request = yield fetch(`${dbHost}/api/users/new-user`, options);
+        const jsonResponse = yield request.json();
+        return jsonResponse.data.insertId;
     }
     catch (e) {
         console.error(e);
@@ -370,8 +371,9 @@ const checkUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* ()
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
     try {
-        const request = yield fetch(`/api/user/${getLocalUUID()}`, options);
-        const uuidExistsInDatabase = yield request.json();
+        const request = yield fetch(`${dbHost}/api/users/exists/${getLocalUUID()}`, options);
+        const jsonResponse = yield request.json();
+        const uuidExistsInDatabase = jsonResponse.data;
         if (uuidExistsInDatabase) {
             updateDatabaseUserNamesList();
         }
@@ -549,9 +551,10 @@ const logGame = (gameData) => __awaiter(void 0, void 0, void 0, function* () {
     const body = JSON.stringify(gameData);
     const options = { method, headers, body };
     try {
-        const request = yield fetch(`/api/loggame`, options);
-        const jsonData = yield request.json();
-        return jsonData.insertId;
+        const request = yield fetch(`${dbHost}/api/stats/log-game`, options);
+        const jsonResponse = yield request.json();
+        // Sets database insertId to state for use if the user hits the scoreboard.
+        databaseInsertId = jsonResponse.data.insertId;
     }
     catch (e) {
         console.error(e);
@@ -571,7 +574,8 @@ const getStats = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 // I don't need or want 36 characters.
-const createUUID = () => crypto.randomUUID().substring(0, 13);
+// A lenth of 8 gives over 218 trillion possibilites.
+const createUUID = () => crypto.randomUUID().substring(0, 8);
 const getLocalUUID = () => localStorage.getItem("uuid") || "";
 const isReturningUser = () => !!localStorage.getItem("uuid");
 const getLocalPlayerNames = () => localStorage.getItem("playerNames") || "";
@@ -608,10 +612,8 @@ addAnswerButtonListeners();
 getParts();
 beginCountdownToStart();
 // ---------- TEST FUNCTIONS ----------
-// const testFunction = () => {
-//   // totalPoints = 3682;
-//   // gameOver("win");
-//   updateDatabaseUserNamesList();
-// };
-// const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
-// testButton.addEventListener("click", testFunction);
+const testFunction = () => {
+    submitPlayerNameToDatabase();
+};
+const testButton = document.querySelector(`#testing`);
+testButton.addEventListener("click", testFunction);

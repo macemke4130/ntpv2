@@ -1,5 +1,10 @@
 # To Do
 
+- .env
+- Migrate all SQLite to MySQL - Dang it.
+- Change api endpoint api/stats to api/scoreboard
+- Point api/stats to most recent games up to 100 per page
+- Human readable all stats page behind password
 - Combine Create and Destroy listener functions to one with "create" | "destroy" parameters
 - Put IP address and device info in users table instead of stats table
 - How to submit parts page. Tutorial on taking photos and submitting fake answer suggestions.

@@ -1,7 +1,8 @@
 import express from "express";
 import path from "path";
 import cors from "cors";
-import { db } from "./dbConnect.js";
+import routes from "./api.js";
+// import { db } from "./dbConnect.js";
 const __dirname = path.resolve();
 
 const app = express();
@@ -26,163 +27,165 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/api/stat/:id", (req, res) => {
-  res.set("content-type", "application/json");
+app.use(routes);
 
-  const sql = `SELECT * FROM stats WHERE id = ?`;
+// app.get("/api/stat/:id", (req, res) => {
+//   res.set("content-type", "application/json");
 
-  try {
-    db.get(sql, [req.params.id], (error, record) => {
-      if (error) throw error;
+//   const sql = `SELECT * FROM stats WHERE id = ?`;
 
-      if (!record) {
-        return res.status(404).send("Record not found");
-      }
+//   try {
+//     db.get(sql, [req.params.id], (error, record) => {
+//       if (error) throw error;
 
-      res.status(200);
-      res.send(JSON.stringify(record));
-    });
-  } catch (error) {
-    res.status(400);
-    res.send(`{"code":400, "status":"${error.message}"}`);
-  }
-});
+//       if (!record) {
+//         return res.status(404).send("Record not found");
+//       }
 
-app.get("/api/stats", (req, res) => {
-  res.set("content-type", "application/json");
+//       res.status(200);
+//       res.send(JSON.stringify(record));
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     res.send(`{"code":400, "status":"${error.message}"}`);
+//   }
+// });
 
-  const sql = `SELECT * FROM stats ORDER BY final_score DESC, id DESC LIMIT 20`;
-  const result = [];
+// app.get("/api/stats", (req, res) => {
+//   res.set("content-type", "application/json");
 
-  try {
-    db.all(sql, [], (error, rows) => {
-      if (error) throw error;
+//   const sql = `SELECT * FROM stats ORDER BY final_score DESC, id DESC LIMIT 20`;
+//   const result = [];
 
-      rows.forEach((row) => result.push(row));
+//   try {
+//     db.all(sql, [], (error, rows) => {
+//       if (error) throw error;
 
-      res.status(200);
-      res.send(JSON.stringify(result));
-    });
-  } catch (error) {
-    res.status(400);
-    res.send(`{"code":400, "status":"${error.message}"}`);
-  }
-});
+//       rows.forEach((row) => result.push(row));
 
-app.post("/api/loggame", (req, res) => {
-  res.set("content-type", "application/json");
+//       res.status(200);
+//       res.send(JSON.stringify(result));
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     res.send(`{"code":400, "status":"${error.message}"}`);
+//   }
+// });
 
-  // Replace some device info with info only available from the server.
-  const deviceInfo = JSON.parse(req.body.device_info);
-  deviceInfo.headers = req.headers;
-  deviceInfo.ip = req.ip;
+// app.post("/api/loggame", (req, res) => {
+//   res.set("content-type", "application/json");
 
-  delete req.body.device_info;
-  req.body.device_info = JSON.stringify(deviceInfo);
+//   // Replace some device info with info only available from the server.
+//   const deviceInfo = JSON.parse(req.body.device_info);
+//   deviceInfo.headers = req.headers;
+//   deviceInfo.ip = req.ip;
 
-  const formValues = Object.values(req.body);
-  const databaseFields = Object.keys(req.body).join(", ");
-  const numberOfQuestionMarks = Array(formValues.length).fill("?").join(", ");
+//   delete req.body.device_info;
+//   req.body.device_info = JSON.stringify(deviceInfo);
 
-  const sql = `INSERT INTO stats(${databaseFields}) VALUES(${numberOfQuestionMarks})`;
+//   const formValues = Object.values(req.body);
+//   const databaseFields = Object.keys(req.body).join(", ");
+//   const numberOfQuestionMarks = Array(formValues.length).fill("?").join(", ");
 
-  try {
-    db.run(sql, formValues, function (error) {
-      if (error) throw error;
+//   const sql = `INSERT INTO stats(${databaseFields}) VALUES(${numberOfQuestionMarks})`;
 
-      const result = {
-        insertId: this.lastID,
-        data: {
-          headers: req.headers,
-          ip: req.ip,
-        },
-      };
+//   try {
+//     db.run(sql, formValues, function (error) {
+//       if (error) throw error;
 
-      res.status(200);
-      res.send(JSON.stringify(result));
-    });
-  } catch (error) {
-    res.status(400);
-    res.send(`{"code":400, "status":"${error.message}"}`);
-  }
-});
+//       const result = {
+//         insertId: this.lastID,
+//         data: {
+//           headers: req.headers,
+//           ip: req.ip,
+//         },
+//       };
 
-app.post("/api/player-name", (req, res) => {
-  res.set("content-type", "application/json");
+//       res.status(200);
+//       res.send(JSON.stringify(result));
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     res.send(`{"code":400, "status":"${error.message}"}`);
+//   }
+// });
 
-  const sql = `UPDATE stats SET display_name = "${req.body.playerName}" WHERE id = ?;`;
-  const recordId = req.body.databaseRecord;
+// app.post("/api/player-name", (req, res) => {
+//   res.set("content-type", "application/json");
 
-  try {
-    db.run(sql, recordId, function (error) {
-      if (error) throw error;
+//   const sql = `UPDATE stats SET display_name = "${req.body.playerName}" WHERE id = ?;`;
+//   const recordId = req.body.databaseRecord;
 
-      res.status(200);
-      res.send(JSON.stringify("Success"));
-    });
-  } catch (error) {
-    res.status(400);
-    res.send(`{"code":400, "status":"${error.message}"}`);
-  }
-});
+//   try {
+//     db.run(sql, recordId, function (error) {
+//       if (error) throw error;
 
-// Update users table with new player name on UUID
-app.post("/api/user/players", (req, res) => {
-  res.set("content-type", "application/json");
+//       res.status(200);
+//       res.send(JSON.stringify("Success"));
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     res.send(`{"code":400, "status":"${error.message}"}`);
+//   }
+// });
 
-  const sql = `UPDATE users SET player_names = "${req.body.playerNames}" WHERE uuid = ?;`;
-  const uuid = req.body.uuid;
+// // Update users table with new player name on UUID
+// app.post("/api/user/players", (req, res) => {
+//   res.set("content-type", "application/json");
 
-  try {
-    db.run(sql, uuid, function (error) {
-      if (error) throw error;
+//   const sql = `UPDATE users SET player_names = "${req.body.playerNames}" WHERE uuid = ?;`;
+//   const uuid = req.body.uuid;
 
-      res.status(200);
-      res.send(JSON.stringify("Success"));
-    });
-  } catch (error) {
-    res.status(400);
-    res.send(`{"code":400, "status":"${error.message}"}`);
-  }
-});
+//   try {
+//     db.run(sql, uuid, function (error) {
+//       if (error) throw error;
 
-app.post("/api/user/new-user", (req, res) => {
-  res.set("content-type", "application/json");
+//       res.status(200);
+//       res.send(JSON.stringify("Success"));
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     res.send(`{"code":400, "status":"${error.message}"}`);
+//   }
+// });
 
-  const bodyValues = Object.values(req.body);
+// app.post("/api/user/new-user", (req, res) => {
+//   res.set("content-type", "application/json");
 
-  const sql = `INSERT INTO users(uuid, player_names) VALUES(?, ?)`;
+//   const bodyValues = Object.values(req.body);
 
-  try {
-    db.run(sql, bodyValues, function (error) {
-      if (error) throw error;
+//   const sql = `INSERT INTO users(uuid, player_names) VALUES(?, ?)`;
 
-      res.status(200);
-      res.send(JSON.stringify("Success"));
-    });
-  } catch (error) {
-    res.status(400);
-    res.send(`{"code":400, "status":"${error.message}"}`);
-  }
-});
+//   try {
+//     db.run(sql, bodyValues, function (error) {
+//       if (error) throw error;
 
-// Checks to see if UUID exists in database already.
-app.get("/api/user/:uuid", (req, res) => {
-  res.set("content-type", "application/json");
+//       res.status(200);
+//       res.send(JSON.stringify("Success"));
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     res.send(`{"code":400, "status":"${error.message}"}`);
+//   }
+// });
 
-  const sql = `SELECT * FROM users WHERE uuid = ?`;
+// // Checks to see if UUID exists in database already.
+// app.get("/api/user/:uuid", (req, res) => {
+//   res.set("content-type", "application/json");
 
-  try {
-    db.get(sql, [req.params.uuid], (error, record) => {
-      if (error) throw error;
+//   const sql = `SELECT * FROM users WHERE uuid = ?`;
 
-      res.send(JSON.stringify(record ? true : false));
-    });
-  } catch (error) {
-    res.status(400);
-    res.send(`{"code":400, "status":"${error.message}"}`);
-  }
-});
+//   try {
+//     db.get(sql, [req.params.uuid], (error, record) => {
+//       if (error) throw error;
+
+//       res.send(JSON.stringify(record ? true : false));
+//     });
+//   } catch (error) {
+//     res.status(400);
+//     res.send(`{"code":400, "status":"${error.message}"}`);
+//   }
+// });
 
 app.use(express.static("./dist"));
 

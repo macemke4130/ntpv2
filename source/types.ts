@@ -16,3 +16,9 @@ export type Stat = {
   game_end_type: "s" | "t" | "w";
   id: number;
 };
+
+export type DBResponse = {
+  message: string;
+  status: number;
+  data: any;
+};
