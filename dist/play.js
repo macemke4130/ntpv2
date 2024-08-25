@@ -187,9 +187,9 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
         final_score: totalPoints,
         total_parts: parts.length,
         game_duration_in_seconds: totalGameDuration(),
-        display_name: "",
+        display_name: null,
         game_end_type: type.charAt(0),
-        // local_time: getHumanReadableLocalTime(),
+        game_end_local_time: getHumanReadableLocalTime(),
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
     };
     // Log game in database.
@@ -431,20 +431,19 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
         // in place already. Remember this when doing math for first and last place.
         if (totalPoints === highestScore) {
             // Tied for first or new first place
-            if (totalPoints > 0)
-                showInputPlayerNameModal();
+            showInputPlayerNameModal();
             // Check 2nd row for equal score
             const secondRowScore = allStats[1].final_score;
             const secondRowIsEqual = secondRowScore === totalPoints;
             calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
         }
         else if (totalPoints >= lowestHighScore) {
-            if (totalPoints > 0)
-                showInputPlayerNameModal();
+            showInputPlayerNameModal();
             calculatePointDifference("on-scoreboard", highestScore);
         }
         else {
             calculatePointDifference("off-scoreboard", lowestHighScore);
+            checkUserInDatabase();
         }
         const tableBodyElement = document.querySelector(`#scoreboard tbody`);
         // Building rank numbers for scoreboard.
@@ -474,7 +473,7 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
             nameCell.innerText = stat.display_name;
             scoreCell.innerText = stat.final_score.toLocaleString();
             partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
-            dateCell.innerText = stat.local_time;
+            dateCell.innerText = stat.game_end_local_time;
             tr.appendChild(rankCell);
             tr.appendChild(nameCell);
             tr.appendChild(scoreCell);
@@ -485,8 +484,7 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
             previousRank = ranking;
         }
         tableBodyElement.setAttribute("data-active", "true");
-        if (totalPoints > 0)
-            highlightMyScore();
+        highlightMyScore();
     }
     catch (e) {
         console.error(e);

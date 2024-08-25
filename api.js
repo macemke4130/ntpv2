@@ -106,7 +106,7 @@ router.post(`${apiRoute}/users/new-players`, async (req, res) => {
 
 router.get(`${apiRoute}/stats/`, async (req, res) => {
   try {
-    const sql = await query(`SELECT * FROM stats ORDER BY final_score DESC;`);
+    const sql = await query(`SELECT * FROM stats ORDER BY final_score DESC LIMIT 10;`);
 
     const response = {
       message: "All games in database.",

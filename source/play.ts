@@ -206,9 +206,9 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     final_score: totalPoints,
     total_parts: parts.length,
     game_duration_in_seconds: totalGameDuration(),
-    display_name: "",
+    display_name: null,
     game_end_type: type.charAt(0),
-    // local_time: getHumanReadableLocalTime(),
+    game_end_local_time: getHumanReadableLocalTime(),
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
   };
 
@@ -509,7 +509,7 @@ const buildScoreboard = async () => {
 
     if (totalPoints === highestScore) {
       // Tied for first or new first place
-      if (totalPoints > 0) showInputPlayerNameModal();
+      showInputPlayerNameModal();
 
       // Check 2nd row for equal score
       const secondRowScore = allStats[1].final_score;
@@ -517,10 +517,11 @@ const buildScoreboard = async () => {
 
       calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
     } else if (totalPoints >= lowestHighScore) {
-      if (totalPoints > 0) showInputPlayerNameModal();
+      showInputPlayerNameModal();
       calculatePointDifference("on-scoreboard", highestScore);
     } else {
       calculatePointDifference("off-scoreboard", lowestHighScore);
+      checkUserInDatabase();
     }
 
     const tableBodyElement = document.querySelector(`#scoreboard tbody`)! as HTMLTableElement;
@@ -557,7 +558,7 @@ const buildScoreboard = async () => {
       nameCell.innerText = stat.display_name;
       scoreCell.innerText = stat.final_score.toLocaleString();
       partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
-      dateCell.innerText = stat.local_time;
+      dateCell.innerText = stat.game_end_local_time;
 
       tr.appendChild(rankCell);
       tr.appendChild(nameCell);
@@ -571,7 +572,7 @@ const buildScoreboard = async () => {
     }
 
     tableBodyElement.setAttribute("data-active", "true");
-    if (totalPoints > 0) highlightMyScore();
+    highlightMyScore();
   } catch (e) {
     console.error(e);
   }
