@@ -41,6 +41,7 @@ let totalPoints = 0;
 let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
+let playerReachedScoreboard = false;
 const imageLoadState = {
     one: false,
     two: false,
@@ -184,18 +185,15 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
     clearInterval(playTimer);
     const gameStats = {
         correct_answers: type === "win" ? parts.length : currentPart,
+        losing_part: type !== "win" ? correctAnswer : null,
         final_score: totalPoints,
         total_parts: parts.length,
         game_duration_in_seconds: totalGameDuration(),
-        display_name: null,
         game_end_type: type.charAt(0),
-        game_end_local_time: getHumanReadableLocalTime(),
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
     };
     // Log game in database.
     yield logGame(gameStats);
-    // Log Local UUID in Database;
-    // logUUID();
     const gameCurtain = document.querySelector(`[data-game-curtain]`);
     gameCurtain.setAttribute("data-game-curtain", "down");
     const gameOverScreenElement = document.querySelector(`[data-game-end-type="${type === "win" ? "win" : "loss"}"]`);
@@ -204,7 +202,7 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
     finalScoreElement.innerText = totalPoints.toLocaleString();
     const playAgainButton = document.querySelector(`[data-screen-active="true"] .play-again`);
     playAgainButton.addEventListener("click", () => window.location.reload());
-    // Clean up listeners and build elements.
+    // Clean up and build.
     removeButtonListeners();
     removeImageListeners();
     buildScoreboard();
@@ -421,6 +419,25 @@ const calculatePointDifference = (type, score) => {
             break;
     }
 };
+// I only care about game_end_local_time if user reached scoreboard, so I have a
+// separate API call here that handles this conditionally.
+const logLocalTime = () => __awaiter(void 0, void 0, void 0, function* () {
+    const method = "POST";
+    const headers = { "Content-Type": "application/json", Accept: "application/json" };
+    const data = {
+        id: databaseInsertId,
+        game_end_local_time: getHumanReadableLocalTime(),
+    };
+    const body = JSON.stringify(data);
+    const options = { method, headers, body };
+    try {
+        const request = yield fetch(`${dbHost}/api/stats/local-time`, options);
+        const jsonResponse = yield request.json();
+    }
+    catch (e) {
+        console.error(e);
+    }
+});
 // Builds DOM <table> with stats after the game is saved in the database.
 const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -436,10 +453,12 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
             const secondRowScore = allStats[1].final_score;
             const secondRowIsEqual = secondRowScore === totalPoints;
             calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
+            logLocalTime();
         }
         else if (totalPoints >= lowestHighScore) {
             showInputPlayerNameModal();
             calculatePointDifference("on-scoreboard", highestScore);
+            logLocalTime();
         }
         else {
             calculatePointDifference("off-scoreboard", lowestHighScore);
@@ -562,7 +581,7 @@ const getStats = () => __awaiter(void 0, void 0, void 0, function* () {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
     try {
-        const request = yield fetch(`${dbHost}/api/stats`, options);
+        const request = yield fetch(`${dbHost}/api/stats/scoreboard`, options);
         const jsonResponse = yield request.json();
         return jsonResponse.data;
     }

@@ -56,7 +56,7 @@ router.get(`${apiRoute}/users/exists/:uuid`, async (req, res) => {
   const uuid = req.params.uuid;
 
   try {
-    const sql = await query(`SELECT * FROM users WHERE uuid = "${uuid}" LIMIT 1`);
+    const sql = await query(`SELECT uuid FROM users WHERE uuid = "${uuid}" LIMIT 1`);
 
     // If sql has a response with zero length, user does not yet exist.
     const userExists = !!sql.length;
@@ -104,12 +104,36 @@ router.post(`${apiRoute}/users/new-players`, async (req, res) => {
   }
 });
 
-router.get(`${apiRoute}/stats/`, async (req, res) => {
+// Total number of games played
+router.get(`${apiRoute}/stats/total-games`, async (req, res) => {
+  try {
+    const sql = await query(`SELECT COUNT(id) AS total FROM stats`);
+
+    const response = {
+      message: "Total number of games played.",
+      status: 200,
+      data: sql,
+    };
+
+    res.json(response);
+  } catch (e) {
+    const response = {
+      message: e.sqlMessage,
+      status: e.errno,
+      data: null,
+    };
+
+    res.json(response);
+  }
+});
+
+// Gets top scoreboard entries
+router.get(`${apiRoute}/stats/scoreboard`, async (req, res) => {
   try {
     const sql = await query(`SELECT * FROM stats ORDER BY final_score DESC LIMIT 10;`);
 
     const response = {
-      message: "All games in database.",
+      message: "Scoreboard.",
       status: 200,
       data: sql,
     };
@@ -135,6 +159,26 @@ router.post(`${apiRoute}/stats/display-name`, async (req, res) => {
 
     const response = {
       message: "Display Name successfully logged.",
+      status: 200,
+      data: sql,
+    };
+
+    res.json(response);
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+// Update stat record for game just finished to include local time if user reached scoreboard.
+// We don't care about loggin local_time if it won't be displayed since game_end_date_time takes care of this.
+router.post(`${apiRoute}/stats/local-time`, async (req, res) => {
+  const { game_end_local_time, id } = req.body;
+
+  try {
+    const sql = await query(`UPDATE stats SET game_end_local_time = ? WHERE id = ?`, [game_end_local_time, id]);
+
+    const response = {
+      message: "Local Time successfully logged.",
       status: 200,
       data: sql,
     };

@@ -33,6 +33,7 @@ let totalPoints = 0;
 let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
+let playerReachedScoreboard = false;
 
 const imageLoadState = {
   one: false,
@@ -203,20 +204,16 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
 
   const gameStats = {
     correct_answers: type === "win" ? parts.length : currentPart,
+    losing_part: type !== "win" ? correctAnswer : null,
     final_score: totalPoints,
     total_parts: parts.length,
     game_duration_in_seconds: totalGameDuration(),
-    display_name: null,
     game_end_type: type.charAt(0),
-    game_end_local_time: getHumanReadableLocalTime(),
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
   };
 
   // Log game in database.
   await logGame(gameStats);
-
-  // Log Local UUID in Database;
-  // logUUID();
 
   const gameCurtain = document.querySelector(`[data-game-curtain]`)! as HTMLElement;
   gameCurtain.setAttribute("data-game-curtain", "down");
@@ -230,7 +227,7 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
   const playAgainButton = document.querySelector(`[data-screen-active="true"] .play-again`)! as HTMLButtonElement;
   playAgainButton.addEventListener("click", () => window.location.reload());
 
-  // Clean up listeners and build elements.
+  // Clean up and build.
   removeButtonListeners();
   removeImageListeners();
   buildScoreboard();
@@ -497,6 +494,28 @@ const calculatePointDifference = (type: "new-first" | "first-tie" | "on-scoreboa
   }
 };
 
+// I only care about game_end_local_time if user reached scoreboard, so I have a
+// separate API call here that handles this conditionally.
+const logLocalTime = async () => {
+  const method = "POST";
+  const headers = { "Content-Type": "application/json", Accept: "application/json" };
+
+  const data = {
+    id: databaseInsertId,
+    game_end_local_time: getHumanReadableLocalTime(),
+  };
+
+  const body = JSON.stringify(data);
+  const options = { method, headers, body };
+
+  try {
+    const request = await fetch(`${dbHost}/api/stats/local-time`, options);
+    const jsonResponse: DBResponse = await request.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 // Builds DOM <table> with stats after the game is saved in the database.
 const buildScoreboard = async () => {
   try {
@@ -514,11 +533,12 @@ const buildScoreboard = async () => {
       // Check 2nd row for equal score
       const secondRowScore = allStats[1].final_score;
       const secondRowIsEqual = secondRowScore === totalPoints;
-
       calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
+      logLocalTime();
     } else if (totalPoints >= lowestHighScore) {
       showInputPlayerNameModal();
       calculatePointDifference("on-scoreboard", highestScore);
+      logLocalTime();
     } else {
       calculatePointDifference("off-scoreboard", lowestHighScore);
       checkUserInDatabase();
@@ -665,7 +685,7 @@ const getStats = async () => {
   const options = { method, headers };
 
   try {
-    const request = await fetch(`${dbHost}/api/stats`, options);
+    const request = await fetch(`${dbHost}/api/stats/scoreboard`, options);
     const jsonResponse: DBResponse = await request.json();
 
     return jsonResponse.data;

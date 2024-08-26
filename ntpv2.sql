@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS stats (
   game_duration_in_seconds SMALLINT NOT NULL,
   display_name VARCHAR(32),
   game_end_type ENUM("w", "s", "t") NOT NULL,
-  game_end_local_time VARCHAR(32) NOT NULL,
+  losing_part VARCHAR(64),
+  game_end_local_time VARCHAR(32),
   game_end_date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   uuid CHAR(8) NOT NULL
 );
