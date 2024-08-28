@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 DROP TABLE stats;
 CREATE TABLE IF NOT EXISTS stats (
   id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  connection VARCHAR(8),
   correct_answers SMALLINT NOT NULL,
   final_score MEDIUMINT NOT NULL,
   total_parts SMALLINT NOT NULL,
@@ -31,7 +32,6 @@ CREATE TABLE IF NOT EXISTS stats (
 
 SELECT * FROM stats;
 SELECT * FROM users;
-SELECT * FROM users WHERE uuid = "poiuytre";
 
 INSERT INTO users (uuid, player_names, device_info) VALUES ("jdieydji", "Lucas, Billy, Tony", "Laptop");
 

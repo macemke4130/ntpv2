@@ -2,7 +2,7 @@
 
 ...is a game for bicycle nerds.
 
-https://www.namethatpart.com
+https://www.namethatpart.com - Still Version 1
 
 This is version 2 of the game. The original version was created as I was learning React and GraphQL. The game does not require that aggresive of a toolset, so I wanted to rewrite the whole project from scratch using vanilla TypeScript,a simple REST API, JSON and a MySQL database.
 
@@ -23,4 +23,4 @@ Moving the parts information from a MySQL table to a JSON document will make add
 
 This project is funded and maintained completely by myself in my free time so if you play and enjoy it, please share with your friends.
 
-https://www.namethatpart.com
+https://www.namethatpart.com - Still Version 1

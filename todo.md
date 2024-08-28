@@ -1,5 +1,7 @@
 # To Do
 
+- Sort player names alphabetically
+- For stats/scoreboard endpoint: limit columns returned. Don't use wildcard.
 - API utility function
   - Post, Get...
   - Body, Params...
@@ -8,7 +10,6 @@
 - Write audit to remove local_time stats that have been pushed off the scoreboard by higher scores.
 - Point api/stats to most recent games up to 100 per page
 - Human readable all stats page behind password
-- Combine Create and Destroy listener functions to one with "create" | "destroy" parameters
 - Put IP address and device info in users table instead of stats table
 - How to submit parts page. Tutorial on taking photos and submitting fake answer suggestions.
 - Display random motivational message for score below a new first place.
@@ -21,6 +22,8 @@
 
 ## Done
 
+- Separate DOM possile points update from actual possiblePoints state variable.
+- Combine Create and Destroy listener functions to one with "create" | "destroy" parameters
 - Only record game_end_local_time if user reached the scoreboard
 - If gameEnd.type !== "w", log which part the player lost on
 - Change api endpoint api/stats to api/scoreboard

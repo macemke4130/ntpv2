@@ -32,23 +32,37 @@ const secondsPerTurn = 20;
 const durationOfTurnMS = secondsPerTurn * 1000;
 const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
+const updateDOMInterval = (timerInterval / secondsPerTurn) * 2; // This value is arbitrary.
 // State
 let parts = [];
 let correctAnswer = "";
 let currentPart = 0;
 let currentPoints = startPoints;
+let currentPointsDOMValue = startPoints;
 let totalPoints = 0;
 let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
-let playerReachedScoreboard = false;
 const imageLoadState = {
     one: false,
     two: false,
 };
-// Gets all parts data, shuffles the order, sets to state
-// and calls first part for user. This is the first function
-// called to start the game.
+const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {
+    const headers = { "Content-Type": "application/json", Accept: "application/json" };
+    const body = JSON.stringify(data);
+    const options = { method, headers };
+    if (body)
+        options.body = body;
+    try {
+        const request = yield fetch(url, options);
+        const jsonResponse = yield request.json();
+        return jsonResponse;
+    }
+    catch (e) {
+        console.error(e);
+    }
+});
+// Gets all parts data, shuffles the order and sets to state.
 const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = yield fetch("./quiz.json");
@@ -64,14 +78,22 @@ const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
 const resetTimer = () => {
     currentPartPointsElement.innerText = startPoints + "";
     currentPoints = startPoints;
+    currentPointsDOMValue = startPoints;
     playTimer = setInterval(() => {
         if (currentPoints <= 0) {
             gameOver("timer");
             return;
         }
         currentPoints = currentPoints - pointDropPerInterval;
-        currentPartPointsElement.innerText = currentPoints + "";
+        updateCurrentPointsDOM(currentPoints);
     }, timerInterval);
+};
+// Throttle expensive DOM updates for currentPoints.
+const updateCurrentPointsDOM = (currentPoints) => {
+    if (currentPoints < currentPointsDOMValue - updateDOMInterval) {
+        currentPointsDOMValue = currentPoints;
+        currentPartPointsElement.innerText = currentPointsDOMValue + "";
+    }
 };
 // Loads the next two photos (1 next part) into the cache.
 const preloadNextPart = () => {
@@ -84,6 +106,13 @@ const preloadNextPart = () => {
 };
 // User has chosen an answer.
 const answerClick = (event) => {
+    // It's possible to use the keyboard to focus and click
+    // the answer buttons before the game begins, while the
+    // curtain is still blurred. This can result in an "Out
+    // of range for column" for game_duration_in_seconds
+    // error. So if the gameStartTimeMS isn't set, exit function.
+    if (!gameStartTimeMS)
+        return;
     const target = event.currentTarget;
     const answer = target.innerHTML;
     // Correct answer was chosen.
@@ -101,7 +130,7 @@ const answerClick = (event) => {
         clearAnswers();
         clearCurrentPoints();
         blurPartImages(true);
-        addImageLoadListeners();
+        imageLoadListeners("add");
         loadPartImages(currentPart);
     }
     else {
@@ -162,11 +191,12 @@ const totalGameDuration = () => {
 // Used for stat table in database.
 const getDeviceInfo = () => {
     const nav = window.navigator;
-    return {
-        device: nav.userAgent,
+    const deviceInfo = {
         lang: nav.language,
+        mobile: "ontouchstart" in window,
         screenSize: `${window.innerWidth} x ${window.innerHeight}`,
     };
+    return JSON.stringify(deviceInfo);
 };
 // Builds human readable string for the scoreboard table.
 const getHumanReadableLocalTime = () => {
@@ -177,6 +207,11 @@ const getHumanReadableLocalTime = () => {
     const suffix = getDaySuffix(date);
     const year = rightNow.getFullYear();
     return `${dayOfWeek}, ${month} ${date}${suffix} ${year}`;
+};
+const getConnectionSpeed = () => {
+    var _a;
+    const nav = navigator;
+    return ((_a = nav.connection) === null || _a === void 0 ? void 0 : _a.effectiveType) || null;
 };
 // Called when a user selects a wrong answer, their time runs
 // out, or when they win the game.
@@ -190,6 +225,7 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
         total_parts: parts.length,
         game_duration_in_seconds: totalGameDuration(),
         game_end_type: type.charAt(0),
+        connection: getConnectionSpeed(),
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
     };
     // Log game in database.
@@ -203,8 +239,8 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
     const playAgainButton = document.querySelector(`[data-screen-active="true"] .play-again`);
     playAgainButton.addEventListener("click", () => window.location.reload());
     // Clean up and build.
-    removeButtonListeners();
-    removeImageListeners();
+    answerButtonListeners("remove");
+    imageLoadListeners("remove");
     buildScoreboard();
     buildShareButton();
     checkFunScore();
@@ -274,9 +310,11 @@ const closePlayerNameModal = () => {
 };
 // Name is already updated in the database, but here we are just finding
 // the corresponding table cell and updating its innerText property.
-const displayFakePlayerName = (playerName) => {
+const displayFakeData = (playerName) => {
     const recordNameCell = document.querySelector(`#scoreboard-${databaseInsertId} .playerName`);
+    const recordDateCell = document.querySelector(`#scoreboard-${databaseInsertId} .date`);
     recordNameCell.innerText = playerName;
+    recordDateCell.innerText = getHumanReadableLocalTime();
     closePlayerNameModal();
 };
 // Only listening for this event when the input play name <dialog> is open.
@@ -301,85 +339,51 @@ const updateLocalPlayerNameList = (playerName) => {
 };
 // Updates users table with the current players names at local machine.
 const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, function* () {
-    const method = "POST";
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const playerData = {
         uuid: getLocalUUID(),
         player_names: getLocalPlayerNames(),
     };
-    const body = JSON.stringify(playerData);
-    const options = { method, headers, body };
-    try {
-        const request = yield fetch(`${dbHost}/api/users/new-players`, options);
-        const jsonResponse = yield request.json();
-        if (jsonResponse.status !== 200)
-            throw new Error("Error updating player_names");
-    }
-    catch (e) {
-        console.error(e);
-    }
+    const updateUserNames = yield apiHelper(`${dbHost}/api/users/new-players`, "POST", playerData);
+    if ((updateUserNames === null || updateUserNames === void 0 ? void 0 : updateUserNames.status) !== 200)
+        throw new Error("Updating player names failed.");
 });
 const submitPlayerNameToDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
     const playerNameInputElement = document.querySelector(`#player-name-text`);
     // @ts-ignore - replaceAll()
     const playerName = playerNameInputElement.value.trim().replaceAll(",", "");
     updateLocalPlayerNameList(playerName);
-    const method = "POST";
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const playerData = {
         display_name: playerName,
         id: databaseInsertId,
     };
-    const body = JSON.stringify(playerData);
-    const options = { method, headers, body };
-    try {
-        const request = yield fetch(`${dbHost}/api/stats/display-name`, options);
-        const jsonResponse = yield request.json();
-        if (jsonResponse.status === 200)
-            displayFakePlayerName(playerName);
+    const submitPlayerNames = yield apiHelper(`${dbHost}/api/stats/display-name`, "POST", playerData);
+    if ((submitPlayerNames === null || submitPlayerNames === void 0 ? void 0 : submitPlayerNames.status) === 200) {
+        displayFakeData(playerName);
+        checkUserInDatabase();
     }
-    catch (e) {
-        console.error(e);
-    }
-    checkUserInDatabase();
 });
 const insertUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
-    const method = "POST";
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const playerData = {
         uuid: getLocalUUID(),
         player_names: getLocalPlayerNames(),
+        device_info: getDeviceInfo(),
     };
-    const body = JSON.stringify(playerData);
-    const options = { method, headers, body };
-    try {
-        const request = yield fetch(`${dbHost}/api/users/new-user`, options);
-        const jsonResponse = yield request.json();
-        return jsonResponse.data.insertId;
-    }
-    catch (e) {
-        console.error(e);
-    }
+    const request = yield apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
+    if ((request === null || request === void 0 ? void 0 : request.status) !== 200)
+        throw new Error("Error inserting user in database.");
 });
 // If api endpoint returns false we will add the new UUID to the database,
 // otherwise we update the existing user's player_name column.
 const checkUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
-    const method = "GET";
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
-    const options = { method, headers };
-    try {
-        const request = yield fetch(`${dbHost}/api/users/exists/${getLocalUUID()}`, options);
-        const jsonResponse = yield request.json();
-        const uuidExistsInDatabase = jsonResponse.data;
+    const checkUUID = yield apiHelper(`${dbHost}/api/users/exists/${getLocalUUID()}`);
+    if ((checkUUID === null || checkUUID === void 0 ? void 0 : checkUUID.status) === 200) {
+        const uuidExistsInDatabase = checkUUID.data;
         if (uuidExistsInDatabase) {
             updateDatabaseUserNamesList();
         }
         else {
             insertUserInDatabase();
         }
-    }
-    catch (e) {
-        console.error(e);
     }
 });
 // Builds a motivational string based on what place a user is closest to getting.
@@ -389,30 +393,26 @@ const calculatePointDifference = (type, score) => {
         case "first-tie": {
             const tiedFirstTimeDifference = timerInterval / 1000;
             scoreboardOffsetElement.innerText = `Tied for first place! 
-      1 point away from being alone in first place. 
-      That's a difference of ${tiedFirstTimeDifference.toFixed(2)} seconds!`;
+      1 point (${tiedFirstTimeDifference.toFixed(2)} seconds) away from being alone in first place!`;
             break;
         }
         case "new-first": {
             const aheadOfSecondPlace = totalPoints - score;
             const newFirstScoreTimeDifference = (aheadOfSecondPlace * timerInterval) / 1000;
             scoreboardOffsetElement.innerText = `New first place! 
-      ${aheadOfSecondPlace.toLocaleString()} point${aheadOfSecondPlace === 1 ? "" : "s"} ahead of previous first place. 
-      That's a difference of ${newFirstScoreTimeDifference.toFixed(2)} seconds!`;
+      ${aheadOfSecondPlace.toLocaleString()} point${aheadOfSecondPlace === 1 ? "" : "s"} (${newFirstScoreTimeDifference.toFixed(2)} seconds) ahead of previous first place!`;
             break;
         }
         case "on-scoreboard": {
             const pointDifference = score + 1 - totalPoints;
             const timeDifference = (pointDifference * timerInterval) / 1000;
-            scoreboardOffsetElement.innerText = `${pointDifference.toLocaleString()} points from first place!
-      That's a difference of ${timeDifference.toFixed(2)} seconds!`;
+            scoreboardOffsetElement.innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from first place!`;
             break;
         }
         case "off-scoreboard": {
             const pointDifference = score + 1 - totalPoints;
             const timeDifference = (pointDifference * timerInterval) / 1000;
-            scoreboardOffsetElement.innerText = `${pointDifference.toLocaleString()} points from the scoreboard!
-      That's a difference of ${timeDifference.toFixed(2)} seconds!`;
+            scoreboardOffsetElement.innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from the scoreboard!`;
             break;
         }
         default:
@@ -420,94 +420,84 @@ const calculatePointDifference = (type, score) => {
     }
 };
 // I only care about game_end_local_time if user reached scoreboard, so I have a
-// separate API call here that handles this conditionally.
+// separate API call here that is called conditionally.
 const logLocalTime = () => __awaiter(void 0, void 0, void 0, function* () {
-    const method = "POST";
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const data = {
         id: databaseInsertId,
         game_end_local_time: getHumanReadableLocalTime(),
     };
-    const body = JSON.stringify(data);
-    const options = { method, headers, body };
-    try {
-        const request = yield fetch(`${dbHost}/api/stats/local-time`, options);
-        const jsonResponse = yield request.json();
-    }
-    catch (e) {
-        console.error(e);
-    }
+    const request = yield apiHelper(`${dbHost}/api/stats/local-time`, "POST", data);
+    if ((request === null || request === void 0 ? void 0 : request.status) !== 200)
+        throw new Error("Error setting local time.");
 });
 // Builds DOM <table> with stats after the game is saved in the database.
 const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const allStats = yield getStats();
-        const lowestHighScore = allStats[allStats.length - 1].final_score;
-        const highestScore = allStats[0].final_score;
-        // The ended game is logged first. So [allStats] will have the current score
-        // in place already. Remember this when doing math for first and last place.
-        if (totalPoints === highestScore) {
-            // Tied for first or new first place
-            showInputPlayerNameModal();
-            // Check 2nd row for equal score
-            const secondRowScore = allStats[1].final_score;
-            const secondRowIsEqual = secondRowScore === totalPoints;
-            calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
-            logLocalTime();
-        }
-        else if (totalPoints >= lowestHighScore) {
-            showInputPlayerNameModal();
-            calculatePointDifference("on-scoreboard", highestScore);
-            logLocalTime();
-        }
-        else {
-            calculatePointDifference("off-scoreboard", lowestHighScore);
-            checkUserInDatabase();
-        }
-        const tableBodyElement = document.querySelector(`#scoreboard tbody`);
-        // Building rank numbers for scoreboard.
-        // Useful for tie scores.
-        let previousRank = 0;
-        let previousScore = 0;
-        const getRanking = (score) => {
-            if (score === previousScore)
-                return previousRank;
-            return previousRank + 1;
-        };
-        for (const stat of allStats) {
-            const tr = document.createElement("tr");
-            tr.setAttribute("id", `scoreboard-${stat.id}`);
-            const rankCell = document.createElement("td");
-            const nameCell = document.createElement("td");
-            const scoreCell = document.createElement("td");
-            const partsCell = document.createElement("td");
-            const dateCell = document.createElement("td");
-            const ranking = getRanking(stat.final_score);
-            rankCell.classList.add("rank");
-            nameCell.classList.add("playerName");
-            scoreCell.classList.add("score");
-            partsCell.classList.add("parts");
-            dateCell.classList.add("date");
-            rankCell.innerText = ranking + "";
-            nameCell.innerText = stat.display_name;
-            scoreCell.innerText = stat.final_score.toLocaleString();
-            partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
-            dateCell.innerText = stat.game_end_local_time;
-            tr.appendChild(rankCell);
-            tr.appendChild(nameCell);
-            tr.appendChild(scoreCell);
-            tr.appendChild(partsCell);
-            tr.appendChild(dateCell);
-            tableBodyElement.appendChild(tr);
-            previousScore = stat.final_score;
-            previousRank = ranking;
-        }
-        tableBodyElement.setAttribute("data-active", "true");
-        highlightMyScore();
+    const statsFromDatabase = yield apiHelper(`${dbHost}/api/stats/scoreboard`);
+    if (!statsFromDatabase)
+        return;
+    const allStats = statsFromDatabase.data;
+    const lowestHighScore = allStats[allStats.length - 1].final_score;
+    const highestScore = allStats[0].final_score;
+    // The ended game is logged first. So [allStats] will have the current score
+    // in place already. Remember this when doing math for first and last place.
+    if (totalPoints === highestScore) {
+        // Tied for first or new first place
+        showInputPlayerNameModal();
+        // Check 2nd row for equal score
+        const secondRowScore = allStats[1].final_score;
+        const secondRowIsEqual = secondRowScore === totalPoints;
+        calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
+        logLocalTime();
     }
-    catch (e) {
-        console.error(e);
+    else if (totalPoints >= lowestHighScore) {
+        showInputPlayerNameModal();
+        calculatePointDifference("on-scoreboard", highestScore);
+        logLocalTime();
     }
+    else {
+        calculatePointDifference("off-scoreboard", lowestHighScore);
+        checkUserInDatabase();
+    }
+    const tableBodyElement = document.querySelector(`#scoreboard tbody`);
+    // Building rank numbers for scoreboard.
+    // Useful for tie scores.
+    let previousRank = 0;
+    let previousScore = 0;
+    const getRanking = (score) => {
+        if (score === previousScore)
+            return previousRank;
+        return previousRank + 1;
+    };
+    for (const stat of allStats) {
+        const tr = document.createElement("tr");
+        tr.setAttribute("id", `scoreboard-${stat.id}`);
+        const rankCell = document.createElement("td");
+        const nameCell = document.createElement("td");
+        const scoreCell = document.createElement("td");
+        const partsCell = document.createElement("td");
+        const dateCell = document.createElement("td");
+        const ranking = getRanking(stat.final_score);
+        rankCell.classList.add("rank");
+        nameCell.classList.add("playerName");
+        scoreCell.classList.add("score");
+        partsCell.classList.add("parts");
+        dateCell.classList.add("date");
+        rankCell.innerText = ranking + "";
+        nameCell.innerText = stat.display_name;
+        scoreCell.innerText = stat.final_score.toLocaleString();
+        partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
+        dateCell.innerText = stat.game_end_local_time;
+        tr.appendChild(rankCell);
+        tr.appendChild(nameCell);
+        tr.appendChild(scoreCell);
+        tr.appendChild(partsCell);
+        tr.appendChild(dateCell);
+        tableBodyElement.appendChild(tr);
+        previousScore = stat.final_score;
+        previousRank = ranking;
+    }
+    tableBodyElement.setAttribute("data-active", "true");
+    highlightMyScore();
 });
 // Shows user where their score is on the database.
 // TODO: Add scrollTo()
@@ -516,22 +506,6 @@ const highlightMyScore = () => {
     if (myRow) {
         myRow.style.outline = `2px solid red`;
     }
-};
-// Answer choice buttons.
-const removeButtonListeners = () => {
-    for (const quizButton of quizButtonElements) {
-        quizButton.removeEventListener("click", answerClick);
-    }
-};
-const addAnswerButtonListeners = () => {
-    for (const quizButton of quizButtonElements) {
-        quizButton.addEventListener("click", answerClick);
-    }
-};
-const removeImageListeners = () => {
-    quizImageElements.forEach((image) => {
-        image.removeEventListener("load", imageLoaded);
-    });
 };
 // Function is important for moving the game forward.
 // Will be called each time both part images are finished loading.
@@ -546,7 +520,7 @@ const imageLoaded = (event) => {
         resetTimer();
         loadAnswers(currentPart);
         blurPartImages(false);
-        removeImageListeners();
+        imageLoadListeners("remove");
         if (currentPart === 0)
             logStartTime();
     }
@@ -555,39 +529,11 @@ const imageLoaded = (event) => {
 const logStartTime = () => {
     gameStartTimeMS = Date.now();
 };
-const addImageLoadListeners = () => {
-    quizImageElements.forEach((image) => {
-        image.addEventListener("load", imageLoaded);
-    });
-};
 // Game over. Log game stats to database.
 const logGame = (gameData) => __awaiter(void 0, void 0, void 0, function* () {
-    const method = "POST";
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
-    const body = JSON.stringify(gameData);
-    const options = { method, headers, body };
-    try {
-        const request = yield fetch(`${dbHost}/api/stats/log-game`, options);
-        const jsonResponse = yield request.json();
-        // Sets database insertId to state for use if the user hits the scoreboard.
-        databaseInsertId = jsonResponse.data.insertId;
-    }
-    catch (e) {
-        console.error(e);
-    }
-});
-const getStats = () => __awaiter(void 0, void 0, void 0, function* () {
-    const method = "GET";
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
-    const options = { method, headers };
-    try {
-        const request = yield fetch(`${dbHost}/api/stats/scoreboard`, options);
-        const jsonResponse = yield request.json();
-        return jsonResponse.data;
-    }
-    catch (e) {
-        console.error(e);
-    }
+    const loggingGame = yield apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
+    if ((loggingGame === null || loggingGame === void 0 ? void 0 : loggingGame.status) === 200)
+        databaseInsertId = loggingGame.data.insertId;
 });
 // I don't need or want 36 characters.
 // A lenth of 8 gives over 218 trillion possibilites.
@@ -618,18 +564,42 @@ const beginCountdownToStart = () => {
     }, 1000);
 };
 const focusStage = () => {
-    const blurryElements = document.querySelectorAll(`[data-blur="true"]`);
+    // Grabs blurry elements except for the product images. Those will focus on image load.
+    const blurryElements = document.querySelectorAll(`[data-blur="true"]:not(img[data-blur="true"])`);
     for (const element of blurryElements) {
         element.removeAttribute("data-blur");
     }
 };
-addImageLoadListeners();
-addAnswerButtonListeners();
+// Part images.
+const imageLoadListeners = (type) => {
+    // Where else am i using this nodelist?
+    quizImageElements.forEach((image) => {
+        if (type === "add") {
+            image.addEventListener("load", imageLoaded);
+        }
+        else {
+            image.removeEventListener("load", imageLoaded);
+        }
+    });
+};
+// Answer buttons.
+const answerButtonListeners = (type) => {
+    for (const quizButton of quizButtonElements) {
+        if (type === "add") {
+            quizButton.addEventListener("click", answerClick);
+        }
+        else {
+            quizButton.removeEventListener("click", answerClick);
+        }
+    }
+};
+imageLoadListeners("add");
+answerButtonListeners("add");
 getParts();
 beginCountdownToStart();
 // ---------- TEST FUNCTIONS ----------
-const testFunction = () => {
-    submitPlayerNameToDatabase();
-};
-const testButton = document.querySelector(`#testing`);
-testButton.addEventListener("click", testFunction);
+// const testFunction = () => {
+//   submitPlayerNameToDatabase();
+// };
+// const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
+// testButton.addEventListener("click", testFunction);
