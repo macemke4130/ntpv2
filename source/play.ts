@@ -24,7 +24,7 @@ const secondsPerTurn = 20;
 const durationOfTurnMS = secondsPerTurn * 1000;
 const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
-const updateDOMInterval = (timerInterval / secondsPerTurn) * 2; // This value is arbitrary.
+const updateDOMInterval = 2; // This value is arbitrary.
 
 // State
 let parts: Part[] = [];
@@ -45,9 +45,12 @@ const imageLoadState = {
 const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
 
-  const body = JSON.stringify(data);
   const options: { method: string; headers: typeof headers; body?: any } = { method, headers };
-  if (body) options.body = body;
+
+  if (data) {
+    const body = JSON.stringify(data);
+    options.body = body;
+  }
 
   try {
     const request = await fetch(url, options);
@@ -76,13 +79,11 @@ const resetTimer = () => {
   currentPartPointsElement.innerText = startPoints + "";
   currentPoints = startPoints;
   currentPointsDOMValue = startPoints;
-
   playTimer = setInterval(() => {
     if (currentPoints <= 0) {
       gameOver("timer");
       return;
     }
-
     currentPoints = currentPoints - pointDropPerInterval;
     updateCurrentPointsDOM(currentPoints);
   }, timerInterval);
@@ -129,6 +130,7 @@ const answerClick = (event: MouseEvent) => {
 
     // More parts remain in [parts].
     // Prepare state for next turn.
+    target.classList.add("reward");
     currentPart++;
     updateTotalPoints();
     clearInterval(playTimer);
@@ -614,6 +616,7 @@ const imageLoaded = (event: Event) => {
     blurPartImages(false);
     imageLoadListeners("remove");
 
+    // First part, set start time.
     if (currentPart === 0) logStartTime();
   }
 };
@@ -684,13 +687,20 @@ const imageLoadListeners = (type: "add" | "remove") => {
   });
 };
 
+const removeRewardClass = (event: Event) => {
+  const target = event.target as HTMLButtonElement;
+  target.classList.remove("reward");
+};
+
 // Answer buttons.
 const answerButtonListeners = (type: "add" | "remove") => {
   for (const quizButton of quizButtonElements) {
     if (type === "add") {
       quizButton.addEventListener("click", answerClick);
+      quizButton.addEventListener("animationend", removeRewardClass);
     } else {
       quizButton.removeEventListener("click", answerClick);
+      quizButton.removeEventListener("animationend", removeRewardClass);
     }
   }
 };

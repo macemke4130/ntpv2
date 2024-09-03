@@ -27,7 +27,16 @@ router.get(`${apiRoute}/users/`, async (req, res) => {
 });
 
 router.post(`${apiRoute}/users/new-user`, async (req, res) => {
-  const data = prepData(req.body);
+  // IP address is only available from the server, so I'm
+  // converting the device_info string to an object, adding
+  // ip_address, then converting back to string before I
+  // call prepData().
+  const bodyData = req.body;
+  const deviceInfoObject = JSON.parse(bodyData.device_info);
+  deviceInfoObject.ipAddress = req.ip;
+  bodyData.device_info = JSON.stringify(deviceInfoObject);
+
+  const data = prepData(bodyData);
 
   try {
     const sql = await query(`INSERT INTO users (${data.columns}) VALUES (${data.marks})`, data.values);

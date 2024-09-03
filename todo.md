@@ -1,5 +1,12 @@
 # To Do
 
+- Consolidate Win and Lose sections to single section to build with JS
+- Scoreboard is over-fetching. Only request appropirate data.
+- Need loading state animation for some fetch calls.
+  - Submit name button
+  - Wrong answer
+  - Final part / Win game
+- Incorrect answer / Lose game animation
 - Sort player names alphabetically
 - For stats/scoreboard endpoint: limit columns returned. Don't use wildcard.
 - API utility function
@@ -22,6 +29,7 @@
 
 ## Done
 
+- Correct answer dopamine hit animation
 - Separate DOM possile points update from actual possiblePoints state variable.
 - Combine Create and Destroy listener functions to one with "create" | "destroy" parameters
 - Only record game_end_local_time if user reached the scoreboard

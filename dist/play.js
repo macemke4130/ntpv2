@@ -32,7 +32,7 @@ const secondsPerTurn = 20;
 const durationOfTurnMS = secondsPerTurn * 1000;
 const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
-const updateDOMInterval = (timerInterval / secondsPerTurn) * 2; // This value is arbitrary.
+const updateDOMInterval = 2; // This value is arbitrary.
 // State
 let parts = [];
 let correctAnswer = "";
@@ -49,10 +49,11 @@ const imageLoadState = {
 };
 const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
-    const body = JSON.stringify(data);
     const options = { method, headers };
-    if (body)
+    if (data) {
+        const body = JSON.stringify(data);
         options.body = body;
+    }
     try {
         const request = yield fetch(url, options);
         const jsonResponse = yield request.json();
@@ -124,6 +125,7 @@ const answerClick = (event) => {
         }
         // More parts remain in [parts].
         // Prepare state for next turn.
+        target.classList.add("reward");
         currentPart++;
         updateTotalPoints();
         clearInterval(playTimer);
@@ -521,6 +523,7 @@ const imageLoaded = (event) => {
         loadAnswers(currentPart);
         blurPartImages(false);
         imageLoadListeners("remove");
+        // First part, set start time.
         if (currentPart === 0)
             logStartTime();
     }
@@ -582,14 +585,20 @@ const imageLoadListeners = (type) => {
         }
     });
 };
+const removeRewardClass = (event) => {
+    const target = event.target;
+    target.classList.remove("reward");
+};
 // Answer buttons.
 const answerButtonListeners = (type) => {
     for (const quizButton of quizButtonElements) {
         if (type === "add") {
             quizButton.addEventListener("click", answerClick);
+            quizButton.addEventListener("animationend", removeRewardClass);
         }
         else {
             quizButton.removeEventListener("click", answerClick);
+            quizButton.removeEventListener("animationend", removeRewardClass);
         }
     }
 };
