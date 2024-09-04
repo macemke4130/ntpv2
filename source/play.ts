@@ -19,6 +19,13 @@ const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeL
 const currentPartPointsElement = document.querySelector(`#current-points`)! as HTMLDivElement;
 const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
 
+// Game Over Screen Elements.
+const gameOverScreenElement = document.querySelector("#game-over-screen")! as HTMLDivElement;
+const scoreboardOffsetElement = document.querySelector("#scoreboard-offset")! as HTMLDivElement;
+const gameOverTitleElement = document.querySelector("#game-over-title")! as HTMLHeadingElement;
+const finalScoreElement = document.querySelector("#final-score")! as HTMLDivElement;
+const playAgainButton = document.querySelector("#play-again")! as HTMLButtonElement;
+
 const startPoints = 500;
 const secondsPerTurn = 20;
 const durationOfTurnMS = secondsPerTurn * 1000;
@@ -74,6 +81,19 @@ const getParts = async () => {
   }
 };
 
+const explode = () => {
+  quizButtonElements.forEach((button) => {
+    button.setAttribute("data-boom", "true");
+  });
+
+  // Either "selection" or "timer" would work as a parameter here.
+  quizButtonElements[quizButtonElements.length - 1].addEventListener("transitionend", (event) => {
+    // Important to only listen for one property to finish to
+    // prevent multiple calls to clearPlayScreen();
+    if (event.propertyName === "transform") clearPlayScreen("selection");
+  });
+};
+
 // Called after every correct answer from imageLoaded().
 const resetTimer = () => {
   currentPartPointsElement.innerText = startPoints + "";
@@ -94,6 +114,11 @@ const updateCurrentPointsDOM = (currentPoints: number) => {
   if (currentPoints < currentPointsDOMValue - updateDOMInterval) {
     currentPointsDOMValue = currentPoints;
     currentPartPointsElement.innerText = currentPointsDOMValue + "";
+
+    // Low point warning.
+    if (currentPointsDOMValue < 150) {
+      currentPartPointsElement.style.color = "red";
+    }
   }
 };
 
@@ -254,31 +279,30 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
   };
 
+  if (type === "selection" || type === "timer") explode();
+
   // Log game in database.
   await logGame(gameStats);
 
+  if (type === "win") clearPlayScreen("win");
+};
+
+// Function is called by the end of the explode() transition or by a game win.
+const clearPlayScreen = (type: "selection" | "timer" | "win") => {
   const gameCurtain = document.querySelector(`[data-game-curtain]`)! as HTMLElement;
   gameCurtain.setAttribute("data-game-curtain", "down");
-
-  const gameOverScreenElement = document.querySelector(`[data-game-end-type="${type === "win" ? "win" : "loss"}"]`)! as HTMLElement;
-  gameOverScreenElement.setAttribute("data-screen-active", "true");
-
-  const finalScoreElement = document.querySelector(`[data-screen-active="true"] .final-score`)! as HTMLDivElement;
-  finalScoreElement.innerText = totalPoints.toLocaleString();
-
-  const playAgainButton = document.querySelector(`[data-screen-active="true"] .play-again`)! as HTMLButtonElement;
-  playAgainButton.addEventListener("click", () => window.location.reload());
 
   // Clean up and build.
   answerButtonListeners("remove");
   imageLoadListeners("remove");
+  buildGameOverScreen(type);
   buildScoreboard();
   buildShareButton();
   checkFunScore();
 };
 
 const checkFunScore = () => {
-  const funScoreElement = document.querySelector(`[data-screen-active="true"] .fun-score`)! as HTMLDivElement;
+  const funScoreElement = document.querySelector("#fun-score")! as HTMLDivElement;
 
   if (totalPoints === 13) {
     funScoreElement.innerText = "Bad Luck.";
@@ -307,23 +331,19 @@ const checkFunScore = () => {
   }
 };
 
+// Builds logic for share api or removes if browser does not support.
 const buildShareButton = () => {
-  // There are two buttons at the moment, so we need to grab the button in the active section.
-  const shareButtonElement = document.querySelector(`[data-screen-active="true"] .share`)! as HTMLButtonElement;
-
+  const shareButtonElement = document.querySelector("#share")! as HTMLButtonElement;
   const canShare = navigator.canShare;
-
   if (!canShare) {
     shareButtonElement.remove();
     return;
   }
-
   const shareData = {
     url: "https://www.namethatpart.com",
     text: `Think you're a real bicycle nerd? Test your skills with "Name That Part"!`,
     title: "Name That Part - Bicycle Game",
   };
-
   const shareGame = async () => {
     try {
       await window.navigator.share(shareData);
@@ -331,7 +351,6 @@ const buildShareButton = () => {
       console.error(e);
     }
   };
-
   shareButtonElement.addEventListener("click", shareGame);
 };
 
@@ -386,7 +405,7 @@ const updateLocalPlayerNameList = (playerName: string) => {
     for (const name of nameList) uniqueNames.add(name);
     uniqueNames.add(playerName);
 
-    playerNames = Array.from(uniqueNames).join(", ");
+    playerNames = Array.from(uniqueNames).sort().join(", ");
   }
 
   localStorage.setItem("playerNames", playerNames);
@@ -452,8 +471,6 @@ const checkUserInDatabase = async () => {
 
 // Builds a motivational string based on what place a user is closest to getting.
 const calculatePointDifference = (type: "new-first" | "first-tie" | "on-scoreboard" | "off-scoreboard", score: number) => {
-  const scoreboardOffsetElement = document.querySelector(`[data-screen-active="true"] .scoreboard-offset`)! as HTMLDivElement;
-
   switch (type) {
     case "first-tie": {
       const tiedFirstTimeDifference = timerInterval / 1000;
@@ -506,6 +523,16 @@ const logLocalTime = async () => {
 
   const request = await apiHelper(`${dbHost}/api/stats/local-time`, "POST", data);
   if (request?.status !== 200) throw new Error("Error setting local time.");
+};
+
+const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
+  gameOverScreenElement.setAttribute("data-game-end-type", type);
+  gameOverScreenElement.setAttribute("data-screen-active", "true");
+
+  gameOverTitleElement.innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
+  finalScoreElement.innerText = totalPoints.toLocaleString();
+
+  playAgainButton.addEventListener("click", () => window.location.reload());
 };
 
 // Builds DOM <table> with stats after the game is saved in the database.
@@ -587,6 +614,17 @@ const buildScoreboard = async () => {
 
   tableBodyElement.setAttribute("data-active", "true");
   highlightMyScore();
+  getTotalGames();
+};
+
+const getTotalGames = async () => {
+  const totalGamesElement = document.querySelector(`#total-games`)! as HTMLDivElement;
+
+  const request = await apiHelper(`${dbHost}/api/stats/total-games`);
+  if (request?.status === 200) {
+    const totalGames: number = request.data.total;
+    totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
+  }
 };
 
 // Shows user where their score is on the database.
@@ -662,8 +700,10 @@ const beginCountdownToStart = () => {
     }
 
     secondsUntilStart--;
+    const bgColor = secondsUntilStart === 3 ? "red" : secondsUntilStart === 2 ? "yellow" : "green";
     countdownSecondsElement.innerText = secondsUntilStart + "";
-  }, 1000);
+    countdownSecondsElement.setAttribute("data-color", bgColor);
+  }, 1250);
 };
 
 const focusStage = () => {

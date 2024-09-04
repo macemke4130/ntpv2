@@ -121,7 +121,7 @@ router.get(`${apiRoute}/stats/total-games`, async (req, res) => {
     const response = {
       message: "Total number of games played.",
       status: 200,
-      data: sql,
+      data: sql[0],
     };
 
     res.json(response);
@@ -139,7 +139,9 @@ router.get(`${apiRoute}/stats/total-games`, async (req, res) => {
 // Gets top scoreboard entries
 router.get(`${apiRoute}/stats/scoreboard`, async (req, res) => {
   try {
-    const sql = await query(`SELECT * FROM stats ORDER BY final_score DESC LIMIT 10;`);
+    const sql = await query(
+      `SELECT id, correct_answers, total_parts, display_name, final_score, game_end_local_time, FROM stats ORDER BY final_score DESC LIMIT 10;`
+    );
 
     const response = {
       message: "Scoreboard.",

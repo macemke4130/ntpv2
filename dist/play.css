@@ -38,7 +38,23 @@ section[aria-label="Answers"] {
     padding: 0.5rem;
     border-radius: 0.25rem;
     cursor: pointer;
+
+    transition-property: transform background-color;
+    transition-timing-function: linear;
+    transition-duration: 250ms;
   }
+}
+
+[data-boom="true"] {
+  background-color: rgb(181, 0, 0);
+}
+
+[data-boom="true"]:nth-child(odd) {
+  transform: rotate(25deg) translate(10%, 50%);
+}
+
+[data-boom="true"]:nth-child(even) {
+  transform: rotate(-25deg) translate(-20%, -70%);
 }
 
 [data-game-curtain="down"] {
@@ -136,35 +152,35 @@ table {
   }
 }
 
-.game-over-title {
+#game-over-title {
   font-size: 2.5rem;
   margin-bottom: 0.25rem;
   text-align: center;
 }
 
-.final-score-title {
+#final-score-title {
   font-size: 1.15rem;
   text-align: center;
 }
 
-.final-score {
+#final-score {
   font-size: 3.5rem;
   text-align: center;
 }
 
-.fun-score {
+#fun-score {
   text-align: center;
   margin-bottom: 1rem;
 }
 
-.scoreboard-offset {
+#scoreboard-offset {
   font-size: 1.25rem;
   text-align: center;
   margin-top: 0.5rem;
   line-height: 1.5;
 }
 
-.play-again {
+#play-again {
   display: block;
   margin: 1rem auto;
   font-size: 1.5rem;
@@ -192,7 +208,32 @@ table {
   height: 20rem;
   border: var(--btn-border);
   border-radius: 100%;
-  background: var(--btn-color);
+
+  transition-property: background-color;
+  transition-duration: 250ms;
+}
+
+/* attr() as value besides content is still experimental.
+Using :has() selector to avoid another querySelector() for #countdown-seconds. */
+#countdown-container:has(#countdown-seconds[data-color="red"]) {
+  background-color: rgb(181, 0, 0);
+}
+
+#countdown-container:has(#countdown-seconds[data-color="yellow"]) {
+  background-color: rgb(216, 216, 0);
+}
+
+#countdown-container:has(#countdown-seconds[data-color="green"]) {
+  background-color: green;
+}
+
+#countdown-seconds[data-color="yellow"] {
+  color: black;
+}
+
+#countdown-seconds[data-color="green"],
+#countdown-seconds[data-color="red"] {
+  text-shadow: 2px 2px 5px black;
 }
 
 #countdown-seconds {

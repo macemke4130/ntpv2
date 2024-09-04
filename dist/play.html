@@ -33,23 +33,14 @@
         </section>
       </div>
       <div data-game-over>
-        <section data-game-end-type="win" data-screen-active="false">
-          <h2 class="game-over-title">You Win!</h2>
-          <div class="final-score-title">Total Points</div>
-          <div class="final-score"></div>
-          <div class="fun-score"></div>
-          <div class="scoreboard-offset"></div>
-          <button class="play-again">Play Again?</button>
-          <button class="share">Share Name That Part with friends</button>
-        </section>
-        <section data-game-end-type="loss" data-screen-active="false">
-          <h2 class="game-over-title">You Lose!</h2>
-          <div class="final-score-title">Total Points</div>
-          <div class="final-score"></div>
-          <div class="fun-score"></div>
-          <div class="scoreboard-offset"></div>
-          <button class="play-again">Play Again?</button>
-          <button class="share">Share Name That Part with friends</button>
+        <section id="game-over-screen" data-game-end-type data-screen-active="false">
+          <h2 id="game-over-title"></h2>
+          <div id="final-score-title">Total Points</div>
+          <div id="final-score"></div>
+          <div id="fun-score"></div>
+          <div id="scoreboard-offset"></div>
+          <button id="play-again">Play Again?</button>
+          <button id="share">Share Name That Part with friends</button>
         </section>
         <table id="scoreboard">
           <thead>
@@ -64,6 +55,7 @@
           <tbody data-active="false"></tbody>
           <tfoot></tfoot>
         </table>
+        <div id="total-games" class="credit"></div>
       </div>
       <dialog id="player-name">
         <div id="player-form-container">
@@ -88,7 +80,7 @@
 
     <div id="countdown-to-start">
       <div id="countdown-container">
-        <div id="countdown-seconds"></div>
+        <div id="countdown-seconds" data-color="red"></div>
       </div>
     </div>
 
