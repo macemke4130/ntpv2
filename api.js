@@ -140,7 +140,7 @@ router.get(`${apiRoute}/stats/total-games`, async (req, res) => {
 router.get(`${apiRoute}/stats/scoreboard`, async (req, res) => {
   try {
     const sql = await query(
-      `SELECT id, correct_answers, total_parts, display_name, final_score, game_end_local_time, FROM stats ORDER BY final_score DESC LIMIT 10;`
+      `SELECT id, correct_answers, total_parts, display_name, final_score, game_end_local_time FROM stats ORDER BY final_score DESC LIMIT 10;`
     );
 
     const response = {
