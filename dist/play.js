@@ -32,6 +32,7 @@ const gameOverScreenElement = document.querySelector("#game-over-screen");
 const scoreboardOffsetElement = document.querySelector("#scoreboard-offset");
 const gameOverTitleElement = document.querySelector("#game-over-title");
 const finalScoreElement = document.querySelector("#final-score");
+const correctElement = document.querySelector("#correct");
 const playAgainButton = document.querySelector("#play-again");
 const startPoints = 500;
 const secondsPerTurn = 20;
@@ -273,6 +274,10 @@ const clearPlayScreen = (type) => {
 };
 const checkFunScore = () => {
     const funScoreElement = document.querySelector("#fun-score");
+    if (totalPoints === 0) {
+        funScoreElement.innerText = "Don't Give Up!";
+        return;
+    }
     if (totalPoints === 13) {
         funScoreElement.innerText = "Bad Luck.";
         return;
@@ -460,8 +465,18 @@ const buildGameOverScreen = (type) => {
     gameOverScreenElement.setAttribute("data-screen-active", "true");
     gameOverTitleElement.innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
     finalScoreElement.innerText = totalPoints.toLocaleString();
-    playAgainButton.addEventListener("click", () => window.location.reload());
+    correctElement.innerText = `${currentPart} out of ${parts.length}`;
+    playAgainButton.addEventListener("click", playAgainClick);
 };
+const playAgainClick = () => __awaiter(void 0, void 0, void 0, function* () {
+    const data = {
+        uuid: getLocalUUID(),
+    };
+    const request = yield apiHelper(`${dbHost}/api/users/play-again`, "POST", data);
+    if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
+        window.location.reload();
+    }
+});
 // Builds DOM <table> with stats after the game is saved in the database.
 const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
     const statsFromDatabase = yield apiHelper(`${dbHost}/api/stats/scoreboard`);

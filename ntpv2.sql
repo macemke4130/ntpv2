@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   uuid CHAR(8) NOT NULL,
   player_names TEXT,
   device_info TEXT,
+  play_again_count INT DEFAULT 0 NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 

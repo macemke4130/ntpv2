@@ -226,4 +226,30 @@ router.post(`${apiRoute}/stats/log-game`, async (req, res) => {
   }
 });
 
+// Play Again
+router.post(`${apiRoute}/users/play-again`, async (req, res) => {
+  const data = prepData(req.body);
+
+  try {
+    const sql = await query(`UPDATE users SET play_again_count = play_again_count + 1 WHERE uuid = ${data.marks}`, [data.values]);
+
+    const response = {
+      message: "Play again count updated.",
+      status: 200,
+      data: sql,
+    };
+
+    res.json(response);
+  } catch (e) {
+    const response = {
+      message: e.sqlMessage,
+      status: e.errno,
+      data: null,
+    };
+
+    res.json(response);
+    console.log(e);
+  }
+});
+
 export default router;

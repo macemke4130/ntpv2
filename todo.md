@@ -1,12 +1,10 @@
 # To Do
 
-- Log number of "play again" clicks in users table
-- Consolidate Win and Lose sections to single section to build with JS
-- Need loading state animation for some fetch calls.
+- "How to play" on homepage
+- Need loading / inactive state animation for some fetch calls.
   - Submit name button
   - Wrong answer
   - Final part / Win game
-- X out of Y correct printout after game end
 - Show total games played underneath scoreboard
 - Write audit to remove local_time stats that have been pushed off the scoreboard by higher scores.
 - Point api/stats to most recent games up to 100 per page
@@ -17,6 +15,9 @@
 
 ## Done
 
+- X out of Y correct printout after game end
+- Log number of "play again" clicks in users table
+- Consolidate Win and Lose sections to single section
 - Sort player names alphabetically
 - Scoreboard is over-fetching. Only request appropirate data.
 - Users at this device
