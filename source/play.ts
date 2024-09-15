@@ -96,6 +96,7 @@ const explode = () => {
 };
 
 // Called after every correct answer from imageLoaded().
+// Double check: Maybe not after final correct answer.
 const resetTimer = () => {
   currentPartPointsElement.innerText = startPoints + "";
   currentPoints = startPoints;
@@ -537,7 +538,10 @@ const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
 
   gameOverTitleElement.innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
   finalScoreElement.innerText = totalPoints.toLocaleString();
-  correctElement.innerText = `${currentPart} out of ${parts.length}`;
+
+  // currentPart does not advance after last part on gameOver("win")
+  // so I check here before displaying the score.
+  correctElement.innerText = `${type === "win" ? currentPart + 1 : currentPart} out of ${parts.length}`;
 
   playAgainButton.addEventListener("click", playAgainClick);
 };

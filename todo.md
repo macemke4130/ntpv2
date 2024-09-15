@@ -1,20 +1,40 @@
 # To Do
 
+- Turn existing gameplay into "Veteran Mode" and create version of game that will play all the way through unless the time runs out. Call it "Rookie Mode".
+  - Wrong answer will continue gameplay. Keep track of wrong answers.
+    - Score[] equal to the length of Parts[]?
+      - Score[] has info about time per turn, number of mouse hovers per turn, correctAnswer boolean,
+      - Build Score[] with Parts[].fill and populate blank score objects? Update Score[currentPart] after answer selection?
+  - Eliminate answer button animations
+  - Toggle button on Home Page for "Veteran or Rookie". Default to rookie.
+  - New field in database for game mode
+  - Scoreboard <table> shows which mode user played in. Or...
+    - Two scoreboards? One for each mode? Scoreboard the user just played is on top?
+  - Show which answers were wrong after the game above the scoreboard, but do not give correct answers.
+  - If a user plays on Rookie a multiple of 10 times in a row, prompt "Try in Expert Mode?"
+    - Keep track with localStorage
+    - Clear numberOfRookieGames with the home page toggle.
+  - localStorage to determine mode. URL parameter would potentially lead to someone sharing veteran mode to a rookie.
+- Scoreboard shows top 100
+  - Overflow <div> window scrolls to the player's score
+  - 75vh or similar
 - "How to play" on homepage
 - Need loading / inactive state animation for some fetch calls.
   - Submit name button
   - Wrong answer
   - Final part / Win game
-- Show total games played underneath scoreboard
 - Write audit to remove local_time stats that have been pushed off the scoreboard by higher scores.
 - Point api/stats to most recent games up to 100 per page
 - Human readable all stats page behind password
-- Put IP address and device info in users table instead of stats table
 - How to submit parts page. Tutorial on taking photos and submitting fake answer suggestions.
-- Display random motivational message for score below a new first place.
 
 ## Done
 
+- Footer with links and copywrite
+- Perfect score "x out of y" is off by 1
+- Display random motivational message for score below a new first place.
+- Put IP address and device info in users table instead of stats table
+- Show total games played underneath scoreboard
 - X out of Y correct printout after game end
 - Log number of "play again" clicks in users table
 - Consolidate Win and Lose sections to single section
