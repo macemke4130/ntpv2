@@ -13,6 +13,7 @@ const dbHost = "http://127.0.0.1:3002";
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);
 const dateUpdatedElement = document.querySelector(`#date-updated`);
+const gameModeSwitchElements = document.querySelectorAll(`input[name="gameMode"]`);
 const fillGameData = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = yield fetch("./quiz.json");
@@ -47,5 +48,34 @@ const getTotalGames = () => __awaiter(void 0, void 0, void 0, function* () {
         totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
     }
 });
+const showGameRules = (gameMode) => {
+    const rulesContainerElement = document.querySelector(`#rules-container`);
+    const rulesWrapperElement = document.querySelector(`#rules-wrapper`);
+    const containerElementStyles = window.getComputedStyle(rulesContainerElement);
+    const containerElementWidth = containerElementStyles.width;
+    rulesWrapperElement.style.transform = `translateX(-${gameMode === "v" ? containerElementWidth : 0})`;
+};
+const setDOMGameSwitch = (event, gameMode) => {
+    const target = event === null || event === void 0 ? void 0 : event.target;
+    const newGameMode = target ? target.value : gameMode;
+    const input = document.querySelector(`input[value="${newGameMode}"]`);
+    input.checked = true;
+    localStorage.setItem("gameMode", newGameMode);
+    showGameRules(newGameMode);
+};
+// Switch with input.
+gameModeSwitchElements.forEach((input) => {
+    input.addEventListener("change", function (event) {
+        setDOMGameSwitch(event, "r");
+    });
+});
+// Determine on load.
+const determineGameMode = () => {
+    if (!localStorage.getItem("gameMode")) {
+        localStorage.setItem("gameMode", "r");
+        setDOMGameSwitch(null, "r");
+    }
+};
+determineGameMode();
 fillGameData();
 getTotalGames();

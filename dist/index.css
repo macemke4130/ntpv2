@@ -1,30 +1,96 @@
-main {
-  h1,
-  h2 {
-    text-align: center;
-  }
+h1,
+h2,
+h3 {
+  text-align: center;
+}
+h1 {
+  font-size: 3rem;
+  margin: 0.5rem 0 0 0;
+}
+
+h2 {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+h3 {
+  font-size: 1.55rem;
+  margin: 0.5rem;
+}
+
+header {
+  position: relative;
+}
+
+#game-title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+}
+
+@media (max-width: 1026px) {
   h1 {
-    font-size: 4rem;
-    margin: 0.5rem 0 0 0;
+    font-size: 2rem;
   }
 
   h2 {
-    font-size: 2rem;
-    margin: 0;
-
-    span {
-      font-size: 1.75rem;
-    }
+    font-size: 1.15rem;
   }
+}
 
+main {
   ul {
-    list-style: none;
-    padding: 0;
+    /* list-style: none; */
+    padding: 0 2rem;
     font-size: 1.25rem;
 
     li {
       padding: 0 0 0.5rem 0;
-      text-align: center;
+      /* text-align: center; */
+    }
+  }
+
+  #difficulty {
+    display: flex;
+    justify-content: space-evenly;
+    width: 20rem;
+    margin: 1rem auto;
+    text-align: center;
+
+    legend {
+      padding: 0.75rem;
+    }
+  }
+
+  #rules-container {
+    border-radius: 1rem;
+    border: 2px solid var(--btn-border-color);
+    width: var(--rules-width);
+    max-width: var(--rules-max-width);
+    overflow-x: hidden;
+    margin: 0 auto 1rem auto;
+    background: rgb(68, 34, 102);
+    color: white;
+
+    #rules-wrapper {
+      display: flex;
+      transform: translateX(-0);
+
+      transition-property: transform;
+      transition-duration: 400ms;
+      transition-timing-function: ease-out;
+    }
+
+    #rules-r,
+    #rules-v {
+      padding: 0.25rem;
+      flex-shrink: 0;
+      width: var(--rules-width);
+      max-width: var(--rules-max-width);
     }
   }
 }

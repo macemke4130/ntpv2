@@ -12,35 +12,54 @@
       <div id="camera" aria-hidden="true">
         <div id="filmstrip"></div>
       </div>
+      <div id="game-title">
+        <h1>Name That Part!</h1>
+        <h2>The game for discerning bicycle mechanics and nerds alike.</h2>
+      </div>
     </header>
     <main>
-      <h1>Name That Part!</h1>
-      <h2>
-        <div>The game for discerning bicycle mechanics and nerds alike.</div>
-        <div>Choose wisely or perish.</div>
-      </h2>
-      <ul>
-        <li><span id="total-parts">00</span> parts currently in game</li>
-        <li>Last part added on <span id="date-updated">00/00/2024</span></li>
-        <li style="margin-top: 1rem">2 photos, 4 options</li>
-        <li>20 seconds per part to choose</li>
-        <li style="margin-bottom: 1rem">
-          <div>1 point drop every 40 milliseconds</div>
-          <span style="font-size: 0.9rem; margin-top: 0.15rem">
-            (Points drop much faster than the counter shows<br />
-            This equates to 25 points every second)
-          </span>
-        </li>
-        <li>If the points reach zero, game over</li>
-        <li>If you choose wrong, game over</li>
-        <li>Are you good enough to join the Scoreboard?</li>
-      </ul>
-      <div class="credit">
-        This game was created, funded and is maintained by <a href="https://www.lucasmace.com/" target="_blank">Lucas Mace</a>.
-        <div><a href="./about.html">Learn More</a></div>
-      </div>
-      <div id="total-games" class="credit"></div>
+      <fieldset id="difficulty">
+        <legend>Choose Game Difficulty</legend>
+        <label>
+          <div>Rookie</div>
+          <input type="radio" id="rookie" name="gameMode" value="r" checked />
+        </label>
+        <label>
+          <div>Veteran</div>
+          <input type="radio" id="veteran" name="gameMode" value="v" />
+        </label>
+      </fieldset>
+      <h3 style="margin-bottom: 0.25rem">How to play</h3>
+      <section id="rules-container" aria-label="How to play the game">
+        <div id="rules-wrapper">
+          <div id="rules-r" aria-hidden="false">
+            <h3>Rookie Difficulty</h3>
+            <ul>
+              <li>Click 1 of the 4 options for what bike part the photos show</li>
+              <li>If you take longer than 20 seconds for any part, game over</li>
+              <li>You'll get your score when you finish the game</li>
+              <li>There is no scoreboard for Rookie difficulty</li>
+            </ul>
+          </div>
+          <div id="rules-v" aria-hidden="true">
+            <h3>Veteran Difficulty</h3>
+            <ul>
+              <li>Click 1 of the 4 options for what bike part the photos show</li>
+              <li>If you take longer than 20 seconds for any part, game over</li>
+              <li>If you choose the wrong answer for any part, game over</li>
+              <li>If you're in the top 100 scores, you'll join the scoreboard</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <a class="start-game" href="./play.html">Start Game</a>
+
+      <section aria-label="Current Game Stats" class="credit">
+        <div><span id="total-parts">00</span> parts currently in game</div>
+        <div>Last part added on <span id="date-updated">00/00/2024</span></div>
+        <div id="total-games"></div>
+        <a href="./about.html">Learn More</a>
+      </section>
     </main>
 
     <footer id="footer"></footer>

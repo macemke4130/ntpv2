@@ -5,11 +5,11 @@ const buildFooter = () => {
   const thisYear = rightNow.getFullYear();
 
   const homeLinkElement = document.createElement("a");
-  homeLinkElement.setAttribute("href", "/dist/");
+  homeLinkElement.setAttribute("href", "/");
   homeLinkElement.innerText = "Home";
 
   const aboutLinkElement = document.createElement("a");
-  aboutLinkElement.setAttribute("href", "/dist/about.html");
+  aboutLinkElement.setAttribute("href", "/about.html");
   aboutLinkElement.innerText = "About";
 
   const creditLinkElement = document.createElement("a");

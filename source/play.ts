@@ -1,4 +1,4 @@
-import { Part, Stat, DBResponse } from "./types";
+import { GameMode, Part, DBResponse } from "./types";
 
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -35,6 +35,7 @@ const timerInterval = durationOfTurnMS / startPoints;
 const updateDOMInterval = 2; // This value is arbitrary.
 
 // State
+let gameMode: GameMode = "r";
 let parts: Part[] = [];
 let correctAnswer = "";
 let currentPart = 0;
@@ -49,6 +50,13 @@ const imageLoadState = {
   one: false,
   two: false,
 };
+
+const determineGameMode = () => {
+  if (!localStorage.getItem("gameMode")) localStorage.setItem("gameMode", "r");
+  gameMode = localStorage.getItem("gameMode") as GameMode;
+};
+
+determineGameMode();
 
 const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
   const headers = { "Content-Type": "application/json", Accept: "application/json" };

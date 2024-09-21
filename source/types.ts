@@ -1,3 +1,5 @@
+export type GameMode = "r" | "v";
+
 export type Part = {
   answers: Array<string>;
   images: Array<string>;

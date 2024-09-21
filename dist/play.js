@@ -41,6 +41,7 @@ const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
 const updateDOMInterval = 2; // This value is arbitrary.
 // State
+let gameMode = "r";
 let parts = [];
 let correctAnswer = "";
 let currentPart = 0;
@@ -54,6 +55,12 @@ const imageLoadState = {
     one: false,
     two: false,
 };
+const determineGameMode = () => {
+    if (!localStorage.getItem("gameMode"))
+        localStorage.setItem("gameMode", "r");
+    gameMode = localStorage.getItem("gameMode");
+};
+determineGameMode();
 const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
