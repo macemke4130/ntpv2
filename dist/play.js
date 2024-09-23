@@ -51,6 +51,7 @@ let totalPoints = 0;
 let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
+const timerOff = false;
 const imageLoadState = {
     one: false,
     two: false,
@@ -108,6 +109,8 @@ const resetTimer = () => {
     currentPoints = startPoints;
     currentPointsDOMValue = startPoints;
     playTimer = setInterval(() => {
+        if (timerOff)
+            return; // For Dev.
         if (currentPoints <= 0) {
             gameOver("timer");
             return;
@@ -153,6 +156,15 @@ const answerClick = (event) => {
         if (currentPart === parts.length - 1) {
             gameOver("win");
             return;
+        }
+        // After first correct answer, remove hint and glows.
+        // I'm only removing text content to avoid layout shift.
+        if (currentPart === 0) {
+            const hintElement = document.querySelector("#hint");
+            hintElement.innerText = "";
+            quizButtonElements.forEach((answer) => {
+                answer.classList.remove("glow");
+            });
         }
         // More parts remain in [parts].
         // Prepare state for next turn.

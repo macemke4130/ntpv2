@@ -33,7 +33,7 @@ section[aria-label="Answers"] {
     width: 100%;
     height: 3rem;
     font-size: 1.25rem;
-    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
     border: var(--btn-border);
     padding: 0.5rem;
     border-radius: 0.25rem;
@@ -283,6 +283,44 @@ Using :has() selector to avoid another querySelector() for #countdown-seconds. *
 }
 
 @keyframes reward-fade-out {
+  0% {
+    opacity: 100%;
+  }
+
+  100% {
+    opacity: 0%;
+  }
+}
+
+#hint {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
+  height: 2.5rem;
+  font-weight: bold;
+  padding: 0.25rem;
+}
+
+.glow {
+  position: relative;
+}
+
+.glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  box-shadow: rgba(202 72 140 / 80%) 0 0 10px 7px;
+
+  animation-name: pulse;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+  animation-timing-function: linear;
+}
+
+@keyframes pulse {
   0% {
     opacity: 100%;
   }

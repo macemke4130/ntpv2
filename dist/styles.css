@@ -6,7 +6,7 @@
   --text-color: rgb(205, 205, 205);
   --btn-border: 1px solid var(--btn-border-color);
   --rules-width: 90vw;
-  --rules-max-width: 45rem;
+  --rules-max-width: 38rem;
 }
 
 *::selection {
