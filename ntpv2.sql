@@ -19,6 +19,7 @@ DROP TABLE stats;
 CREATE TABLE IF NOT EXISTS stats (
   id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
   connection VARCHAR(8),
+  game_mode ENUM("r", "v") NOT NULL,
   correct_answers SMALLINT NOT NULL,
   final_score MEDIUMINT NOT NULL,
   total_parts SMALLINT NOT NULL,

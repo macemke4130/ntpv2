@@ -32,7 +32,7 @@ const secondsPerTurn = 20;
 const durationOfTurnMS = secondsPerTurn * 1000;
 const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
-const updateDOMInterval = 2; // This value is arbitrary.
+const updateDOMInterval = 3; // This value is arbitrary.
 
 // State
 let gameMode: GameMode = "r";
@@ -567,6 +567,7 @@ const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
   playAgainButton.addEventListener("click", playAgainClick);
 };
 
+// This API adds 1 to the current play_again column when a user clicks the Play Again <button>.
 const playAgainClick = async () => {
   const data = {
     uuid: getLocalUUID(),
@@ -592,7 +593,7 @@ const buildScoreboard = async () => {
 
   if (totalPoints === highestScore) {
     // Tied for first or new first place
-    showInputPlayerNameModal();
+    if (totalPoints > 0) showInputPlayerNameModal();
 
     // Check 2nd row for equal score
     const secondRowScore = allStats[1].final_score;
@@ -600,7 +601,7 @@ const buildScoreboard = async () => {
     calculatePointDifference(secondRowIsEqual ? "first-tie" : "new-first", secondRowIsEqual ? 0 : secondRowScore);
     logLocalTime();
   } else if (totalPoints >= lowestHighScore) {
-    showInputPlayerNameModal();
+    if (totalPoints > 0) showInputPlayerNameModal();
     calculatePointDifference("on-scoreboard", highestScore);
     logLocalTime();
   } else {

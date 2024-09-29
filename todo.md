@@ -2,8 +2,8 @@
 
 - Remove filmstrip header, replace with static montage image.
   - Make montage image in photoshop.
-- Put gameMode into stats table. Need new column.
 - Turn existing gameplay into "Veteran Mode" and create version of game that will play all the way through unless the time runs out. Call it "Rookie Mode".
+
   - Wrong answer will continue gameplay. Keep track of wrong answers.
   - Mode: Veteran | Rookie toggle located between scores during play.
     - Score[] equal to the length of Parts[]?
@@ -22,6 +22,7 @@
     - Keep track with localStorage
     - Clear numberOfRookieGames with the home page toggle.
   - localStorage to determine mode. URL parameter would potentially lead to someone sharing veteran mode to a rookie.
+
 - Scoreboard shows top 100
   - Overflow <div> window scrolls to the player's score
   - 75vh or similar
@@ -40,6 +41,7 @@
 
 ## Done
 
+- Put gameMode into stats table
 - Footer with links and copywrite
 - Perfect score "x out of y" is off by 1
 - Display random motivational message for score below a new first place.
