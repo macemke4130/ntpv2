@@ -62,6 +62,7 @@ const determineGameMode = () => {
     if (!localStorage.getItem("gameMode"))
         localStorage.setItem("gameMode", "r");
     gameMode = localStorage.getItem("gameMode");
+    document.body.setAttribute("game-mode", gameMode);
 };
 determineGameMode();
 const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {

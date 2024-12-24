@@ -57,6 +57,7 @@ const imageLoadState = {
 const determineGameMode = () => {
   if (!localStorage.getItem("gameMode")) localStorage.setItem("gameMode", "r");
   gameMode = localStorage.getItem("gameMode") as GameMode;
+  document.body.setAttribute("game-mode", gameMode);
 };
 
 determineGameMode();
