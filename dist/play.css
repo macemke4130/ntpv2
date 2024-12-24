@@ -97,9 +97,19 @@ body[game-mode="r"] {
     display: none;
   }
 
-  #game-over-screen {
+  #game-over-title,
+  #final-score-title,
+  #final-score,
+  #correct,
+  #fun-score,
+  #scoreboard-offset,
+  #share {
     display: none;
   }
+}
+
+#share {
+  display: none;
 }
 
 table {
