@@ -356,3 +356,20 @@ Using :has() selector to avoid another querySelector() for #countdown-seconds. *
     width: 100%;
   }
 }
+
+/* Delete after version 2.0 launch */
+#play-mode-buttons {
+  display: flex;
+  justify-content: center;
+  column-gap: 1rem;
+  margin-top: 0.5rem;
+
+  button {
+    margin: 0;
+
+    &.active {
+      outline: 2px solid;
+      outline-offset: 2px;
+    }
+  }
+}

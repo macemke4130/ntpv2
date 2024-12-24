@@ -762,3 +762,15 @@ beginCountdownToStart();
 // };
 // const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
 // testButton.addEventListener("click", testFunction);
+const rookieModeButton = document.querySelector("#rookie-mode");
+const veteranModeButton = document.querySelector("#veteran-mode");
+const temporaryModeSwitch = (event) => {
+    const target = event.currentTarget;
+    const eventGameMode = target.getAttribute("data-game-mode");
+    localStorage.setItem("gameMode", eventGameMode);
+    window.location.reload();
+};
+rookieModeButton.addEventListener("click", temporaryModeSwitch);
+veteranModeButton.addEventListener("click", temporaryModeSwitch);
+const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`);
+currentModeButton.classList.add("active");

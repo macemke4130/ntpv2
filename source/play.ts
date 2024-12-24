@@ -883,3 +883,20 @@ beginCountdownToStart();
 
 // const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
 // testButton.addEventListener("click", testFunction);
+
+const rookieModeButton = document.querySelector("#rookie-mode")! as HTMLButtonElement;
+const veteranModeButton = document.querySelector("#veteran-mode")! as HTMLButtonElement;
+
+const temporaryModeSwitch = (event: Event) => {
+  const target = event.currentTarget as HTMLButtonElement;
+  const eventGameMode = target.getAttribute("data-game-mode") as GameMode;
+
+  localStorage.setItem("gameMode", eventGameMode);
+  window.location.reload();
+};
+
+rookieModeButton.addEventListener("click", temporaryModeSwitch);
+veteranModeButton.addEventListener("click", temporaryModeSwitch);
+
+const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`)! as HTMLButtonElement;
+currentModeButton.classList.add("active");
