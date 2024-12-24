@@ -10,8 +10,7 @@ const getDaySuffix = (dayOfMonth: number) => {
   if (dayOfMonth >= 4) return "th";
 };
 
-// const dbHost = "/";
-const dbHost = "http://127.0.0.1:3002/";
+const dbHost = "http://127.0.0.1:3002";
 
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
@@ -36,7 +35,7 @@ const timerInterval = durationOfTurnMS / startPoints;
 const updateDOMInterval = 3; // This value is arbitrary.
 
 // State
-let gameMode: GameMode = "r";
+let gameMode: GameMode = "v";
 let parts: Part[] = [];
 const rookieScore: RookieScoreObject[] = [];
 let correctAnswer = "";
@@ -48,7 +47,7 @@ let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
 const timerOff = false;
-const shortPartsList = true;
+const shortPartsList = false;
 
 const imageLoadState = {
   one: false,

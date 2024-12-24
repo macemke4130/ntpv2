@@ -41,7 +41,7 @@ const pointDropPerInterval = 1;
 const timerInterval = durationOfTurnMS / startPoints;
 const updateDOMInterval = 3; // This value is arbitrary.
 // State
-let gameMode = "r";
+let gameMode = "v";
 let parts = [];
 const rookieScore = [];
 let correctAnswer = "";
@@ -53,7 +53,7 @@ let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
 const timerOff = false;
-const shortPartsList = true;
+const shortPartsList = false;
 const imageLoadState = {
     one: false,
     two: false,
@@ -672,9 +672,14 @@ const logStartTime = () => {
 };
 // Game over. Log game stats to database.
 const logGame = (gameData) => __awaiter(void 0, void 0, void 0, function* () {
-    const loggingGame = yield apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
-    if ((loggingGame === null || loggingGame === void 0 ? void 0 : loggingGame.status) === 200)
-        databaseInsertId = loggingGame.data.insertId;
+    try {
+        const loggingGame = yield apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
+        if ((loggingGame === null || loggingGame === void 0 ? void 0 : loggingGame.status) === 200)
+            databaseInsertId = loggingGame.data.insertId;
+    }
+    catch (error) {
+        console.error(error);
+    }
 });
 // I don't need or want 36 characters.
 // A lenth of 8 gives over 218 trillion possibilites.

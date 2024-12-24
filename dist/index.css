@@ -20,6 +20,37 @@ h3 {
 
 header {
   position: relative;
+
+  #camera {
+    width: 100vw;
+    overflow-x: hidden;
+
+    #film-roll {
+      display: flex;
+
+      animation: scroll 25s linear infinite;
+
+      .roll {
+        display: flex;
+        flex-shrink: 0;
+
+        .cell {
+          width: 400px;
+          height: 300px;
+        }
+      }
+    }
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0px);
+  }
+
+  100% {
+    transform: translateX(-2000px);
+  }
 }
 
 #game-title {
@@ -29,7 +60,8 @@ header {
   flex-direction: column;
   justify-content: center;
   background: rgba(0, 0, 0, 0.75);
-  color: white;
+  /* color: white; */
+  color: var(--text-color);
 }
 
 @media (max-width: 1026px) {
@@ -39,11 +71,16 @@ header {
 
   h2 {
     font-size: 1.15rem;
+    text-wrap: balance;
   }
 
   #game-title {
     position: static;
     background: transparent;
+  }
+
+  #news {
+    padding-bottom: 25vh;
   }
 }
 

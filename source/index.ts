@@ -77,10 +77,8 @@ gameModeSwitchElements.forEach((input) => {
 
 // Determine on load.
 const determineGameMode = () => {
-  if (!localStorage.getItem("gameMode")) {
-    localStorage.setItem("gameMode", "r");
-    setDOMGameSwitch(null, "r");
-  }
+  const currentGameMode = localStorage.getItem("gameMode") as GameMode | undefined;
+  setDOMGameSwitch(null, currentGameMode || "r");
 };
 
 determineGameMode();
