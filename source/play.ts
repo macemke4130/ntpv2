@@ -641,6 +641,10 @@ const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
 
 // This API adds 1 to the current play_again column when a user clicks the Play Again <button>.
 const playAgainClick = async () => {
+  // Beta mode refresh. Remove after launch.
+  window.location.reload();
+  return;
+
   const data = {
     uuid: getLocalUUID(),
   };
