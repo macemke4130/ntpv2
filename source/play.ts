@@ -803,6 +803,7 @@ const createLocalUUID = () => {
 };
 
 const beginCountdownToStart = () => {
+  return;
   let secondsUntilStart = 3;
   const countdownToStartCurtainElement = document.querySelector("#countdown-to-start")! as HTMLDivElement;
   const countdownSecondsElement = document.querySelector("#countdown-seconds")! as HTMLSpanElement;

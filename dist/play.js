@@ -693,6 +693,7 @@ const createLocalUUID = () => {
     return uuidNew;
 };
 const beginCountdownToStart = () => {
+    return;
     let secondsUntilStart = 3;
     const countdownToStartCurtainElement = document.querySelector("#countdown-to-start");
     const countdownSecondsElement = document.querySelector("#countdown-seconds");
