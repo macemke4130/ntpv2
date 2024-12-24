@@ -25,6 +25,8 @@ const dbHost = "http://127.0.0.1:3002";
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
+const gameProgressTextElement = document.querySelector(`#progress-text`);
+const gameProgressBarElement = document.querySelector(`#progress-bar`);
 const currentPartPointsElement = document.querySelector(`#current-points`);
 const totalPointsElement = document.querySelector(`#total-points`);
 // Game Over Screen Elements.
@@ -95,6 +97,13 @@ const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
         console.error(e);
     }
 });
+const updateGameProgress = () => {
+    if (currentPart === 0) {
+        gameProgressBarElement.setAttribute("max", parts.length + "");
+    }
+    gameProgressTextElement.innerText = `${currentPart + 1} out of ${parts.length}`;
+    gameProgressBarElement.setAttribute("value", currentPart + 1 + "");
+};
 const explode = () => {
     quizButtonElements.forEach((button) => {
         button.setAttribute("data-boom", "true");
@@ -132,6 +141,9 @@ const updateCurrentPointsDOM = (currentPoints) => {
         // Low point warning.
         if (currentPointsDOMValue < 150) {
             currentPartPointsElement.style.color = "red";
+        }
+        else {
+            currentPartPointsElement.style.color = "";
         }
     }
 };
@@ -665,6 +677,7 @@ const imageLoaded = (event) => {
         loadAnswers(currentPart);
         blurPartImages(false);
         imageLoadListeners("remove");
+        updateGameProgress();
         // First part, set start time.
         if (currentPart === 0)
             logStartTime();
@@ -708,6 +721,7 @@ const beginCountdownToStart = () => {
             // Start game.
             loadPartImages(0);
             focusStage();
+            updateGameProgress();
         }
         secondsUntilStart--;
         const bgColor = secondsUntilStart === 3 ? "red" : secondsUntilStart === 2 ? "yellow" : "green";

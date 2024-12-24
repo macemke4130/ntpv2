@@ -16,6 +16,8 @@ const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as Nod
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
 
+const gameProgressTextElement = document.querySelector(`#progress-text`) as HTMLDivElement;
+const gameProgressBarElement = document.querySelector(`#progress-bar`) as HTMLProgressElement;
 const currentPartPointsElement = document.querySelector(`#current-points`)! as HTMLDivElement;
 const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
 
@@ -95,6 +97,15 @@ const getParts = async () => {
   }
 };
 
+const updateGameProgress = () => {
+  if (currentPart === 0) {
+    gameProgressBarElement.setAttribute("max", parts.length + "");
+  }
+
+  gameProgressTextElement.innerText = `${currentPart + 1} out of ${parts.length}`;
+  gameProgressBarElement.setAttribute("value", currentPart + 1 + "");
+};
+
 const explode = () => {
   quizButtonElements.forEach((button) => {
     button.setAttribute("data-boom", "true");
@@ -134,6 +145,8 @@ const updateCurrentPointsDOM = (currentPoints: number) => {
     // Low point warning.
     if (currentPointsDOMValue < 150) {
       currentPartPointsElement.style.color = "red";
+    } else {
+      currentPartPointsElement.style.color = "";
     }
   }
 };
@@ -773,6 +786,7 @@ const imageLoaded = (event: Event) => {
     loadAnswers(currentPart);
     blurPartImages(false);
     imageLoadListeners("remove");
+    updateGameProgress();
 
     // First part, set start time.
     if (currentPart === 0) logStartTime();
@@ -821,6 +835,7 @@ const beginCountdownToStart = () => {
       // Start game.
       loadPartImages(0);
       focusStage();
+      updateGameProgress();
     }
 
     secondsUntilStart--;

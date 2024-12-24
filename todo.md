@@ -1,5 +1,7 @@
 # To Do
 
+- X of Y on play screen to give user idea of how far along they are in the game.
+  - Progress bar?
 - Remove filmstrip header, replace with static montage image.
   - Make montage image in photoshop.
 - Turn existing gameplay into "Veteran Mode" and create version of game that will play all the way through unless the time runs out. Call it "Rookie Mode"
