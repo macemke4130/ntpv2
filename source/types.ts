@@ -24,3 +24,9 @@ export type DBResponse = {
   status: number;
   data: any;
 };
+
+export type RookieScoreObject = {
+  correct: boolean;
+  partName: string;
+  images: string;
+};

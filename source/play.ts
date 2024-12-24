@@ -1,4 +1,4 @@
-import { GameMode, Part, DBResponse } from "./types";
+import { GameMode, Part, DBResponse, RookieScoreObject } from "./types";
 
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -10,7 +10,8 @@ const getDaySuffix = (dayOfMonth: number) => {
   if (dayOfMonth >= 4) return "th";
 };
 
-const dbHost = "http://127.0.0.1:3002";
+// const dbHost = "/";
+const dbHost = "http://127.0.0.1:3002/";
 
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
@@ -37,6 +38,7 @@ const updateDOMInterval = 3; // This value is arbitrary.
 // State
 let gameMode: GameMode = "r";
 let parts: Part[] = [];
+const rookieScore: RookieScoreObject[] = [];
 let correctAnswer = "";
 let currentPart = 0;
 let currentPoints = startPoints;
@@ -46,6 +48,7 @@ let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
 const timerOff = false;
+const shortPartsList = true;
 
 const imageLoadState = {
   one: false,
@@ -86,6 +89,7 @@ const getParts = async () => {
 
     const shuffledParts = [...jsonData.parts].sort(() => 0.5 - Math.random());
     parts = shuffledParts;
+    if (shortPartsList) parts.length = 5;
   } catch (e) {
     console.error(e);
   }
@@ -145,6 +149,27 @@ const preloadNextPart = () => {
   }
 };
 
+const handleRookieAnswer = (answer: string) => {
+  const rookieScoreTemp: RookieScoreObject = {
+    partName: correctAnswer,
+    correct: correctAnswer === answer,
+    images: parts[currentPart].images.join(" && "),
+  };
+
+  rookieScore.push(rookieScoreTemp);
+
+  if (currentPart === parts.length - 1) {
+    gameOver("win");
+    return;
+  }
+
+  currentPart++;
+  clearAnswers();
+  blurPartImages(true);
+  imageLoadListeners("add");
+  loadPartImages(currentPart);
+};
+
 // User has chosen an answer.
 const answerClick = (event: MouseEvent) => {
   // It's possible to use the keyboard to focus and click
@@ -157,23 +182,29 @@ const answerClick = (event: MouseEvent) => {
   const target = event.currentTarget as HTMLButtonElement;
   const answer = target.innerHTML;
 
+  // After first correct answer, remove hint and glows.
+  // I'm only removing text content to avoid layout shift.
+  if (currentPart === 0) {
+    const hintElement = document.querySelector("#hint")! as HTMLDivElement;
+    hintElement.innerText = "";
+
+    quizButtonElements.forEach((answer) => {
+      answer.classList.remove("glow");
+    });
+  }
+
+  // Interrupt for Rookie Mode.
+  if (gameMode === "r") {
+    handleRookieAnswer(answer);
+    return;
+  }
+
   // Correct answer was chosen.
   if (answer === correctAnswer) {
     // Game Win if this was the final part.
     if (currentPart === parts.length - 1) {
       gameOver("win");
       return;
-    }
-
-    // After first correct answer, remove hint and glows.
-    // I'm only removing text content to avoid layout shift.
-    if (currentPart === 0) {
-      const hintElement = document.querySelector("#hint")! as HTMLDivElement;
-      hintElement.innerText = "";
-
-      quizButtonElements.forEach((answer) => {
-        answer.classList.remove("glow");
-      });
     }
 
     // More parts remain in [parts].
@@ -304,10 +335,46 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
 
   if (type === "selection" || type === "timer") explode();
 
-  // Log game in database.
-  await logGame(gameStats);
+  if (gameMode === "v") {
+    // Log game in database.
+    await logGame(gameStats);
+  }
 
   if (type === "win") clearPlayScreen("win");
+};
+
+const reportScoreToPlayer = () => {
+  console.log(rookieScore);
+
+  // Optimize this for only updating the DOM hopefully once.
+  rookieScore.forEach((part) => {
+    const liElement = document.createElement("li");
+    liElement.classList.add("rookie-answer");
+    liElement.classList.add(part.correct ? "correct" : "incorrect");
+
+    const imagesContainerElement = document.createElement("div");
+    imagesContainerElement.classList.add("rookie-images");
+
+    const imageOneElement = document.createElement("img");
+    const imageTwoElement = document.createElement("img");
+
+    const imageSources = part.images.split(" && ");
+
+    imageOneElement.src = `./images/${imageSources[0]}`;
+    imageTwoElement.src = `./images/${imageSources[1]}`;
+
+    imagesContainerElement.appendChild(imageOneElement);
+    imagesContainerElement.appendChild(imageTwoElement);
+
+    const correctElement = document.createElement("div");
+    correctElement.classList.add("answer");
+    correctElement.innerText = part.correct ? "Correct" : "Wrong";
+
+    liElement.appendChild(imagesContainerElement);
+    liElement.appendChild(correctElement);
+
+    dom.get("rookie-results")?.appendChild(liElement);
+  });
 };
 
 // Function is called by the end of the explode() transition or by a game win.
@@ -319,9 +386,14 @@ const clearPlayScreen = (type: "selection" | "timer" | "win") => {
   answerButtonListeners("remove");
   imageLoadListeners("remove");
   buildGameOverScreen(type);
-  buildScoreboard();
-  buildShareButton();
-  checkFunScore();
+
+  if (gameMode === "v") {
+    buildScoreboard();
+    buildShareButton();
+    checkFunScore();
+  } else {
+    reportScoreToPlayer();
+  }
 };
 
 const checkFunScore = () => {
@@ -693,7 +765,7 @@ const imageLoaded = (event: Event) => {
     imageLoadState.one = false;
     imageLoadState.two = false;
 
-    resetTimer();
+    if (gameMode === "v") resetTimer();
     loadAnswers(currentPart);
     blurPartImages(false);
     imageLoadListeners("remove");
@@ -710,8 +782,12 @@ const logStartTime = () => {
 
 // Game over. Log game stats to database.
 const logGame = async (gameData: any) => {
-  const loggingGame = await apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
-  if (loggingGame?.status === 200) databaseInsertId = loggingGame.data.insertId;
+  try {
+    const loggingGame = await apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
+    if (loggingGame?.status === 200) databaseInsertId = loggingGame.data.insertId;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 // I don't need or want 36 characters.
@@ -788,6 +864,12 @@ const answerButtonListeners = (type: "add" | "remove") => {
     }
   }
 };
+
+const dom = new Map<string, Element>();
+const allIdElements = document.querySelectorAll(`[id]`);
+allIdElements.forEach((element) => {
+  dom.set(element.id, element);
+});
 
 imageLoadListeners("add");
 answerButtonListeners("add");

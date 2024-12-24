@@ -43,6 +43,7 @@ const updateDOMInterval = 3; // This value is arbitrary.
 // State
 let gameMode = "r";
 let parts = [];
+const rookieScore = [];
 let correctAnswer = "";
 let currentPart = 0;
 let currentPoints = startPoints;
@@ -52,6 +53,7 @@ let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
 const timerOff = false;
+const shortPartsList = true;
 const imageLoadState = {
     one: false,
     two: false,
@@ -85,6 +87,8 @@ const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
         const jsonData = yield request.json();
         const shuffledParts = [...jsonData.parts].sort(() => 0.5 - Math.random());
         parts = shuffledParts;
+        if (shortPartsList)
+            parts.length = 5;
     }
     catch (e) {
         console.error(e);
@@ -139,6 +143,23 @@ const preloadNextPart = () => {
         });
     }
 };
+const handleRookieAnswer = (answer) => {
+    const rookieScoreTemp = {
+        partName: correctAnswer,
+        correct: correctAnswer === answer,
+        images: parts[currentPart].images.join(" && "),
+    };
+    rookieScore.push(rookieScoreTemp);
+    if (currentPart === parts.length - 1) {
+        gameOver("win");
+        return;
+    }
+    currentPart++;
+    clearAnswers();
+    blurPartImages(true);
+    imageLoadListeners("add");
+    loadPartImages(currentPart);
+};
 // User has chosen an answer.
 const answerClick = (event) => {
     // It's possible to use the keyboard to focus and click
@@ -150,21 +171,26 @@ const answerClick = (event) => {
         return;
     const target = event.currentTarget;
     const answer = target.innerHTML;
+    // After first correct answer, remove hint and glows.
+    // I'm only removing text content to avoid layout shift.
+    if (currentPart === 0) {
+        const hintElement = document.querySelector("#hint");
+        hintElement.innerText = "";
+        quizButtonElements.forEach((answer) => {
+            answer.classList.remove("glow");
+        });
+    }
+    // Interrupt for Rookie Mode.
+    if (gameMode === "r") {
+        handleRookieAnswer(answer);
+        return;
+    }
     // Correct answer was chosen.
     if (answer === correctAnswer) {
         // Game Win if this was the final part.
         if (currentPart === parts.length - 1) {
             gameOver("win");
             return;
-        }
-        // After first correct answer, remove hint and glows.
-        // I'm only removing text content to avoid layout shift.
-        if (currentPart === 0) {
-            const hintElement = document.querySelector("#hint");
-            hintElement.innerText = "";
-            quizButtonElements.forEach((answer) => {
-                answer.classList.remove("glow");
-            });
         }
         // More parts remain in [parts].
         // Prepare state for next turn.
@@ -275,11 +301,38 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
     };
     if (type === "selection" || type === "timer")
         explode();
-    // Log game in database.
-    yield logGame(gameStats);
+    if (gameMode === "v") {
+        // Log game in database.
+        yield logGame(gameStats);
+    }
     if (type === "win")
         clearPlayScreen("win");
 });
+const reportScoreToPlayer = () => {
+    console.log(rookieScore);
+    // Optimize this for only updating the DOM hopefully once.
+    rookieScore.forEach((part) => {
+        var _a;
+        const liElement = document.createElement("li");
+        liElement.classList.add("rookie-answer");
+        liElement.classList.add(part.correct ? "correct" : "incorrect");
+        const imagesContainerElement = document.createElement("div");
+        imagesContainerElement.classList.add("rookie-images");
+        const imageOneElement = document.createElement("img");
+        const imageTwoElement = document.createElement("img");
+        const imageSources = part.images.split(" && ");
+        imageOneElement.src = `./images/${imageSources[0]}`;
+        imageTwoElement.src = `./images/${imageSources[1]}`;
+        imagesContainerElement.appendChild(imageOneElement);
+        imagesContainerElement.appendChild(imageTwoElement);
+        const correctElement = document.createElement("div");
+        correctElement.classList.add("answer");
+        correctElement.innerText = part.correct ? "Correct" : "Wrong";
+        liElement.appendChild(imagesContainerElement);
+        liElement.appendChild(correctElement);
+        (_a = dom.get("rookie-results")) === null || _a === void 0 ? void 0 : _a.appendChild(liElement);
+    });
+};
 // Function is called by the end of the explode() transition or by a game win.
 const clearPlayScreen = (type) => {
     const gameCurtain = document.querySelector(`[data-game-curtain]`);
@@ -288,9 +341,14 @@ const clearPlayScreen = (type) => {
     answerButtonListeners("remove");
     imageLoadListeners("remove");
     buildGameOverScreen(type);
-    buildScoreboard();
-    buildShareButton();
-    checkFunScore();
+    if (gameMode === "v") {
+        buildScoreboard();
+        buildShareButton();
+        checkFunScore();
+    }
+    else {
+        reportScoreToPlayer();
+    }
 };
 const checkFunScore = () => {
     const funScoreElement = document.querySelector("#fun-score");
@@ -598,7 +656,8 @@ const imageLoaded = (event) => {
     if (imageLoadState.one && imageLoadState.two) {
         imageLoadState.one = false;
         imageLoadState.two = false;
-        resetTimer();
+        if (gameMode === "v")
+            resetTimer();
         loadAnswers(currentPart);
         blurPartImages(false);
         imageLoadListeners("remove");
@@ -683,6 +742,11 @@ const answerButtonListeners = (type) => {
         }
     }
 };
+const dom = new Map();
+const allIdElements = document.querySelectorAll(`[id]`);
+allIdElements.forEach((element) => {
+    dom.set(element.id, element);
+});
 imageLoadListeners("add");
 answerButtonListeners("add");
 getParts();

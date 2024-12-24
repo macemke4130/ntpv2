@@ -329,3 +329,30 @@ Using :has() selector to avoid another querySelector() for #countdown-seconds. *
     opacity: 0%;
   }
 }
+
+#rookie-results {
+  --rookie-result-image-width: 12rem;
+  --rookie-result-image-gap: 1rem;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .rookie-images {
+    display: flex;
+    gap: var(--rookie-result-image-gap);
+    width: calc((var(--rookie-result-image-width) * 2) + var(--rookie-result-image-gap));
+  }
+
+  img {
+    width: var(--rookie-result-image-width);
+  }
+
+  .answer {
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    width: 100%;
+  }
+}
