@@ -383,27 +383,33 @@ Using :has() selector to avoid another querySelector() for #countdown-seconds. *
   --rookie-result-image-width: 12rem;
   --rookie-result-image-gap: 1rem;
 
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
   li {
     display: flex;
     justify-content: space-between;
+    margin: 0;
     margin-bottom: 0.5rem;
+    padding: 0;
+    list-style: inherit;
   }
 
   .rookie-images {
     display: flex;
-    gap: var(--rookie-result-image-gap);
-    width: calc((var(--rookie-result-image-width) * 2) + var(--rookie-result-image-gap));
+    width: 50%;
   }
 
   img {
-    width: var(--rookie-result-image-width);
+    width: 50%;
   }
 
   .answer {
     display: grid;
     place-items: center;
     font-size: 1.5rem;
-    width: 100%;
+    width: 50%;
   }
 
   @media (max-width: 1026px) {
