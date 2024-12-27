@@ -38,6 +38,10 @@ const gameOverTitleElement = document.querySelector("#game-over-title");
 const finalScoreElement = document.querySelector("#final-score");
 const correctElement = document.querySelector("#correct");
 const playAgainButton = document.querySelector("#play-again");
+const rookieModeButton = document.querySelector("#rookie-mode");
+const veteranModeButton = document.querySelector("#veteran-mode");
+const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`);
+currentModeButton.classList.add("active");
 const startPoints = 500;
 const secondsPerTurn = 20;
 const durationOfTurnMS = secondsPerTurn * 1000;
@@ -66,7 +70,7 @@ const determineGameMode = () => {
     if (!localStorage.getItem("gameMode"))
         localStorage.setItem("gameMode", "r");
     gameMode = localStorage.getItem("gameMode");
-    document.body.setAttribute("game-mode", gameMode);
+    document.body.setAttribute("data-game-mode", gameMode);
 };
 determineGameMode();
 const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {
@@ -786,6 +790,14 @@ const allIdElements = document.querySelectorAll(`[id]`);
 allIdElements.forEach((element) => {
     dom.set(element.id, element);
 });
+const modeSwitch = (event) => {
+    const target = event.currentTarget;
+    const eventGameMode = target.getAttribute("data-game-mode");
+    localStorage.setItem("gameMode", eventGameMode);
+    window.location.reload();
+};
+rookieModeButton.addEventListener("click", modeSwitch);
+veteranModeButton.addEventListener("click", modeSwitch);
 imageLoadListeners("add");
 answerButtonListeners("add");
 getParts();
