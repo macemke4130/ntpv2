@@ -351,6 +351,10 @@ const reportScoreToPlayer = () => {
         const imageSources = part.images.split(" && ");
         imageOneElement.src = `./images/${imageSources[0]}`;
         imageTwoElement.src = `./images/${imageSources[1]}`;
+        imageOneElement.setAttribute("width", "400");
+        imageOneElement.setAttribute("height", "300");
+        imageTwoElement.setAttribute("width", "400");
+        imageTwoElement.setAttribute("height", "300");
         imagesContainerElement.appendChild(imageOneElement);
         imagesContainerElement.appendChild(imageTwoElement);
         const correctElement = document.createElement("div");
@@ -369,6 +373,8 @@ const clearPlayScreen = (type) => {
     answerButtonListeners("remove");
     imageLoadListeners("remove");
     buildGameOverScreen(type);
+    rookieModeButton.addEventListener("click", modeSwitch);
+    veteranModeButton.addEventListener("click", modeSwitch);
     if (gameMode === "v") {
         buildScoreboard();
         buildShareButton();
@@ -796,8 +802,6 @@ const modeSwitch = (event) => {
     localStorage.setItem("gameMode", eventGameMode);
     window.location.reload();
 };
-rookieModeButton.addEventListener("click", modeSwitch);
-veteranModeButton.addEventListener("click", modeSwitch);
 imageLoadListeners("add");
 answerButtonListeners("add");
 getParts();

@@ -416,6 +416,7 @@ body[data-game-mode="v"] #rookie-game-over {
 
 #rookie-results .rookie-images img {
   width: 50%;
+  height: auto;
   max-width: 20rem;
 }
 
