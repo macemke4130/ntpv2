@@ -154,3 +154,11 @@ main {
     }
   }
 }
+
+[aria-label="Game setup"] {
+  display: none;
+}
+
+body[is-beta="true"] [aria-label="Game setup"] {
+  display: block;
+}

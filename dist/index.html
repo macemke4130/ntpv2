@@ -10,9 +10,6 @@
   </head>
   <body>
     <header>
-      <!-- <div id="camera" aria-hidden="true">
-        <div id="filmstrip"></div>
-      </div> -->
       <div id="camera">
         <div id="film-roll">
           <div class="roll">
@@ -37,6 +34,50 @@
       </div>
     </header>
     <main>
+      <section aria-label="Game setup">
+        <fieldset id="difficulty">
+          <legend>Choose Game Difficulty</legend>
+          <label>
+            <div>Rookie</div>
+            <input type="radio" id="rookie" name="gameMode" value="r" checked />
+          </label>
+          <label>
+            <div>Veteran</div>
+            <input type="radio" id="veteran" name="gameMode" value="v" />
+          </label>
+        </fieldset>
+        <h3 style="margin-bottom: 0.25rem">How to play</h3>
+        <section id="rules-container" aria-label="How to play the game">
+          <div id="rules-wrapper">
+            <div id="rules-r" aria-hidden="false">
+              <h3>Rookie Difficulty</h3>
+              <ul>
+                <li>Click 1 of the 4 options for the bike part you see</li>
+                <li>No time limit for the game</li>
+                <li>After the game, you'll get your results</li>
+                <li>There is no scoreboard for Rookie difficulty</li>
+              </ul>
+            </div>
+            <div id="rules-v" aria-hidden="true">
+              <h3>Veteran Difficulty</h3>
+              <ul>
+                <li>Click 1 of the 4 options for the bike part you see</li>
+                <li>If you take longer than 20 seconds for any part, game over</li>
+                <li>If you choose the wrong answer for any part, game over</li>
+                <li>If you're in the top 100 scores, you'll join the scoreboard</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <a class="start-game" href="./play.html">Start Game</a>
+
+        <section aria-label="Current Game Stats" class="credit">
+          <div><span id="total-parts">00</span> parts currently in game</div>
+          <div>Last part added on <span id="date-updated">00/00/2024</span></div>
+          <div id="total-games"></div>
+          <a href="./about.html">About Name That Part</a>
+        </section>
+      </section>
       <section id="news" aria-labelledby="news-title">
         <h3 id="news-title">Site News</h3>
         <article>
@@ -64,48 +105,6 @@
           <p>- Lucas</p>
         </article>
       </section>
-      <!-- <fieldset id="difficulty">
-        <legend>Choose Game Difficulty</legend>
-        <label>
-          <div>Rookie</div>
-          <input type="radio" id="rookie" name="gameMode" value="r" checked />
-        </label>
-        <label>
-          <div>Veteran</div>
-          <input type="radio" id="veteran" name="gameMode" value="v" />
-        </label>
-      </fieldset>
-      <h3 style="margin-bottom: 0.25rem">How to play</h3>
-      <section id="rules-container" aria-label="How to play the game">
-        <div id="rules-wrapper">
-          <div id="rules-r" aria-hidden="false">
-            <h3>Rookie Difficulty</h3>
-            <ul>
-              <li>Click 1 of the 4 options for the bike part you see</li>
-              <li>If you take longer than 20 seconds for any part, game over</li>
-              <li>You'll get your score when you finish the game</li>
-              <li>There is no scoreboard for Rookie difficulty</li>
-            </ul>
-          </div>
-          <div id="rules-v" aria-hidden="true">
-            <h3>Veteran Difficulty</h3>
-            <ul>
-              <li>Click 1 of the 4 options for the bike part you see</li>
-              <li>If you take longer than 20 seconds for any part, game over</li>
-              <li>If you choose the wrong answer for any part, game over</li>
-              <li>If you're in the top 100 scores, you'll join the scoreboard</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-      <a class="start-game" href="./play.html">Start Game</a>
-
-      <section aria-label="Current Game Stats" class="credit">
-        <div><span id="total-parts">00</span> parts currently in game</div>
-        <div>Last part added on <span id="date-updated">00/00/2024</span></div>
-        <div id="total-games"></div>
-        <a href="./about.html">About Name That Part</a>
-      </section> -->
     </main>
 
     <footer id="footer"></footer>

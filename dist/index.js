@@ -9,6 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const urlParams = new URLSearchParams(window.location.search);
+const isBeta = urlParams.get("isBeta");
+if (isBeta === "1")
+    document.body.setAttribute("is-beta", "true");
 const dbHost = "http://127.0.0.1:3002";
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);

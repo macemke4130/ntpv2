@@ -1,3 +1,7 @@
+const urlParams = new URLSearchParams(window.location.search);
+const isBeta = urlParams.get("isBeta");
+if (isBeta === "1") document.body.setAttribute("is-beta", "true");
+
 import { DBResponse, GameMode } from "./types";
 
 const dbHost = "http://127.0.0.1:3002";

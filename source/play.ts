@@ -1,15 +1,18 @@
+const devSpace = window.location.href.includes("192") || !window.location.href.includes("https") || window.location.hostname.includes("localhost");
+
 // Secure redirect.
-if (!window.location.hostname.includes("localhost")) {
-  if (!window.location.protocol.includes("s")) {
-    window.location.replace("https://www.namethatpart.com/play.html");
-  }
-}
+// if (!window.location.hostname.includes("localhost")) {
+//   if (!window.location.protocol.includes("s")) {
+//     window.location.replace("https://www.namethatpart.com/play.html");
+//   }
+// }
 
 import { GameMode, Part, DBResponse, RookieScoreObject } from "./types";
 
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+// To do: Rewrite this. What was I thinking?
 const getDaySuffix = (dayOfMonth: number) => {
   if (dayOfMonth === 1) return "st";
   if (dayOfMonth === 2) return "nd";
@@ -363,8 +366,19 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
   if (type === "win") clearPlayScreen("win");
 };
 
+const printRookieScore = () => {
+  let rookieCorrectAnswers = 0;
+
+  rookieScore.forEach((part) => {
+    if (part.correct) rookieCorrectAnswers++;
+  });
+
+  const rookieScoreElement = document.querySelector("#rookie-score")! as HTMLDivElement;
+  rookieScoreElement.innerText = `${rookieCorrectAnswers} correct out of ${parts.length}`;
+};
+
 const reportScoreToPlayer = () => {
-  console.log(rookieScore);
+  printRookieScore();
 
   // Optimize this for only updating the DOM hopefully once.
   rookieScore.forEach((part) => {
@@ -538,8 +552,12 @@ const updateDatabaseUserNamesList = async () => {
     player_names: getLocalPlayerNames(),
   };
 
-  const updateUserNames = await apiHelper(`${dbHost}/api/users/new-players`, "POST", playerData);
-  if (updateUserNames?.status !== 200) throw new Error("Updating player names failed.");
+  try {
+    const updateUserNames = await apiHelper(`${dbHost}/api/users/new-players`, "POST", playerData);
+    if (updateUserNames?.status !== 200) throw new Error("Updating player names failed.");
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 const submitPlayerNameToDatabase = async () => {
@@ -817,7 +835,7 @@ const logGame = async (gameData: any) => {
 
 // I don't need or want 36 characters.
 // A lenth of 8 gives over 218 trillion possibilites.
-const createUUID = () => crypto.randomUUID().substring(0, 8);
+const createUUID = () => (devSpace ? "beta-test" : crypto.randomUUID().substring(0, 8));
 const getLocalUUID = () => localStorage.getItem("uuid") || "";
 const isReturningUser = () => !!localStorage.getItem("uuid");
 const getLocalPlayerNames = () => localStorage.getItem("playerNames") || "";
@@ -910,20 +928,3 @@ beginCountdownToStart();
 
 // const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
 // testButton.addEventListener("click", testFunction);
-
-const rookieModeButton = document.querySelector("#rookie-mode")! as HTMLButtonElement;
-const veteranModeButton = document.querySelector("#veteran-mode")! as HTMLButtonElement;
-
-const temporaryModeSwitch = (event: Event) => {
-  const target = event.currentTarget as HTMLButtonElement;
-  const eventGameMode = target.getAttribute("data-game-mode") as GameMode;
-
-  localStorage.setItem("gameMode", eventGameMode);
-  window.location.reload();
-};
-
-rookieModeButton.addEventListener("click", temporaryModeSwitch);
-veteranModeButton.addEventListener("click", temporaryModeSwitch);
-
-const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`)! as HTMLButtonElement;
-currentModeButton.classList.add("active");
