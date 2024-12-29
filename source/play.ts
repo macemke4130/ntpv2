@@ -1,11 +1,11 @@
 const devSpace = window.location.href.includes("192") || !window.location.href.includes("https") || window.location.hostname.includes("localhost");
 
 // Secure redirect.
-// if (!window.location.hostname.includes("localhost")) {
-//   if (!window.location.protocol.includes("s")) {
-//     window.location.replace("https://www.namethatpart.com/play.html");
-//   }
-// }
+if (!window.location.hostname.includes("localhost")) {
+  if (!window.location.protocol.includes("s")) {
+    window.location.replace("https://www.namethatpart.com/play.html");
+  }
+}
 
 import { GameMode, Part, DBResponse, RookieScoreObject } from "./types";
 
@@ -20,7 +20,7 @@ const getDaySuffix = (dayOfMonth: number) => {
   if (dayOfMonth >= 4) return "th";
 };
 
-const dbHost = "http://127.0.0.1:3002";
+let dbHost = "http://127.0.0.1:3002";
 
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
@@ -409,12 +409,21 @@ const reportScoreToPlayer = () => {
     imagesContainerElement.appendChild(imageOneElement);
     imagesContainerElement.appendChild(imageTwoElement);
 
-    const correctElement = document.createElement("div");
-    correctElement.classList.add("answer");
-    correctElement.innerText = part.correct ? "Correct" : "Wrong";
+    const answerContainerElement = document.createElement("div");
+    answerContainerElement.classList.add("answer-container");
+
+    const answerTextOutputElement = document.createElement("div");
+    answerTextOutputElement.classList.add("answer");
+    answerTextOutputElement.innerText = part.correct ? "Correct" : "Wrong";
+
+    const answerBackgroundElement = document.createElement("div");
+    answerBackgroundElement.classList.add("answer-background");
+
+    answerContainerElement.appendChild(answerBackgroundElement);
+    answerContainerElement.appendChild(answerTextOutputElement);
 
     liElement.appendChild(imagesContainerElement);
-    liElement.appendChild(correctElement);
+    liElement.appendChild(answerContainerElement);
 
     dom.get("rookie-results")?.appendChild(liElement);
   });

@@ -10,6 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const devSpace = window.location.href.includes("192") || !window.location.href.includes("https") || window.location.hostname.includes("localhost");
+// Secure redirect.
+if (!window.location.hostname.includes("localhost")) {
+    if (!window.location.protocol.includes("s")) {
+        window.location.replace("https://www.namethatpart.com/play.html");
+    }
+}
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 // To do: Rewrite this. What was I thinking?
@@ -23,7 +29,7 @@ const getDaySuffix = (dayOfMonth) => {
     if (dayOfMonth >= 4)
         return "th";
 };
-const dbHost = "http://127.0.0.1:3002";
+let dbHost = "http://127.0.0.1:3002";
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
@@ -357,11 +363,17 @@ const reportScoreToPlayer = () => {
         imageTwoElement.setAttribute("height", "300");
         imagesContainerElement.appendChild(imageOneElement);
         imagesContainerElement.appendChild(imageTwoElement);
-        const correctElement = document.createElement("div");
-        correctElement.classList.add("answer");
-        correctElement.innerText = part.correct ? "Correct" : "Wrong";
+        const answerContainerElement = document.createElement("div");
+        answerContainerElement.classList.add("answer-container");
+        const answerTextOutputElement = document.createElement("div");
+        answerTextOutputElement.classList.add("answer");
+        answerTextOutputElement.innerText = part.correct ? "Correct" : "Wrong";
+        const answerBackgroundElement = document.createElement("div");
+        answerBackgroundElement.classList.add("answer-background");
+        answerContainerElement.appendChild(answerBackgroundElement);
+        answerContainerElement.appendChild(answerTextOutputElement);
         liElement.appendChild(imagesContainerElement);
-        liElement.appendChild(correctElement);
+        liElement.appendChild(answerContainerElement);
         (_a = dom.get("rookie-results")) === null || _a === void 0 ? void 0 : _a.appendChild(liElement);
     });
 };
