@@ -3,6 +3,16 @@ import { query, apiRoute, prepData } from "./dbConnect.js";
 
 const router = express.Router();
 
+router.get(`${apiRoute}/greet/`, async (req, res) => {
+  const response = {
+    message: "Greeting.",
+    status: 200,
+    data: "Hello, Mace!",
+  };
+
+  res.json(response);
+});
+
 router.get(`${apiRoute}/users/`, async (req, res) => {
   try {
     const sql = await query(`SELECT * FROM users;`);
