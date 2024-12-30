@@ -1,6 +1,9 @@
-// const urlParams = new URLSearchParams(window.location.search);
-// const isBeta = urlParams.get("isBeta");
-// if (isBeta === "1") document.body.setAttribute("is-beta", "true");
+// Secure redirect.
+if (!window.location.hostname.includes("localhost")) {
+  if (!window.location.protocol.includes("s")) {
+    window.location.replace("https://www.namethatpart.com/");
+  }
+}
 
 import { DBResponse, GameMode } from "./types";
 

@@ -1,7 +1,4 @@
 "use strict";
-// const urlParams = new URLSearchParams(window.location.search);
-// const isBeta = urlParams.get("isBeta");
-// if (isBeta === "1") document.body.setAttribute("is-beta", "true");
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,6 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// Secure redirect.
+if (!window.location.hostname.includes("localhost")) {
+    if (!window.location.protocol.includes("s")) {
+        window.location.replace("https://www.namethatpart.com/");
+    }
+}
 const dbHost = "";
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);
