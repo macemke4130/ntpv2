@@ -29,7 +29,7 @@ const getDaySuffix = (dayOfMonth) => {
     if (dayOfMonth >= 4)
         return "th";
 };
-let dbHost = "http://127.0.0.1:3002";
+let dbHost = "";
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);

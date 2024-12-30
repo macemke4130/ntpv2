@@ -4,7 +4,7 @@ if (isBeta === "1") document.body.setAttribute("is-beta", "true");
 
 import { DBResponse, GameMode } from "./types";
 
-const dbHost = "http://127.0.0.1:3002";
+const dbHost = "";
 
 const totalPartsElement = document.querySelector(`#total-parts`)! as HTMLSpanElement;
 const totalGamesElement = document.querySelector(`#total-games`)! as HTMLDivElement;

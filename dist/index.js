@@ -13,7 +13,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const isBeta = urlParams.get("isBeta");
 if (isBeta === "1")
     document.body.setAttribute("is-beta", "true");
-const dbHost = "http://127.0.0.1:3002";
+const dbHost = "";
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);
 const dateUpdatedElement = document.querySelector(`#date-updated`);
