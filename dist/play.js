@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const devSpace = window.location.href.includes("192") || !window.location.href.includes("https") || window.location.hostname.includes("localhost");
 // Secure redirect.
 if (!window.location.hostname.includes("localhost")) {
     if (!window.location.protocol.includes("s")) {
@@ -18,18 +17,20 @@ if (!window.location.hostname.includes("localhost")) {
 }
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-// To do: Rewrite this. What was I thinking?
 const getDaySuffix = (dayOfMonth) => {
-    if (dayOfMonth === 1)
+    const lastNumberInDay = Number(dayOfMonth.toString().charAt(dayOfMonth < 10 ? 0 : 1));
+    if (lastNumberInDay === 0)
+        return "th";
+    if (lastNumberInDay === 1)
         return "st";
-    if (dayOfMonth === 2)
+    if (lastNumberInDay === 2)
         return "nd";
-    if (dayOfMonth === 3)
+    if (lastNumberInDay === 3)
         return "rd";
-    if (dayOfMonth >= 4)
+    if (lastNumberInDay >= 4)
         return "th";
 };
-let dbHost = "";
+const dbHost = "";
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
@@ -309,6 +310,33 @@ const getConnectionSpeed = () => {
     const nav = navigator;
     return ((_a = nav.connection) === null || _a === void 0 ? void 0 : _a.effectiveType) || null;
 };
+const logGamePlayed = (uuid) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const checkUUID = yield apiHelper(`${dbHost}/api/users/exists/${uuid}`);
+        if ((checkUUID === null || checkUUID === void 0 ? void 0 : checkUUID.data) === true) {
+            // User exists. Increment games_played
+            const request = yield apiHelper(`${dbHost}/api/users/game-played`, "POST", { uuid });
+        }
+        else {
+            // User doesn't exist. Create user.
+            const playerData = {
+                uuid,
+                player_names: getLocalPlayerNames(),
+                device_info: getDeviceInfo(),
+            };
+            const request = yield apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
+            console.log(request);
+        }
+    }
+    catch (error) {
+        console.error(error);
+    }
+    try {
+    }
+    catch (error) {
+        console.error(error);
+    }
+});
 // Called when a user selects a wrong answer, their time runs
 // out, or when they win the game.
 const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
@@ -323,12 +351,22 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
         game_end_type: type.charAt(0),
         connection: getConnectionSpeed(),
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
+        game_mode: gameMode,
     };
+    yield logGamePlayed(gameStats.uuid);
     if (type === "selection" || type === "timer")
         explode();
     if (gameMode === "v") {
-        // Log game in database.
-        yield logGame(gameStats);
+        try {
+            // Log game in database.
+            yield logGame(gameStats);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+    else {
+        yield logRookieGame(gameStats);
     }
     if (type === "win")
         clearPlayScreen("win");
@@ -466,11 +504,12 @@ const closePlayerNameModal = () => {
 // Name is already updated in the database, but here we are just finding
 // the corresponding table cell and updating its innerText property.
 const displayFakeData = (playerName) => {
-    const recordNameCell = document.querySelector(`#scoreboard-${databaseInsertId} .playerName`);
+    const recordNameCell = document.querySelector(`#scoreboard-${databaseInsertId} .player-name`);
     const recordDateCell = document.querySelector(`#scoreboard-${databaseInsertId} .date`);
     recordNameCell.innerText = playerName;
     recordDateCell.innerText = getHumanReadableLocalTime();
     closePlayerNameModal();
+    recordNameCell.scrollIntoView({ behavior: "smooth", block: "center" });
 };
 // Only listening for this event when the input play name <dialog> is open.
 const submitPlayerNameWithEnterKey = (event) => {
@@ -528,6 +567,7 @@ const insertUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* (
         player_names: getLocalPlayerNames(),
         device_info: getDeviceInfo(),
     };
+    debugger;
     const request = yield apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
     if ((request === null || request === void 0 ? void 0 : request.status) !== 200)
         throw new Error("Error inserting user in database.");
@@ -659,7 +699,7 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
         const dateCell = document.createElement("td");
         const ranking = getRanking(stat.final_score);
         rankCell.classList.add("rank");
-        nameCell.classList.add("playerName");
+        nameCell.classList.add("player-name");
         scoreCell.classList.add("score");
         partsCell.classList.add("parts");
         dateCell.classList.add("date");
@@ -722,6 +762,26 @@ const imageLoaded = (event) => {
 const logStartTime = () => {
     gameStartTimeMS = Date.now();
 };
+const logRookieGame = (gameStats) => __awaiter(void 0, void 0, void 0, function* () {
+    // Removing some unapplicable game data from stats by creating new object.
+    const gameData = {
+        correct_answers: rookieScore.reduce((acc, part) => acc + (part.correct ? 1 : 0), 0),
+        total_parts: gameStats.total_parts,
+        connection: gameStats.connection,
+        game_duration_in_seconds: gameStats.game_duration_in_seconds,
+        game_mode: "r",
+        uuid: gameStats.uuid,
+        final_score: 0,
+    };
+    try {
+        const loggingRookieGame = yield apiHelper(`${dbHost}/api/stats/log-rookie-game`, "POST", gameData);
+        if ((loggingRookieGame === null || loggingRookieGame === void 0 ? void 0 : loggingRookieGame.status) === 200)
+            databaseInsertId = loggingRookieGame.data.insertId;
+    }
+    catch (error) {
+        console.error(error);
+    }
+});
 // Game over. Log game stats to database.
 const logGame = (gameData) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -735,7 +795,7 @@ const logGame = (gameData) => __awaiter(void 0, void 0, void 0, function* () {
 });
 // I don't need or want 36 characters.
 // A lenth of 8 gives over 218 trillion possibilites.
-const createUUID = () => (devSpace ? "beta-test" : crypto.randomUUID().substring(0, 8));
+const createUUID = () => crypto.randomUUID().substring(0, 8);
 const getLocalUUID = () => localStorage.getItem("uuid") || "";
 const isReturningUser = () => !!localStorage.getItem("uuid");
 const getLocalPlayerNames = () => localStorage.getItem("playerNames") || "";
@@ -805,12 +865,23 @@ const allIdElements = document.querySelectorAll(`[id]`);
 allIdElements.forEach((element) => {
     dom.set(element.id, element);
 });
-const modeSwitch = (event) => {
+const modeSwitch = (event) => __awaiter(void 0, void 0, void 0, function* () {
     const target = event.currentTarget;
     const eventGameMode = target.getAttribute("data-game-mode");
     localStorage.setItem("gameMode", eventGameMode);
-    window.location.reload();
-};
+    const data = {
+        uuid: getLocalUUID(),
+    };
+    try {
+        const request = yield apiHelper(`${dbHost}/api/users/play-again`, "POST", data);
+        if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
+            window.location.reload();
+        }
+    }
+    catch (error) {
+        console.error(error);
+    }
+});
 imageLoadListeners("add");
 answerButtonListeners("add");
 getParts();

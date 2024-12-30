@@ -1,7 +1,6 @@
 # To Do
 
-- X of Y on play screen to give user idea of how far along they are in the game.
-  - Progress bar?
+- Add games_played to users table for UUID
 - Remove filmstrip header, replace with static montage image.
   - Make montage image in photoshop.
 - Turn existing gameplay into "Veteran Mode" and create version of game that will play all the way through unless the time runs out. Call it "Rookie Mode"
@@ -19,7 +18,6 @@
   - Veteran mode is the only way onto the scoreboard!
     - "Play in veteran mode to get on the scoreboard" after every rookie game
   - Show which answers were wrong after the game above the scoreboard, but do not give correct answers.
-  - localStorage to determine mode. URL parameter would potentially lead to someone sharing veteran mode to a rookie.
 
 - Scoreboard shows top 100
   - Overflow <div> window scrolls to the player's score
@@ -45,6 +43,7 @@
 
 # Done
 
+- localStorage to determine mode. URL parameter would potentially lead to someone sharing veteran mode to a rookie.
 - "How to play" on homepage
 - "Which part is this?" (or something) text over the buttons
 - Put gameMode into stats table
@@ -73,6 +72,7 @@
 - local_time column in database
   - This is the data that gets displayed in the scoreboard for the public
 - Countdown to start timer
+- X of Y on play screen to give user idea of how far along they are in the game.
 
 ## Nevermind
 

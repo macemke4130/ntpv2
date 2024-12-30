@@ -20,27 +20,27 @@ h3 {
 
 header {
   position: relative;
+}
 
-  #camera {
-    width: 100vw;
-    overflow-x: hidden;
+#camera {
+  width: 100vw;
+  overflow-x: hidden;
+}
 
-    #film-roll {
-      display: flex;
+#film-roll {
+  display: flex;
 
-      animation: scroll 25s linear infinite;
+  animation: scroll 25s linear infinite;
+}
 
-      .roll {
-        display: flex;
-        flex-shrink: 0;
+.roll {
+  display: flex;
+  flex-shrink: 0;
+}
 
-        .cell {
-          width: 400px;
-          height: 300px;
-        }
-      }
-    }
-  }
+.cell {
+  width: 400px;
+  height: 300px;
 }
 
 @keyframes scroll {
@@ -60,7 +60,6 @@ header {
   flex-direction: column;
   justify-content: center;
   background: rgba(0, 0, 0, 0.75);
-  /* color: white; */
   color: var(--text-color);
 }
 
@@ -84,81 +83,70 @@ header {
   }
 }
 
-main {
-  #news {
-    max-width: 80ch;
-    margin: 0 auto;
-    font-size: 1.25rem;
-
-    .article-title {
-      margin-bottom: 0;
-    }
-
-    address {
-      font-size: 0.9rem;
-    }
-
-    .publish-date {
-      margin-top: 0;
-      font-size: 0.9rem;
-    }
-  }
-  ul {
-    /* list-style: none; */
-    padding: 0 2rem;
-    font-size: 1.25rem;
-
-    li {
-      padding: 0 0 0.5rem 0;
-      /* text-align: center; */
-    }
-  }
-
-  #difficulty {
-    display: flex;
-    justify-content: space-evenly;
-    width: 20rem;
-    margin: 1rem auto;
-    text-align: center;
-
-    legend {
-      padding: 0.75rem;
-    }
-  }
-
-  #rules-container {
-    border-radius: 1rem;
-    border: 2px solid var(--btn-border-color);
-    width: var(--rules-width);
-    max-width: var(--rules-max-width);
-    overflow-x: hidden;
-    margin: 0 auto 1rem auto;
-    background: rgb(68, 34, 102);
-    color: white;
-
-    #rules-wrapper {
-      display: flex;
-      transform: translateX(-0);
-
-      transition-property: transform;
-      transition-duration: 400ms;
-      transition-timing-function: ease-out;
-    }
-
-    #rules-r,
-    #rules-v {
-      padding: 0.25rem;
-      flex-shrink: 0;
-      width: var(--rules-width);
-      max-width: var(--rules-max-width);
-    }
-  }
+#news {
+  max-width: 80ch;
+  margin: 0 auto;
+  font-size: 1.25rem;
 }
 
-[aria-label="Game setup"] {
-  display: none;
+.article-title {
+  margin-bottom: 0;
 }
 
-body[is-beta="true"] [aria-label="Game setup"] {
-  display: block;
+address {
+  font-size: 0.9rem;
+}
+
+.publish-date {
+  margin-top: 0;
+  font-size: 0.9rem;
+}
+
+main ul {
+  padding: 0 2rem;
+  font-size: 1.25rem;
+}
+
+main li {
+  padding: 0 0 0.5rem 0;
+}
+
+#difficulty {
+  display: flex;
+  justify-content: space-evenly;
+  width: 20rem;
+  margin: 1rem auto;
+  text-align: center;
+}
+
+#difficulty legend {
+  padding: 0.75rem;
+}
+
+#rules-container {
+  border-radius: 1rem;
+  border: 2px solid var(--btn-border-color);
+  width: var(--rules-width);
+  max-width: var(--rules-max-width);
+  overflow-x: hidden;
+  margin: 0 auto 1rem auto;
+  background: rgb(68, 34, 102);
+  color: white;
+}
+
+#rules-wrapper {
+  display: flex;
+  transform: translateX(-0);
+
+  transition-property: transform;
+  transition-duration: 400ms;
+  transition-timing-function: ease-out;
+}
+
+#rules-r,
+#rules-v {
+  padding: 0.25rem;
+  flex-shrink: 0;
+  width: var(--rules-width);
+  max-width: var(--rules-max-width);
 }

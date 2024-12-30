@@ -7,6 +7,7 @@ section[aria-label="Images"] {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  margin-top: 0.5rem;
 }
 
 section[aria-label="Images"] [data-quiz-image] {
@@ -146,12 +147,40 @@ td {
   padding: 0.5rem 0.25rem;
 }
 
+.player-name {
+  text-overflow: ellipsis;
+  overflow-x: clip;
+  max-width: 15rem;
+}
+
+.player-name:empty::before {
+  content: "Mystery Nerd";
+  color: yellow;
+  font-style: italic;
+}
+
 #scoreboard {
   margin-top: 1rem;
 }
 
 #scoreboard:has(tbody[data-active="false"]) {
   display: none;
+}
+
+@media (max-width: 1026px) {
+  #scoreboard {
+    font-size: 90%;
+  }
+}
+
+#scoreboard thead {
+  position: sticky;
+  top: 0;
+  background: var(--bg-color);
+}
+
+#scoreboard thead th {
+  padding: 0.5rem 0;
 }
 
 #player-name {
@@ -455,7 +484,8 @@ h1 {
 
 #play-mode-buttons button {
   margin: 0;
-  padding: 0.25rem;
+  padding: 0.75rem;
+  cursor: pointer;
 }
 
 #play-mode-buttons button.active {

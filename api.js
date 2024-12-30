@@ -210,8 +210,60 @@ router.post(`${apiRoute}/stats/local-time`, async (req, res) => {
   }
 });
 
-// Log new game.
+// Increment user's total games played.
+router.post(`${apiRoute}/users/game-played`, async (req, res) => {
+  const data = req.body;
+
+  try {
+    const sql = await query(`UPDATE users SET games_played = games_played + 1 WHERE uuid = ?`, data.uuid);
+
+    const response = {
+      message: "Games played incremented.",
+      status: 200,
+      data: sql,
+    };
+
+    res.json(response);
+  } catch (e) {
+    const response = {
+      message: e.sqlMessage,
+      status: e.errno,
+      data: null,
+    };
+
+    res.json(response);
+    console.log(e);
+  }
+});
+
+// Log new veteran game.
 router.post(`${apiRoute}/stats/log-game`, async (req, res) => {
+  const data = prepData(req.body);
+
+  try {
+    const sql = await query(`INSERT INTO stats (${data.columns}) VALUES (${data.marks})`, data.values);
+
+    const response = {
+      message: "New game successfully inserted.",
+      status: 200,
+      data: sql,
+    };
+
+    res.json(response);
+  } catch (e) {
+    const response = {
+      message: e.sqlMessage,
+      status: e.errno,
+      data: null,
+    };
+
+    res.json(response);
+    console.log(e);
+  }
+});
+
+// Log new rookie game.
+router.post(`${apiRoute}/stats/log-rookie-game`, async (req, res) => {
   const data = prepData(req.body);
 
   try {

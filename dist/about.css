@@ -1,35 +1,96 @@
 main {
+  padding-top: 1rem;
+}
+
+.press-source {
+  margin-bottom: 2rem;
+}
+
+.press-words {
+  text-align: center;
+}
+
+.logo {
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.logo svg,
+.logo img {
+  display: block;
+  height: 100%;
+}
+
+p {
+  max-width: 60ch;
+  margin: 0 auto 1rem auto;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+header {
+  position: relative;
+}
+
+h1 {
+  text-align: center;
+}
+
+#game-title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--text-color);
+}
+
+#camera {
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+#film-roll {
+  display: flex;
+
+  animation: scroll 25s linear infinite;
+}
+
+.roll {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.cell {
+  width: 400px;
+  height: 300px;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0px);
+  }
+
+  100% {
+    transform: translateX(-2000px);
+  }
+}
+
+@media (max-width: 1026px) {
   h1 {
-    text-align: center;
+    font-size: 2rem;
   }
 
-  p {
-    max-width: 60ch;
-    margin: 0 auto 1rem auto;
-    line-height: 1.5;
-    text-align: justify;
+  h2 {
+    font-size: 1.15rem;
+    text-wrap: balance;
   }
 
-  #press {
-    .press-source {
-      margin-bottom: 2rem;
-
-      .press-words {
-        text-align: center;
-      }
-    }
-
-    .logo {
-      height: 60px;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1rem;
-
-      svg,
-      img {
-        display: block;
-        height: 100%;
-      }
-    }
+  #game-title {
+    position: static;
+    background: transparent;
   }
 }

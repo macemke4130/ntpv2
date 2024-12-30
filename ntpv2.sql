@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+ALTER TABLE users ADD games_played int default 0;
+ALTER TABLE users MODIFY COLUMN games_played int DEFAULT 1;
+
 DROP TABLE stats;
 CREATE TABLE IF NOT EXISTS stats (
   id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
@@ -32,7 +35,7 @@ CREATE TABLE IF NOT EXISTS stats (
   uuid CHAR(8) NOT NULL
 );
 
-SELECT * FROM stats;
+SELECT * FROM stats ORDER BY id DESC LIMIT 10;
 SELECT * FROM users;
 
 INSERT INTO users (uuid, player_names, device_info) VALUES ("jdieydji", "Lucas, Billy, Tony", "Laptop");

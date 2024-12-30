@@ -1,5 +1,3 @@
-const devSpace = window.location.href.includes("192") || !window.location.href.includes("https") || window.location.hostname.includes("localhost");
-
 // Secure redirect.
 if (!window.location.hostname.includes("localhost")) {
   if (!window.location.protocol.includes("s")) {
@@ -12,15 +10,17 @@ import { GameMode, Part, DBResponse, RookieScoreObject } from "./types";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-// To do: Rewrite this. What was I thinking?
 const getDaySuffix = (dayOfMonth: number) => {
-  if (dayOfMonth === 1) return "st";
-  if (dayOfMonth === 2) return "nd";
-  if (dayOfMonth === 3) return "rd";
-  if (dayOfMonth >= 4) return "th";
+  const lastNumberInDay = Number(dayOfMonth.toString().charAt(dayOfMonth < 10 ? 0 : 1));
+
+  if (lastNumberInDay === 0) return "th";
+  if (lastNumberInDay === 1) return "st";
+  if (lastNumberInDay === 2) return "nd";
+  if (lastNumberInDay === 3) return "rd";
+  if (lastNumberInDay >= 4) return "th";
 };
 
-let dbHost = "";
+const dbHost = "";
 
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
@@ -343,6 +343,35 @@ const getConnectionSpeed = () => {
   return nav.connection?.effectiveType || null;
 };
 
+const logGamePlayed = async (uuid: string) => {
+  try {
+    const checkUUID = await apiHelper(`${dbHost}/api/users/exists/${uuid}`);
+
+    if (checkUUID?.data === true) {
+      // User exists. Increment games_played
+      const request = await apiHelper(`${dbHost}/api/users/game-played`, "POST", { uuid });
+    } else {
+      // User doesn't exist. Create user.
+
+      const playerData = {
+        uuid,
+        player_names: getLocalPlayerNames(),
+        device_info: getDeviceInfo(),
+      };
+
+      const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
+      console.log(request);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 // Called when a user selects a wrong answer, their time runs
 // out, or when they win the game.
 const gameOver = async (type: "selection" | "timer" | "win") => {
@@ -358,13 +387,22 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     game_end_type: type.charAt(0),
     connection: getConnectionSpeed(),
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
+    game_mode: gameMode,
   };
+
+  await logGamePlayed(gameStats.uuid);
 
   if (type === "selection" || type === "timer") explode();
 
   if (gameMode === "v") {
-    // Log game in database.
-    await logGame(gameStats);
+    try {
+      // Log game in database.
+      await logGame(gameStats);
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    await logRookieGame(gameStats);
   }
 
   if (type === "win") clearPlayScreen("win");
@@ -532,13 +570,14 @@ const closePlayerNameModal = () => {
 // Name is already updated in the database, but here we are just finding
 // the corresponding table cell and updating its innerText property.
 const displayFakeData = (playerName: string) => {
-  const recordNameCell = document.querySelector(`#scoreboard-${databaseInsertId} .playerName`)! as HTMLTableCellElement;
+  const recordNameCell = document.querySelector(`#scoreboard-${databaseInsertId} .player-name`)! as HTMLTableCellElement;
   const recordDateCell = document.querySelector(`#scoreboard-${databaseInsertId} .date`)! as HTMLTableCellElement;
 
   recordNameCell.innerText = playerName;
   recordDateCell.innerText = getHumanReadableLocalTime();
 
   closePlayerNameModal();
+  recordNameCell.scrollIntoView({ behavior: "smooth", block: "center" });
 };
 
 // Only listening for this event when the input play name <dialog> is open.
@@ -608,6 +647,7 @@ const insertUserInDatabase = async () => {
     device_info: getDeviceInfo(),
   };
 
+  debugger;
   const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
   if (request?.status !== 200) throw new Error("Error inserting user in database.");
 };
@@ -764,7 +804,7 @@ const buildScoreboard = async () => {
     const ranking = getRanking(stat.final_score);
 
     rankCell.classList.add("rank");
-    nameCell.classList.add("playerName");
+    nameCell.classList.add("player-name");
     scoreCell.classList.add("score");
     partsCell.classList.add("parts");
     dateCell.classList.add("date");
@@ -839,6 +879,32 @@ const logStartTime = () => {
   gameStartTimeMS = Date.now();
 };
 
+const logRookieGame = async (gameStats: {
+  correct_answers: number;
+  total_parts: number;
+  game_duration_in_seconds: number;
+  connection: any;
+  uuid: string;
+  game_mode: GameMode;
+}) => {
+  // Removing some unapplicable game data from stats by creating new object.
+  const gameData = {
+    correct_answers: rookieScore.reduce((acc, part) => acc + (part.correct ? 1 : 0), 0),
+    total_parts: gameStats.total_parts,
+    connection: gameStats.connection,
+    game_duration_in_seconds: gameStats.game_duration_in_seconds,
+    game_mode: "r",
+    uuid: gameStats.uuid,
+    final_score: 0,
+  };
+  try {
+    const loggingRookieGame = await apiHelper(`${dbHost}/api/stats/log-rookie-game`, "POST", gameData);
+    if (loggingRookieGame?.status === 200) databaseInsertId = loggingRookieGame.data.insertId;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 // Game over. Log game stats to database.
 const logGame = async (gameData: any) => {
   try {
@@ -851,7 +917,7 @@ const logGame = async (gameData: any) => {
 
 // I don't need or want 36 characters.
 // A lenth of 8 gives over 218 trillion possibilites.
-const createUUID = () => (devSpace ? "beta-test" : crypto.randomUUID().substring(0, 8));
+const createUUID = () => crypto.randomUUID().substring(0, 8);
 const getLocalUUID = () => localStorage.getItem("uuid") || "";
 const isReturningUser = () => !!localStorage.getItem("uuid");
 const getLocalPlayerNames = () => localStorage.getItem("playerNames") || "";
@@ -931,12 +997,24 @@ allIdElements.forEach((element) => {
   dom.set(element.id, element);
 });
 
-const modeSwitch = (event: Event) => {
+const modeSwitch = async (event: Event) => {
   const target = event.currentTarget as HTMLButtonElement;
   const eventGameMode = target.getAttribute("data-game-mode") as GameMode;
 
   localStorage.setItem("gameMode", eventGameMode);
-  window.location.reload();
+
+  const data = {
+    uuid: getLocalUUID(),
+  };
+
+  try {
+    const request = await apiHelper(`${dbHost}/api/users/play-again`, "POST", data);
+    if (request?.status === 200) {
+      window.location.reload();
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 imageLoadListeners("add");
