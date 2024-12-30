@@ -12,3 +12,5 @@ export default {
     database: process.env.DB_SCHEMA,
   },
 };
+
+console.log(mysql);
