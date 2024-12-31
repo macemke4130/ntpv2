@@ -1,3 +1,5 @@
+use z0zddkiug99fvykz;
+
 CREATE TABLE IF NOT EXISTS users (
   id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
   uuid CHAR(8) NOT NULL,
@@ -26,7 +28,7 @@ CREATE TABLE IF NOT EXISTS stats (
   uuid CHAR(8) NOT NULL
 );
 
-INSERT INTO users (uuid, player_names, device_info) VALUES ("12345678", "Lucas, Mace", "Big string of crypic data");
-
 select * from users;
 select * from stats order by id desc limit 10;
+DELETE FROM stats WHERE display_name IS NULL;
+-- DELETE FROM stats WHERE display_name = "Lucas Mace";

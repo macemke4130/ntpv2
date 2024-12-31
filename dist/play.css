@@ -121,6 +121,10 @@ body[data-game-mode="r"] #scoreboard-offset {
   margin-top: -3.2rem;
 }
 
+body[data-game-mode="r"] [aria-label="Game Progress"] {
+  margin-top: 0;
+}
+
 @media (max-width: 1026px) {
   [aria-label="Game Progress"] {
     margin-top: 0;
