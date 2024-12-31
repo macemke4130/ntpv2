@@ -1,48 +1,48 @@
 # To Do
 
-- Add games_played to users table for UUID
-- Remove filmstrip header, replace with static montage image.
-  - Make montage image in photoshop.
-- Turn existing gameplay into "Veteran Mode" and create version of game that will play all the way through unless the time runs out. Call it "Rookie Mode"
+- Turn "share" feature back on
+- Scoreboard page in footer so folks can see scores without playing a game
+- Mobile footer hamburger
 
-  - After a rookie game, prompt user "Play in Veteran mode to get on the scoreboard!"
-  - Turn rookie mode score printout into table. Make accessable.
-  - Wrong answer will continue gameplay. Keep track of wrong answers.
-    - Score[] equal to the length of Parts[]?
-      - Score[] has info about time per turn, number of mouse hovers per turn, correctAnswer boolean, points earned for each part.
-        - Could get "'whatever part' gives an average of X points to a user" data
-      - Build Score[] with Parts[].fill and populate blank score objects? Update Score[currentPart] after answer selection?
-  - Eliminate answer button animations for rookie mode
-  - Toggle button on Home Page for "Veteran or Rookie". Default to rookie.
-  - New field in database for game mode
-  - Veteran mode is the only way onto the scoreboard!
-    - "Play in veteran mode to get on the scoreboard" after every rookie game
-  - Show which answers were wrong after the game above the scoreboard, but do not give correct answers.
+- Feature sponsored bonus parts brought to you by companies.
 
-- Scoreboard shows top 100
+  - Bonus part, brought to you by Microshift
+  - Is all Microshift answers
+  - Getting it right adds 500 points to your score, plus the timer points remaining
+  - Wrong answers don't end the game
+  - Keep track of sponsored parts seen with the stats table
+
+- Stats page
+
+  - Not password protected, but needs a special parameter in the url or a local variable
+  - Could get "'whatever part' gives an average of X points to a user" data
+  - All games played, all users...
+
+- "Play in veteran mode to get on the scoreboard" after every rookie game
+
+- Scoreboard
+
   - Overflow <div> window scrolls to the player's score
   - 75vh or similar
+
 - Need loading / inactive state animation for some fetch calls.
+
   - Submit name button
   - Wrong answer
   - Final part / Win game
-- Turn points color back to white from red on next part.
-- Point api/stats to most recent games up to 100 per page
 
-## To Do Post Launch
-
-- Do I care about Object.freeze() for totalPoints? Maybe.
-  - Does this mean I change all of the state variables into an object named State?
-- Progress bar for both game modes. x of y numbers and a <progress> element.
-- Human readable all stats page behind password
 - How to submit parts page. Tutorial on taking photos and submitting fake answer suggestions.
 - Write audit to remove local_time stats that have been pushed off the scoreboard by higher scores.
-- If a user plays on Rookie a multiple of 10 times in a row, prompt "Try in Expert Mode?"
-  - Keep track with localStorage
-  - Clear numberOfRookieGames with the home page toggle.
 
 # Done
 
+- Open Graph meta data
+- Progress bar for both game modes. x of y numbers and a <progress> element.
+- Show which answers were wrong after the game, but do not give correct answers.
+- Toggle button on Home Page for "Veteran or Rookie". Default to rookie.
+- Turn existing gameplay into "Veteran Mode" and create version of game that will play all the way through. Call it "Rookie Mode"
+- After a rookie game, prompt user "Play in Veteran mode to get on the scoreboard!"
+- Add games_played to users table for UUID
 - localStorage to determine mode. URL parameter would potentially lead to someone sharing veteran mode to a rookie.
 - "How to play" on homepage
 - "Which part is this?" (or something) text over the buttons
@@ -76,7 +76,6 @@
 
 ## Nevermind
 
-- Mode: Veteran | Rookie toggle located between scores during play.
 - Share your score
 - shop_name column in database
   - Display this in scoreboard

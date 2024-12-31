@@ -111,19 +111,24 @@ body[data-game-mode="r"] #final-score-title,
 body[data-game-mode="r"] #final-score,
 body[data-game-mode="r"] #correct,
 body[data-game-mode="r"] #fun-score,
-body[data-game-mode="r"] #scoreboard-offset,
-body[data-game-mode="r"] #share {
+body[data-game-mode="r"] #scoreboard-offset {
   display: none;
 }
 
 [aria-label="Game Progress"] {
   font-size: 0.85rem;
   text-align: center;
-  margin-top: 0.5rem;
+  margin-top: -3.2rem;
+}
+
+@media (max-width: 1026px) {
+  [aria-label="Game Progress"] {
+    margin-top: 0;
+  }
 }
 
 #share {
-  display: none;
+  margin-top: 1rem;
 }
 
 table {
@@ -155,8 +160,9 @@ td {
 
 .player-name:empty::before {
   content: "Mystery Nerd";
-  color: yellow;
   font-style: italic;
+  font-size: 85%;
+  color: aqua;
 }
 
 #scoreboard {
@@ -367,6 +373,7 @@ Using :has() selector to avoid another querySelector() for #countdown-seconds. *
   align-items: center;
   justify-content: center;
   text-align: center;
+  text-wrap: balance;
   height: 3rem;
   font-weight: bold;
   padding: 0.25rem;
