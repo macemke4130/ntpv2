@@ -425,9 +425,9 @@ const clearPlayScreen = (type) => {
     buildGameOverScreen(type);
     rookieModeButton.addEventListener("click", modeSwitch);
     veteranModeButton.addEventListener("click", modeSwitch);
+    buildShareButton();
     if (gameMode === "v") {
         buildScoreboard();
-        buildShareButton();
         checkFunScore();
     }
     else {
@@ -465,6 +465,7 @@ const checkFunScore = () => {
 // Builds logic for share api or removes if browser does not support.
 const buildShareButton = () => {
     const shareButtonElement = document.querySelector("#share");
+    console.log(shareButtonElement);
     const canShare = navigator.canShare;
     if (!canShare) {
         shareButtonElement.remove();
