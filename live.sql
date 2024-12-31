@@ -30,5 +30,5 @@ CREATE TABLE IF NOT EXISTS stats (
 
 select * from users;
 select * from stats order by id desc limit 10;
-DELETE FROM stats WHERE display_name IS NULL;
--- DELETE FROM stats WHERE display_name = "Lucas Mace";
+
+SELECT id, correct_answers, total_parts, display_name, final_score, game_end_local_time FROM stats WHERE game_mode = "v" ORDER BY final_score DESC LIMIT 100;
