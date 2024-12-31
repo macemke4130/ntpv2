@@ -67,7 +67,7 @@ let totalPoints = 0;
 let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
-const timerOff = true;
+const timerOff = false;
 const shortPartsList = false;
 const imageLoadState = {
     one: false,
