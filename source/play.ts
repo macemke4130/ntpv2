@@ -22,6 +22,9 @@ const getDaySuffix = (dayOfMonth: number) => {
 
 const dbHost = "";
 
+const countdownToStartCurtainElement = document.querySelector("#countdown-to-start")! as HTMLDivElement;
+const countdownSecondsElement = document.querySelector("#countdown-seconds")! as HTMLSpanElement;
+
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
@@ -63,7 +66,7 @@ let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
 const timerOff = false;
-const shortPartsList = false;
+const shortPartsList = window.location.host.includes("localhost");
 
 const imageLoadState = {
   one: false,
@@ -106,6 +109,12 @@ const getParts = async () => {
     const shuffledParts = [...jsonData.parts].sort(() => 0.5 - Math.random());
     parts = shuffledParts;
     if (shortPartsList) parts.length = 5;
+
+    // Start game.
+    if (gameMode === "r") {
+      removeCountdownElement();
+      startGame();
+    }
   } catch (e) {
     console.error(e);
   }
@@ -929,21 +938,27 @@ const createLocalUUID = () => {
   return uuidNew;
 };
 
+const startGame = () => {
+  loadPartImages(0);
+  focusStage();
+  updateGameProgress();
+};
+
+const removeCountdownElement = () => {
+  countdownToStartCurtainElement.remove();
+};
+
 const beginCountdownToStart = () => {
   let secondsUntilStart = 3;
-  const countdownToStartCurtainElement = document.querySelector("#countdown-to-start")! as HTMLDivElement;
-  const countdownSecondsElement = document.querySelector("#countdown-seconds")! as HTMLSpanElement;
+
   countdownSecondsElement.innerText = secondsUntilStart + "";
 
   const countdownTimer = setInterval(() => {
     if (secondsUntilStart === 1) {
       clearInterval(countdownTimer);
-      countdownToStartCurtainElement.remove();
-
+      removeCountdownElement();
       // Start game.
-      loadPartImages(0);
-      focusStage();
-      updateGameProgress();
+      startGame();
     }
 
     secondsUntilStart--;
@@ -1021,7 +1036,9 @@ const modeSwitch = async (event: Event) => {
 imageLoadListeners("add");
 answerButtonListeners("add");
 getParts();
-beginCountdownToStart();
+
+// Veteran mode starts countdown. Rookie mode starts on [parts] loaded.
+if (gameMode === "v") beginCountdownToStart();
 
 // ---------- TEST FUNCTIONS ----------
 

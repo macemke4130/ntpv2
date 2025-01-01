@@ -1,9 +1,5 @@
 # To Do
 
-- Turn "share" feature back on
-- Scoreboard page in footer so folks can see scores without playing a game
-- Mobile footer hamburger
-
 - Feature sponsored bonus parts brought to you by companies.
 
   - Bonus part, brought to you by Microshift
@@ -36,6 +32,7 @@
 
 # Done
 
+- Turn "share" feature back on
 - Open Graph meta data
 - Progress bar for both game modes. x of y numbers and a <progress> element.
 - Show which answers were wrong after the game, but do not give correct answers.
@@ -73,6 +70,8 @@
   - This is the data that gets displayed in the scoreboard for the public
 - Countdown to start timer
 - X of Y on play screen to give user idea of how far along they are in the game.
+- Scoreboard page in footer so folks can see scores without playing a game
+- Mobile footer menu
 
 ## Nevermind
 

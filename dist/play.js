@@ -31,6 +31,8 @@ const getDaySuffix = (dayOfMonth) => {
         return "th";
 };
 const dbHost = "";
+const countdownToStartCurtainElement = document.querySelector("#countdown-to-start");
+const countdownSecondsElement = document.querySelector("#countdown-seconds");
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
@@ -68,7 +70,7 @@ let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
 const timerOff = false;
-const shortPartsList = false;
+const shortPartsList = window.location.host.includes("localhost");
 const imageLoadState = {
     one: false,
     two: false,
@@ -105,6 +107,11 @@ const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
         parts = shuffledParts;
         if (shortPartsList)
             parts.length = 5;
+        // Start game.
+        if (gameMode === "r") {
+            removeCountdownElement();
+            startGame();
+        }
     }
     catch (e) {
         console.error(e);
@@ -805,19 +812,23 @@ const createLocalUUID = () => {
     localStorage.setItem("uuid", uuidNew);
     return uuidNew;
 };
+const startGame = () => {
+    loadPartImages(0);
+    focusStage();
+    updateGameProgress();
+};
+const removeCountdownElement = () => {
+    countdownToStartCurtainElement.remove();
+};
 const beginCountdownToStart = () => {
     let secondsUntilStart = 3;
-    const countdownToStartCurtainElement = document.querySelector("#countdown-to-start");
-    const countdownSecondsElement = document.querySelector("#countdown-seconds");
     countdownSecondsElement.innerText = secondsUntilStart + "";
     const countdownTimer = setInterval(() => {
         if (secondsUntilStart === 1) {
             clearInterval(countdownTimer);
-            countdownToStartCurtainElement.remove();
+            removeCountdownElement();
             // Start game.
-            loadPartImages(0);
-            focusStage();
-            updateGameProgress();
+            startGame();
         }
         secondsUntilStart--;
         const bgColor = secondsUntilStart === 3 ? "red" : secondsUntilStart === 2 ? "yellow" : "green";
@@ -886,7 +897,9 @@ const modeSwitch = (event) => __awaiter(void 0, void 0, void 0, function* () {
 imageLoadListeners("add");
 answerButtonListeners("add");
 getParts();
-beginCountdownToStart();
+// Veteran mode starts countdown. Rookie mode starts on [parts] loaded.
+if (gameMode === "v")
+    beginCountdownToStart();
 // ---------- TEST FUNCTIONS ----------
 // const testFunction = () => {
 //   submitPlayerNameToDatabase();
