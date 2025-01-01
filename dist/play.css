@@ -111,8 +111,7 @@ body[data-game-mode="r"] #final-score-title,
 body[data-game-mode="r"] #final-score,
 body[data-game-mode="r"] #correct,
 body[data-game-mode="r"] #fun-score,
-body[data-game-mode="r"] #scoreboard-offset,
-body[data-game-mode="r"] #countdown-to-start {
+body[data-game-mode="r"] #scoreboard-offset {
   display: none;
 }
 
@@ -279,12 +278,16 @@ td {
 }
 
 #countdown-to-start {
+  display: none;
+  place-items: center;
   position: fixed;
   z-index: 2;
   inset: 0;
   background: var(--btn-color);
+}
+
+body[data-game-mode="v"] #countdown-to-start {
   display: grid;
-  place-items: center;
 }
 
 #countdown-container {
