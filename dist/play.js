@@ -60,6 +60,7 @@ const updateDOMInterval = 3; // This value is arbitrary.
 // State
 let gameMode = "v";
 let parts = [];
+const wrongAnswers = [];
 const rookieScore = [];
 let correctAnswer = "";
 let currentPart = 0;
@@ -103,6 +104,13 @@ const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = yield fetch("./quiz.json");
         const jsonData = yield request.json();
+        jsonData.parts.forEach((part) => {
+            part.answers.forEach((answer, answerIndex) => {
+                if (answerIndex > 0 && answer) {
+                    wrongAnswers.push(answer);
+                }
+            });
+        });
         const shuffledParts = [...jsonData.parts].sort(() => 0.5 - Math.random());
         parts = shuffledParts;
         if (shortPartsList)
@@ -267,6 +275,10 @@ const loadPartImages = (partNumber) => {
     });
     preloadNextPart();
 };
+const getRandomWrongAnswer = () => {
+    const randomInteger = Math.floor(Math.random() * wrongAnswers.length);
+    return wrongAnswers[randomInteger];
+};
 // Populate all answer buttons with currentPart answers.
 const loadAnswers = (partNumber) => {
     const part = parts[partNumber];
@@ -275,7 +287,7 @@ const loadAnswers = (partNumber) => {
     const shuffledAnswers = [...part.answers].sort(() => 0.5 - Math.random());
     shuffledAnswers.forEach((answer, index) => {
         const button = quizButtonElements[index];
-        button.innerText = answer;
+        button.innerText = answer || getRandomWrongAnswer();
         button.setAttribute("data-quiz-button", index + "");
     });
 };

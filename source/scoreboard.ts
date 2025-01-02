@@ -1,15 +1,5 @@
 import { DBResponse } from "./types";
 
-const getTotalGames = async () => {
-  const totalGamesElement = document.querySelector(`#total-games`)! as HTMLDivElement;
-
-  const request = await apiHelper(`${dbHost}/api/stats/total-games`);
-  if (request?.status === 200) {
-    const totalGames: number = request.data.total;
-    totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
-  }
-};
-
 const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
 
@@ -31,11 +21,19 @@ const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any
 
 const dbHost = "";
 
-const buildScoreboard = async () => {
-  const statsFromDatabase = await apiHelper(`${dbHost}/api/stats/scoreboard`);
-  if (!statsFromDatabase) return;
+const fetchScoreboardData = async () => {
+  try {
+    const statsFromDatabase = await apiHelper(`${dbHost}/api/stats/scoreboard`);
+    if (!statsFromDatabase) return null;
 
-  const allStats = statsFromDatabase.data;
+    return statsFromDatabase.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const buildScoreboard = async () => {
+  const allStats = await fetchScoreboardData();
 
   const tableBodyElement = document.querySelector(`#scoreboard tbody`)! as HTMLTableElement;
 
@@ -43,6 +41,7 @@ const buildScoreboard = async () => {
   // Useful for tie scores.
   let previousRank = 0;
   let previousScore = 0;
+  let ranking = 0;
 
   const getRanking = (score: number) => {
     if (score === previousScore) return previousRank;
@@ -59,7 +58,7 @@ const buildScoreboard = async () => {
     const partsCell = document.createElement("td");
     const dateCell = document.createElement("td");
 
-    const ranking = getRanking(stat.final_score);
+    ranking = getRanking(stat.final_score);
 
     rankCell.classList.add("rank");
     nameCell.classList.add("player-name");
@@ -85,7 +84,14 @@ const buildScoreboard = async () => {
   }
 
   tableBodyElement.setAttribute("data-active", "true");
+  buildDisclaimer(ranking);
+};
+
+const buildDisclaimer = (finalRank: number) => {
+  if (finalRank !== 100) {
+    const scoreboardDisclaimerElement = document.querySelector("#scoreboard-disclaimer")! as HTMLDivElement;
+    scoreboardDisclaimerElement.innerText = "The last rank is not 100 because there are tie games in the scoreboard.";
+  }
 };
 
 buildScoreboard();
-getTotalGames();

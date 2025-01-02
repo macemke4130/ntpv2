@@ -14,8 +14,6 @@
   - Could get "'whatever part' gives an average of X points to a user" data
   - All games played, all users...
 
-- "Play in veteran mode to get on the scoreboard" after every rookie game
-
 - Scoreboard
 
   - Overflow <div> window scrolls to the player's score
@@ -32,6 +30,7 @@
 
 # Done
 
+- "Play in veteran mode to get on the scoreboard" after every rookie game
 - Turn "share" feature back on
 - Open Graph meta data
 - Progress bar for both game modes. x of y numbers and a <progress> element.

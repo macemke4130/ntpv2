@@ -9,14 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const getTotalGames = () => __awaiter(void 0, void 0, void 0, function* () {
-    const totalGamesElement = document.querySelector(`#total-games`);
-    const request = yield apiHelper(`${dbHost}/api/stats/total-games`);
-    if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
-        const totalGames = request.data.total;
-        totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
-    }
-});
 const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
@@ -34,16 +26,25 @@ const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], vo
     }
 });
 const dbHost = "";
+const fetchScoreboardData = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const statsFromDatabase = yield apiHelper(`${dbHost}/api/stats/scoreboard`);
+        if (!statsFromDatabase)
+            return null;
+        return statsFromDatabase.data;
+    }
+    catch (error) {
+        console.error(error);
+    }
+});
 const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
-    const statsFromDatabase = yield apiHelper(`${dbHost}/api/stats/scoreboard`);
-    if (!statsFromDatabase)
-        return;
-    const allStats = statsFromDatabase.data;
+    const allStats = yield fetchScoreboardData();
     const tableBodyElement = document.querySelector(`#scoreboard tbody`);
     // Building rank numbers for scoreboard.
     // Useful for tie scores.
     let previousRank = 0;
     let previousScore = 0;
+    let ranking = 0;
     const getRanking = (score) => {
         if (score === previousScore)
             return previousRank;
@@ -57,7 +58,7 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
         const scoreCell = document.createElement("td");
         const partsCell = document.createElement("td");
         const dateCell = document.createElement("td");
-        const ranking = getRanking(stat.final_score);
+        ranking = getRanking(stat.final_score);
         rankCell.classList.add("rank");
         nameCell.classList.add("player-name");
         scoreCell.classList.add("score");
@@ -78,6 +79,12 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
         previousRank = ranking;
     }
     tableBodyElement.setAttribute("data-active", "true");
+    buildDisclaimer(ranking);
 });
+const buildDisclaimer = (finalRank) => {
+    if (finalRank !== 100) {
+        const scoreboardDisclaimerElement = document.querySelector("#scoreboard-disclaimer");
+        scoreboardDisclaimerElement.innerText = "The last rank is not 100 because there are tie games in the scoreboard.";
+    }
+};
 buildScoreboard();
-getTotalGames();

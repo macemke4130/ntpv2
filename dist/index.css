@@ -77,16 +77,23 @@ header {
     position: static;
     background: transparent;
   }
-
-  #news {
-    padding-bottom: 25vh;
-  }
 }
 
 #news {
   max-width: 80ch;
   margin: 0 auto;
-  font-size: 1.25rem;
+  line-height: 1.35;
+  padding-bottom: 2rem;
+}
+
+#article-container {
+  height: 30rem;
+  overflow: auto;
+  border: var(--btn-border);
+  width: 90%;
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .article-title {
@@ -99,7 +106,7 @@ address {
 
 .publish-date {
   margin-top: 0;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 main ul {
@@ -149,4 +156,8 @@ main li {
   flex-shrink: 0;
   width: var(--rules-width);
   max-width: var(--rules-max-width);
+}
+
+#total-parts {
+  font-weight: bold;
 }
