@@ -63,6 +63,7 @@ td {
 
 #scoreboard-disclaimer {
   text-align: center;
+  text-wrap: balance;
   margin-top: 0.5rem;
   font-size: 0.8rem;
 }
