@@ -38,6 +38,7 @@ const usersColumnClasses = ["id", "uuid", "player-names", "device-info", "play-a
 const statsColumnNames = [
     "ID",
     "Connection",
+    "Game Mode",
     "Correct Answers",
     "Final Score",
     "Total Parts",
@@ -48,7 +49,6 @@ const statsColumnNames = [
     "Game End Local Time",
     "Game End Date Time",
     "UUID",
-    "Game Mode",
 ];
 const statsColumnClasses = [
     "id",
