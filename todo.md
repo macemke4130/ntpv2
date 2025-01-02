@@ -1,5 +1,7 @@
 # To Do
 
+- Remove all possible correct answers from wrongAnswers[] with a comparison algorithm
+- Users table need "last_visited" column
 - Feature sponsored bonus parts brought to you by companies.
 
   - Bonus part, brought to you by Microshift

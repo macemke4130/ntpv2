@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="./index.css" />
+    <title>Name That Part</title>
+  </head>
+  <body>
+    <header>
+      <h1>Name That Part!</h1>
+      <h2>Admin</h2>
+    </header>
+    <main>
+      <section aria-labelledby="login-title">
+        <h3 id="login-title">Login</h3>
+        <form>
+          <label>
+            <span>Email:</span>
+            <input type="email" id="email-address" value="lucasmace4130@gmail.com" />
+          </label>
+          <label>
+            <span>Password:</span>
+            <input type="password" id="password" value="Usetact" />
+          </label>
+          <button id="submit-login">Submit</button>
+        </form>
+      </section>
+      <section aria-labelledby="dashboard-title">
+        <h3 id="dashboard-title">Dashboard</h3>
+        <div id="users-table-container">
+          <h4>Users</h4>
+          <table id="users-table">
+            <thead></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+        <div id="stats-table-container">
+          <h4>Games</h4>
+          <table id="stats-table">
+            <thead></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script>
+      // TS Hack. Fix later.
+      var exports = {};
+    </script>
+    <!-- <script src="./filmstrip.js"></script> -->
+    <script src="./index.js"></script>
+    <script src="../footer.js"></script>
+  </body>
+</html>

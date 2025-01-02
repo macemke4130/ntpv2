@@ -383,7 +383,6 @@ const logGamePlayed = async (uuid: string) => {
       };
 
       const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
-      console.log(request);
     }
   } catch (error) {
     console.error(error);

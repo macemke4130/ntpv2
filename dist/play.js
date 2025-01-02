@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 // Secure redirect.
 if (!window.location.hostname.includes("localhost")) {
@@ -83,7 +74,7 @@ const determineGameMode = () => {
     document.body.setAttribute("data-game-mode", gameMode);
 };
 determineGameMode();
-const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {
+const apiHelper = async (url, method = "GET", data) => {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
     if (data) {
@@ -91,19 +82,19 @@ const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], vo
         options.body = body;
     }
     try {
-        const request = yield fetch(url, options);
-        const jsonResponse = yield request.json();
+        const request = await fetch(url, options);
+        const jsonResponse = await request.json();
         return jsonResponse;
     }
     catch (e) {
         console.error(e);
     }
-});
+};
 // Gets all parts data, shuffles the order and sets to state.
-const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
+const getParts = async () => {
     try {
-        const request = yield fetch("./quiz.json");
-        const jsonData = yield request.json();
+        const request = await fetch("./quiz.json");
+        const jsonData = await request.json();
         jsonData.parts.forEach((part) => {
             part.answers.forEach((answer, answerIndex) => {
                 if (answerIndex > 0 && answer) {
@@ -124,7 +115,7 @@ const getParts = () => __awaiter(void 0, void 0, void 0, function* () {
     catch (e) {
         console.error(e);
     }
-});
+};
 const updateGameProgress = () => {
     if (currentPart === 0) {
         gameProgressBarElement.setAttribute("max", parts.length + "");
@@ -329,12 +320,12 @@ const getConnectionSpeed = () => {
     const nav = navigator;
     return ((_a = nav.connection) === null || _a === void 0 ? void 0 : _a.effectiveType) || null;
 };
-const logGamePlayed = (uuid) => __awaiter(void 0, void 0, void 0, function* () {
+const logGamePlayed = async (uuid) => {
     try {
-        const checkUUID = yield apiHelper(`${dbHost}/api/users/exists/${uuid}`);
+        const checkUUID = await apiHelper(`${dbHost}/api/users/exists/${uuid}`);
         if ((checkUUID === null || checkUUID === void 0 ? void 0 : checkUUID.data) === true) {
             // User exists. Increment games_played
-            const request = yield apiHelper(`${dbHost}/api/users/game-played`, "POST", { uuid });
+            const request = await apiHelper(`${dbHost}/api/users/game-played`, "POST", { uuid });
         }
         else {
             // User doesn't exist. Create user.
@@ -343,8 +334,7 @@ const logGamePlayed = (uuid) => __awaiter(void 0, void 0, void 0, function* () {
                 player_names: getLocalPlayerNames(),
                 device_info: getDeviceInfo(),
             };
-            const request = yield apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
-            console.log(request);
+            const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
         }
     }
     catch (error) {
@@ -355,10 +345,10 @@ const logGamePlayed = (uuid) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         console.error(error);
     }
-});
+};
 // Called when a user selects a wrong answer, their time runs
 // out, or when they win the game.
-const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
+const gameOver = async (type) => {
     // Clear timer first to prevent duplicate gameOver("timer") calls.
     clearInterval(playTimer);
     const gameStats = {
@@ -372,24 +362,24 @@ const gameOver = (type) => __awaiter(void 0, void 0, void 0, function* () {
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
         game_mode: gameMode,
     };
-    yield logGamePlayed(gameStats.uuid);
+    await logGamePlayed(gameStats.uuid);
     if (type === "selection" || type === "timer")
         explode();
     if (gameMode === "v") {
         try {
             // Log game in database.
-            yield logGame(gameStats);
+            await logGame(gameStats);
         }
         catch (error) {
             console.error(error);
         }
     }
     else {
-        yield logRookieGame(gameStats);
+        await logRookieGame(gameStats);
     }
     if (type === "win")
         clearPlayScreen("win");
-});
+};
 const printRookieScore = () => {
     let rookieCorrectAnswers = 0;
     rookieScore.forEach((part) => {
@@ -495,14 +485,14 @@ const buildShareButton = () => {
         text: `Think you're a real bicycle nerd? Test your skills with "Name That Part"!`,
         title: "Name That Part - Bicycle Game",
     };
-    const shareGame = () => __awaiter(void 0, void 0, void 0, function* () {
+    const shareGame = async () => {
         try {
-            yield window.navigator.share(shareData);
+            await window.navigator.share(shareData);
         }
         catch (e) {
             console.error(e);
         }
-    });
+    };
     shareButtonElement.addEventListener("click", shareGame);
 };
 // Shows <dialog> for inputing player name and assigns functions to buttons.
@@ -552,21 +542,21 @@ const updateLocalPlayerNameList = (playerName) => {
     localStorage.setItem("playerNames", playerNames);
 };
 // Updates users table with the current players names at local machine.
-const updateDatabaseUserNamesList = () => __awaiter(void 0, void 0, void 0, function* () {
+const updateDatabaseUserNamesList = async () => {
     const playerData = {
         uuid: getLocalUUID(),
         player_names: getLocalPlayerNames(),
     };
     try {
-        const updateUserNames = yield apiHelper(`${dbHost}/api/users/new-players`, "POST", playerData);
+        const updateUserNames = await apiHelper(`${dbHost}/api/users/new-players`, "POST", playerData);
         if ((updateUserNames === null || updateUserNames === void 0 ? void 0 : updateUserNames.status) !== 200)
             throw new Error("Updating player names failed.");
     }
     catch (e) {
         console.error(e);
     }
-});
-const submitPlayerNameToDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
+};
+const submitPlayerNameToDatabase = async () => {
     const playerNameInputElement = document.querySelector(`#player-name-text`);
     // @ts-ignore - replaceAll()
     const playerName = playerNameInputElement.value.trim().replaceAll(",", "");
@@ -575,27 +565,27 @@ const submitPlayerNameToDatabase = () => __awaiter(void 0, void 0, void 0, funct
         display_name: playerName,
         id: databaseInsertId,
     };
-    const submitPlayerNames = yield apiHelper(`${dbHost}/api/stats/display-name`, "POST", playerData);
+    const submitPlayerNames = await apiHelper(`${dbHost}/api/stats/display-name`, "POST", playerData);
     if ((submitPlayerNames === null || submitPlayerNames === void 0 ? void 0 : submitPlayerNames.status) === 200) {
         displayFakeData(playerName);
         checkUserInDatabase();
     }
-});
-const insertUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
+};
+const insertUserInDatabase = async () => {
     const playerData = {
         uuid: getLocalUUID(),
         player_names: getLocalPlayerNames(),
         device_info: getDeviceInfo(),
     };
     debugger;
-    const request = yield apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
+    const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
     if ((request === null || request === void 0 ? void 0 : request.status) !== 200)
         throw new Error("Error inserting user in database.");
-});
+};
 // If api endpoint returns false we will add the new UUID to the database,
 // otherwise we update the existing user's player_name column.
-const checkUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
-    const checkUUID = yield apiHelper(`${dbHost}/api/users/exists/${getLocalUUID()}`);
+const checkUserInDatabase = async () => {
+    const checkUUID = await apiHelper(`${dbHost}/api/users/exists/${getLocalUUID()}`);
     if ((checkUUID === null || checkUUID === void 0 ? void 0 : checkUUID.status) === 200) {
         const uuidExistsInDatabase = checkUUID.data;
         if (uuidExistsInDatabase) {
@@ -605,7 +595,7 @@ const checkUserInDatabase = () => __awaiter(void 0, void 0, void 0, function* ()
             insertUserInDatabase();
         }
     }
-});
+};
 // Builds a motivational string based on what place a user is closest to getting.
 const calculatePointDifference = (type, score) => {
     switch (type) {
@@ -640,15 +630,15 @@ const calculatePointDifference = (type, score) => {
 };
 // I only care about game_end_local_time if user reached scoreboard, so I have a
 // separate API call here that is called conditionally.
-const logLocalTime = () => __awaiter(void 0, void 0, void 0, function* () {
+const logLocalTime = async () => {
     const data = {
         id: databaseInsertId,
         game_end_local_time: getHumanReadableLocalTime(),
     };
-    const request = yield apiHelper(`${dbHost}/api/stats/local-time`, "POST", data);
+    const request = await apiHelper(`${dbHost}/api/stats/local-time`, "POST", data);
     if ((request === null || request === void 0 ? void 0 : request.status) !== 200)
         throw new Error("Error setting local time.");
-});
+};
 const buildGameOverScreen = (type) => {
     gameOverScreenElement.setAttribute("data-game-end-type", type);
     gameOverScreenElement.setAttribute("data-screen-active", "true");
@@ -660,18 +650,18 @@ const buildGameOverScreen = (type) => {
     playAgainButton.addEventListener("click", playAgainClick);
 };
 // This API adds 1 to the current play_again column when a user clicks the Play Again <button>.
-const playAgainClick = () => __awaiter(void 0, void 0, void 0, function* () {
+const playAgainClick = async () => {
     const data = {
         uuid: getLocalUUID(),
     };
-    const request = yield apiHelper(`${dbHost}/api/users/play-again`, "POST", data);
+    const request = await apiHelper(`${dbHost}/api/users/play-again`, "POST", data);
     if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
         window.location.reload();
     }
-});
+};
 // Builds DOM <table> with stats after the game is saved in the database.
-const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
-    const statsFromDatabase = yield apiHelper(`${dbHost}/api/stats/scoreboard`);
+const buildScoreboard = async () => {
+    const statsFromDatabase = await apiHelper(`${dbHost}/api/stats/scoreboard`);
     if (!statsFromDatabase)
         return;
     const allStats = statsFromDatabase.data;
@@ -740,15 +730,15 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
     tableBodyElement.setAttribute("data-active", "true");
     highlightMyScore();
     getTotalGames();
-});
-const getTotalGames = () => __awaiter(void 0, void 0, void 0, function* () {
+};
+const getTotalGames = async () => {
     const totalGamesElement = document.querySelector(`#total-games`);
-    const request = yield apiHelper(`${dbHost}/api/stats/total-games`);
+    const request = await apiHelper(`${dbHost}/api/stats/total-games`);
     if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
         const totalGames = request.data.total;
         totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
     }
-});
+};
 // Shows user where their score is on the database.
 // TODO: Add scrollTo()
 const highlightMyScore = () => {
@@ -782,7 +772,7 @@ const imageLoaded = (event) => {
 const logStartTime = () => {
     gameStartTimeMS = Date.now();
 };
-const logRookieGame = (gameStats) => __awaiter(void 0, void 0, void 0, function* () {
+const logRookieGame = async (gameStats) => {
     // Removing some unapplicable game data from stats by creating new object.
     const gameData = {
         correct_answers: rookieScore.reduce((acc, part) => acc + (part.correct ? 1 : 0), 0),
@@ -794,25 +784,25 @@ const logRookieGame = (gameStats) => __awaiter(void 0, void 0, void 0, function*
         final_score: 0,
     };
     try {
-        const loggingRookieGame = yield apiHelper(`${dbHost}/api/stats/log-rookie-game`, "POST", gameData);
+        const loggingRookieGame = await apiHelper(`${dbHost}/api/stats/log-rookie-game`, "POST", gameData);
         if ((loggingRookieGame === null || loggingRookieGame === void 0 ? void 0 : loggingRookieGame.status) === 200)
             databaseInsertId = loggingRookieGame.data.insertId;
     }
     catch (error) {
         console.error(error);
     }
-});
+};
 // Game over. Log game stats to database.
-const logGame = (gameData) => __awaiter(void 0, void 0, void 0, function* () {
+const logGame = async (gameData) => {
     try {
-        const loggingGame = yield apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
+        const loggingGame = await apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
         if ((loggingGame === null || loggingGame === void 0 ? void 0 : loggingGame.status) === 200)
             databaseInsertId = loggingGame.data.insertId;
     }
     catch (error) {
         console.error(error);
     }
-});
+};
 // I don't need or want 36 characters.
 // A lenth of 8 gives over 218 trillion possibilites.
 const createUUID = () => crypto.randomUUID().substring(0, 8);
@@ -889,7 +879,7 @@ const allIdElements = document.querySelectorAll(`[id]`);
 allIdElements.forEach((element) => {
     dom.set(element.id, element);
 });
-const modeSwitch = (event) => __awaiter(void 0, void 0, void 0, function* () {
+const modeSwitch = async (event) => {
     const target = event.currentTarget;
     const eventGameMode = target.getAttribute("data-game-mode");
     localStorage.setItem("gameMode", eventGameMode);
@@ -897,7 +887,7 @@ const modeSwitch = (event) => __awaiter(void 0, void 0, void 0, function* () {
         uuid: getLocalUUID(),
     };
     try {
-        const request = yield apiHelper(`${dbHost}/api/users/play-again`, "POST", data);
+        const request = await apiHelper(`${dbHost}/api/users/play-again`, "POST", data);
         if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
             window.location.reload();
         }
@@ -905,7 +895,7 @@ const modeSwitch = (event) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         console.error(error);
     }
-});
+};
 imageLoadListeners("add");
 answerButtonListeners("add");
 getParts();

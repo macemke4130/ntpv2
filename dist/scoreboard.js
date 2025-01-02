@@ -1,15 +1,6 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], void 0, function* (url, method = "GET", data) {
+const apiHelper = async (url, method = "GET", data) => {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
     if (data) {
@@ -17,18 +8,18 @@ const apiHelper = (url_1, ...args_1) => __awaiter(void 0, [url_1, ...args_1], vo
         options.body = body;
     }
     try {
-        const request = yield fetch(url, options);
-        const jsonResponse = yield request.json();
+        const request = await fetch(url, options);
+        const jsonResponse = await request.json();
         return jsonResponse;
     }
     catch (e) {
         console.error(e);
     }
-});
+};
 const dbHost = "";
-const fetchScoreboardData = () => __awaiter(void 0, void 0, void 0, function* () {
+const fetchScoreboardData = async () => {
     try {
-        const statsFromDatabase = yield apiHelper(`${dbHost}/api/stats/scoreboard`);
+        const statsFromDatabase = await apiHelper(`${dbHost}/api/stats/scoreboard`);
         if (!statsFromDatabase)
             return null;
         return statsFromDatabase.data;
@@ -36,9 +27,9 @@ const fetchScoreboardData = () => __awaiter(void 0, void 0, void 0, function* ()
     catch (error) {
         console.error(error);
     }
-});
-const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
-    const allStats = yield fetchScoreboardData();
+};
+const buildScoreboard = async () => {
+    const allStats = await fetchScoreboardData();
     const tableBodyElement = document.querySelector(`#scoreboard tbody`);
     // Building rank numbers for scoreboard.
     // Useful for tie scores.
@@ -80,7 +71,7 @@ const buildScoreboard = () => __awaiter(void 0, void 0, void 0, function* () {
     }
     tableBodyElement.setAttribute("data-active", "true");
     buildDisclaimer(ranking);
-});
+};
 const buildDisclaimer = (finalRank) => {
     if (finalRank !== 100) {
         const scoreboardDisclaimerElement = document.querySelector("#scoreboard-disclaimer");

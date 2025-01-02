@@ -28,7 +28,15 @@ CREATE TABLE IF NOT EXISTS stats (
   uuid CHAR(8) NOT NULL
 );
 
-select * from users;
-select * from stats order by id desc limit 10;
+select * from users order by id desc;
+select * from stats order by id desc limit 25;
+select game_mode, correct_answers, final_score, display_name, game_end_type, game_end_local_time, uuid from stats order by id desc limit 100;
 
-SELECT id, correct_answers, total_parts, display_name, final_score, game_end_local_time FROM stats WHERE game_mode = "v" ORDER BY final_score DESC LIMIT 100;
+CREATE TABLE IF NOT EXISTS admin (
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+email_address VARCHAR(128) UNIQUE NOT NULL,
+password VARCHAR(32) NOT NULL,
+permissions VARCHAR(32)
+);
+
+INSERT INTO admin (email_address, password) VALUES ("lucasmace4130@gmail.com", "Usetact");

@@ -13,6 +13,48 @@ router.get(`${apiRoute}/greet/`, async (req, res) => {
   res.json(response);
 });
 
+// Log in to admin
+router.post(`${apiRoute}/admin/login-attempt`, async (req, res) => {
+  const loginData = req.body;
+
+  try {
+    const sql = await query(`SELECT password FROM admin WHERE email_address = "${loginData.emailAddress}"`);
+
+    const passwordFromDatabase = sql[0].password;
+    const loginSuccess = loginData.password === passwordFromDatabase;
+
+    let response = {};
+
+    if (loginSuccess) {
+      const usersData = await query(`SELECT * FROM users ORDER BY id DESC LIMIT 1000;`);
+      const statsData = await query(`SELECT * FROM stats ORDER BY id DESC LIMIT 1000;`);
+
+      response = {
+        message: `Admin dashboard.`,
+        status: 200,
+        data: { login: true, usersData, statsData },
+      };
+    } else {
+      response = {
+        message: `Login failed.`,
+        status: 200,
+        data: { login: false },
+      };
+    }
+
+    res.json(response);
+  } catch (e) {
+    response = {
+      message: e.sqlMessage,
+      status: e.errno,
+      data: null,
+    };
+
+    res.json(response);
+    console.log(e);
+  }
+});
+
 router.get(`${apiRoute}/users/`, async (req, res) => {
   try {
     const sql = await query(`SELECT * FROM users;`);

@@ -53,6 +53,23 @@ header {
   }
 }
 
+@media (max-width: 1026px) {
+  .cell {
+    width: 200px;
+    height: 150px;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0px);
+    }
+
+    100% {
+      transform: translateX(-1000px);
+    }
+  }
+}
+
 #game-title {
   position: absolute;
   inset: 0;
