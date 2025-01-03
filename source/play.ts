@@ -57,6 +57,7 @@ const updateDOMInterval = 3; // This value is arbitrary.
 let gameMode: GameMode = "v";
 let parts: Part[] = [];
 const wrongAnswers: string[] = [];
+const oldWrongAnswers: string[] = [];
 const rookieScore: RookieScoreObject[] = [];
 let correctAnswer = "";
 let currentPart = 0;
@@ -101,16 +102,52 @@ const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any
   }
 };
 
+const getCorrectAnswers = (parts: Part[]) => parts.map((part) => part.answers[0]);
+
+const getPotentialWrongAnswers = (parts: Part[]) => {
+  const potentialWrongAnswers: string[] = [];
+
+  parts.forEach((part) => {
+    part.answers.forEach((answer, index) => {
+      if (index > 0 && answer) potentialWrongAnswers.push(answer);
+    });
+  });
+
+  return potentialWrongAnswers;
+};
+
+// Compares all correct answers to wrong answers and
+// builds wrongAnswers[] without any correct answers
+const buildWrongAnswers = (parts: Part[]) => {
+  const correctAnswers = getCorrectAnswers(parts);
+  const potentialWrongAnswers = getPotentialWrongAnswers(parts);
+
+  const correctAnswersSet: Set<string> = new Set();
+
+  // Fill correctAnsersSet
+  correctAnswers.forEach((answer) => {
+    correctAnswersSet.add(answer);
+  });
+
+  // Push only wrong answers into wrongAnswers[]
+  potentialWrongAnswers.forEach((answer) => {
+    const notInCorrectAnswerList = !correctAnswersSet.has(answer);
+    if (notInCorrectAnswerList) wrongAnswers.push(answer);
+  });
+};
+
 // Gets all parts data, shuffles the order and sets to state.
 const getParts = async () => {
   try {
     const request = await fetch("./quiz.json");
     const jsonData = await request.json();
 
+    buildWrongAnswers(jsonData.parts);
+
     jsonData.parts.forEach((part: Part) => {
       part.answers.forEach((answer, answerIndex) => {
         if (answerIndex > 0 && answer) {
-          wrongAnswers.push(answer);
+          oldWrongAnswers.push(answer);
         }
       });
     });

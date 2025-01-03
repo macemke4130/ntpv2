@@ -38,5 +38,3 @@ email_address VARCHAR(128) UNIQUE NOT NULL,
 password VARCHAR(32) NOT NULL,
 permissions VARCHAR(32)
 );
-
-INSERT INTO admin (email_address, password) VALUES ("lucasmace4130@gmail.com", "Usetact");
