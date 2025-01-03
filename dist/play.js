@@ -52,7 +52,6 @@ const updateDOMInterval = 3; // This value is arbitrary.
 let gameMode = "v";
 let parts = [];
 const wrongAnswers = [];
-const oldWrongAnswers = [];
 const rookieScore = [];
 let correctAnswer = "";
 let currentPart = 0;
@@ -125,13 +124,6 @@ const getParts = async () => {
         const request = await fetch("./quiz.json");
         const jsonData = await request.json();
         buildWrongAnswers(jsonData.parts);
-        jsonData.parts.forEach((part) => {
-            part.answers.forEach((answer, answerIndex) => {
-                if (answerIndex > 0 && answer) {
-                    oldWrongAnswers.push(answer);
-                }
-            });
-        });
         const shuffledParts = [...jsonData.parts].sort(() => 0.5 - Math.random());
         parts = shuffledParts;
         if (shortPartsList)
