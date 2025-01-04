@@ -400,70 +400,6 @@ const getConnectionSpeed = () => {
   return nav.connection?.effectiveType || null;
 };
 
-const logGamePlayed = async (uuid: string) => {
-  try {
-    const checkUUID = await apiHelper(`${dbHost}/api/users/exists/${uuid}`);
-
-    if (checkUUID?.data === true) {
-      // User exists. Increment games_played
-      const request = await apiHelper(`${dbHost}/api/users/game-played`, "POST", { uuid });
-    } else {
-      // User doesn't exist. Create user.
-
-      const playerData = {
-        uuid,
-        player_names: getLocalPlayerNames(),
-        device_info: getDeviceInfo(),
-      };
-
-      const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-// Called when a user selects a wrong answer, their time runs
-// out, or when they win the game.
-const gameOver = async (type: "selection" | "timer" | "win") => {
-  // Clear timer first to prevent duplicate gameOver("timer") calls.
-  clearInterval(playTimer);
-
-  const gameStats = {
-    correct_answers: type === "win" ? parts.length : currentPart,
-    losing_part: type !== "win" ? correctAnswer : null,
-    final_score: totalPoints,
-    total_parts: parts.length,
-    game_duration_in_seconds: totalGameDuration(),
-    game_end_type: type.charAt(0),
-    connection: getConnectionSpeed(),
-    uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
-    game_mode: gameMode,
-  };
-
-  await logGamePlayed(gameStats.uuid);
-
-  if (type === "selection" || type === "timer") explode();
-
-  if (gameMode === "v") {
-    try {
-      // Log game in database.
-      await logGame(gameStats);
-    } catch (error) {
-      console.error(error);
-    }
-  } else {
-    await logRookieGame(gameStats);
-  }
-
-  if (type === "win") clearPlayScreen("win");
-};
-
 const printRookieScore = () => {
   let rookieCorrectAnswers = 0;
 
@@ -611,7 +547,7 @@ const showInputPlayerNameModal = () => {
   playerNameDialogElement.showModal();
 
   const submitPlayerNameButton = document.querySelector(`#submit-player-name`)! as HTMLButtonElement;
-  submitPlayerNameButton.addEventListener("click", submitPlayerNameToDatabase);
+  submitPlayerNameButton.addEventListener("click", submitPlayerNameToDatabaseFromModal);
 
   const cancelPlayerNameButton = document.querySelector(`#cancel-player-name`)! as HTMLButtonElement;
   cancelPlayerNameButton.addEventListener("click", closePlayerNameModal);
@@ -640,7 +576,7 @@ const displayFakeData = (playerName: string) => {
 // Only listening for this event when the input play name <dialog> is open.
 const submitPlayerNameWithEnterKey = (event: KeyboardEvent) => {
   if (event.key !== "Enter") return;
-  submitPlayerNameToDatabase();
+  submitPlayerNameToDatabaseFromModal();
 };
 
 // Update the list of player names on this machine in localStorage.
@@ -661,6 +597,38 @@ const updateLocalPlayerNameList = (playerName: string) => {
   localStorage.setItem("playerNames", playerNames);
 };
 
+// Called when a user selects a wrong answer, their time runs
+// out, or when they win the game.
+const gameOver = async (type: "selection" | "timer" | "win") => {
+  // Clear timer first to prevent duplicate gameOver("timer") calls.
+  clearInterval(playTimer);
+
+  const gameStats = {
+    correct_answers: type === "win" ? parts.length : currentPart,
+    losing_part: type !== "win" ? correctAnswer : null,
+    final_score: totalPoints,
+    total_parts: parts.length,
+    game_duration_in_seconds: totalGameDuration(),
+    game_end_type: type.charAt(0),
+    connection: getConnectionSpeed(),
+    uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
+    game_mode: gameMode,
+  };
+
+  await createUserOrIncrementUserGamePlayed(gameStats.uuid);
+
+  if (type === "selection" || type === "timer") explode();
+
+  if (gameMode === "v") {
+    // Log game in database.
+    await logGameToStatsTable(gameStats);
+  } else {
+    await logRookieGame(gameStats);
+  }
+
+  if (type === "win") clearPlayScreen("win");
+};
+
 // Updates users table with the current players names at local machine.
 const updateDatabaseUserNamesList = async () => {
   const playerData = {
@@ -676,13 +644,14 @@ const updateDatabaseUserNamesList = async () => {
   }
 };
 
-const submitPlayerNameToDatabase = async () => {
+const submitPlayerNameToDatabaseFromModal = async () => {
   const playerNameInputElement = document.querySelector(`#player-name-text`)! as HTMLInputElement;
 
   // @ts-ignore - replaceAll()
   const playerName: string = playerNameInputElement.value.trim().replaceAll(",", "");
 
   updateLocalPlayerNameList(playerName);
+  updateDatabaseUserNamesList();
 
   const playerData = {
     display_name: playerName,
@@ -693,34 +662,35 @@ const submitPlayerNameToDatabase = async () => {
 
   if (submitPlayerNames?.status === 200) {
     displayFakeData(playerName);
-    checkUserInDatabase();
   }
 };
 
-const insertUserInDatabase = async () => {
-  const playerData = {
-    uuid: getLocalUUID(),
-    player_names: getLocalPlayerNames(),
-    device_info: getDeviceInfo(),
-  };
+// Called from gameOver().
+const createUserOrIncrementUserGamePlayed = async (uuid: string) => {
+  try {
+    const checkUUID = await apiHelper(`${dbHost}/api/users/exists/${uuid}`);
 
-  console.log("insertUserInDatabase");
-  const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
-  if (request?.status !== 200) throw new Error("Error inserting user in database.");
-};
-
-// If api endpoint returns false we will add the new UUID to the database,
-// otherwise we update the existing user's player_name column.
-const checkUserInDatabase = async () => {
-  const checkUUID = await apiHelper(`${dbHost}/api/users/exists/${getLocalUUID()}`);
-  if (checkUUID?.status === 200) {
-    const uuidExistsInDatabase = checkUUID.data;
-
-    if (uuidExistsInDatabase) {
-      updateDatabaseUserNamesList();
+    if (checkUUID?.data === true) {
+      // User exists. Increment games_played
+      const request = await apiHelper(`${dbHost}/api/users/game-played`, "POST", { uuid });
     } else {
-      insertUserInDatabase();
+      // User doesn't exist. Create user.
+
+      const playerData = {
+        uuid,
+        player_names: getLocalPlayerNames(),
+        device_info: getDeviceInfo(),
+      };
+
+      const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
     }
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -835,9 +805,6 @@ const buildScoreboard = async () => {
   } else {
     // Off Scoreboard
     calculatePointDifference("off-scoreboard", lowestHighScore);
-
-    // Why am I calling this function here?
-    checkUserInDatabase();
   }
 
   const tableBodyElement = document.querySelector(`#scoreboard tbody`)! as HTMLTableElement;
@@ -967,7 +934,7 @@ const logRookieGame = async (gameStats: {
 };
 
 // Game over. Log game stats to database.
-const logGame = async (gameData: any) => {
+const logGameToStatsTable = async (gameData: any) => {
   try {
     const loggingGame = await apiHelper(`${dbHost}/api/stats/log-game`, "POST", gameData);
     if (loggingGame?.status === 200) databaseInsertId = loggingGame.data.insertId;
