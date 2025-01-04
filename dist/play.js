@@ -39,6 +39,7 @@ const finalScoreElement = document.querySelector("#final-score");
 const correctElement = document.querySelector("#correct");
 const playAgainButton = document.querySelector("#play-again");
 const rookieModeButton = document.querySelector("#rookie-mode");
+const rookieResultsElement = document.querySelector("#rookie-results");
 const veteranModeButton = document.querySelector("#veteran-mode");
 const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`);
 currentModeButton.classList.add("active");
@@ -66,29 +67,6 @@ const shortPartsList = window.location.host.includes("localhost");
 const imageLoadState = {
     one: false,
     two: false,
-};
-const determineGameMode = () => {
-    if (!localStorage.getItem("gameMode"))
-        localStorage.setItem("gameMode", "r");
-    gameMode = localStorage.getItem("gameMode");
-    document.body.setAttribute("data-game-mode", gameMode);
-};
-determineGameMode();
-const apiHelper = async (url, method = "GET", data) => {
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
-    const options = { method, headers };
-    if (data) {
-        const body = JSON.stringify(data);
-        options.body = body;
-    }
-    try {
-        const request = await fetch(url, options);
-        const jsonResponse = await request.json();
-        return jsonResponse;
-    }
-    catch (e) {
-        console.error(e);
-    }
 };
 const getCorrectAnswers = (parts) => parts.map((part) => part.answers[0]);
 const getPotentialWrongAnswers = (parts) => {
@@ -118,8 +96,34 @@ const buildWrongAnswers = (parts) => {
             wrongAnswers.push(answer);
     });
 };
+const shuffleParts = (parts) => {
+    return parts.sort(() => 0.5 - Math.random());
+};
+const determineGameMode = () => {
+    if (!localStorage.getItem("gameMode"))
+        localStorage.setItem("gameMode", "r");
+    gameMode = localStorage.getItem("gameMode");
+    document.body.setAttribute("data-game-mode", gameMode);
+};
+determineGameMode();
+const apiHelper = async (url, method = "GET", data) => {
+    const headers = { "Content-Type": "application/json", Accept: "application/json" };
+    const options = { method, headers };
+    if (data) {
+        const body = JSON.stringify(data);
+        options.body = body;
+    }
+    try {
+        const request = await fetch(url, options);
+        const jsonResponse = await request.json();
+        return jsonResponse;
+    }
+    catch (e) {
+        console.error(e);
+    }
+};
 // Gets all parts data, shuffles the order and sets to state.
-const getParts = async () => {
+const readyPartsLists = async () => {
     try {
         const request = await fetch("./quiz.json");
         const jsonData = await request.json();
@@ -413,9 +417,8 @@ const printRookieScore = () => {
 };
 const reportScoreToPlayer = () => {
     printRookieScore();
-    // Optimize this for only updating the DOM hopefully once.
+    // Build photos <ol>
     rookieScore.forEach((part) => {
-        var _a;
         const liElement = document.createElement("li");
         liElement.classList.add("rookie-answer");
         liElement.classList.add(part.correct ? "correct" : "incorrect");
@@ -443,7 +446,7 @@ const reportScoreToPlayer = () => {
         answerContainerElement.appendChild(answerTextOutputElement);
         liElement.appendChild(imagesContainerElement);
         liElement.appendChild(answerContainerElement);
-        (_a = dom.get("rookie-results")) === null || _a === void 0 ? void 0 : _a.appendChild(liElement);
+        rookieResultsElement.appendChild(liElement);
     });
 };
 // Function is called by the end of the explode() transition or by a game win.
@@ -454,8 +457,8 @@ const clearPlayScreen = (type) => {
     answerButtonListeners("remove");
     imageLoadListeners("remove");
     buildGameOverScreen(type);
-    rookieModeButton.addEventListener("click", modeSwitch);
-    veteranModeButton.addEventListener("click", modeSwitch);
+    rookieModeButton.addEventListener("click", handleModeSwitchClick);
+    veteranModeButton.addEventListener("click", handleModeSwitchClick);
     buildShareButton();
     if (gameMode === "v") {
         buildScoreboard();
@@ -496,7 +499,6 @@ const checkFunScore = () => {
 // Builds logic for share api or removes if browser does not support.
 const buildShareButton = () => {
     const shareButtonElement = document.querySelector("#share");
-    console.log(shareButtonElement);
     const canShare = navigator.canShare;
     if (!canShare) {
         shareButtonElement.remove();
@@ -599,7 +601,7 @@ const insertUserInDatabase = async () => {
         player_names: getLocalPlayerNames(),
         device_info: getDeviceInfo(),
     };
-    debugger;
+    console.log("insertUserInDatabase");
     const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
     if ((request === null || request === void 0 ? void 0 : request.status) !== 200)
         throw new Error("Error inserting user in database.");
@@ -702,13 +704,16 @@ const buildScoreboard = async () => {
         logLocalTime();
     }
     else if (totalPoints >= lowestHighScore) {
+        // On Scoreboard
         if (totalPoints > 0)
             showInputPlayerNameModal();
         calculatePointDifference("on-scoreboard", highestScore);
         logLocalTime();
     }
     else {
+        // Off Scoreboard
         calculatePointDifference("off-scoreboard", lowestHighScore);
+        // Why am I calling this function here?
         checkUserInDatabase();
     }
     const tableBodyElement = document.querySelector(`#scoreboard tbody`);
@@ -869,7 +874,6 @@ const focusStage = () => {
 };
 // Part images.
 const imageLoadListeners = (type) => {
-    // Where else am i using this nodelist?
     quizImageElements.forEach((image) => {
         if (type === "add") {
             image.addEventListener("load", imageLoaded);
@@ -883,7 +887,6 @@ const removeRewardClass = (event) => {
     const target = event.target;
     target.classList.remove("reward");
 };
-// Answer buttons.
 const answerButtonListeners = (type) => {
     for (const quizButton of quizButtonElements) {
         if (type === "add") {
@@ -896,12 +899,7 @@ const answerButtonListeners = (type) => {
         }
     }
 };
-const dom = new Map();
-const allIdElements = document.querySelectorAll(`[id]`);
-allIdElements.forEach((element) => {
-    dom.set(element.id, element);
-});
-const modeSwitch = async (event) => {
+const handleModeSwitchClick = async (event) => {
     const target = event.currentTarget;
     const eventGameMode = target.getAttribute("data-game-mode");
     localStorage.setItem("gameMode", eventGameMode);
@@ -920,13 +918,7 @@ const modeSwitch = async (event) => {
 };
 imageLoadListeners("add");
 answerButtonListeners("add");
-getParts();
-// Veteran mode starts countdown. Rookie mode starts on [parts] loaded.
+readyPartsLists();
+// Veteran mode starts countdown. Rookie mode starts on parts[] loaded.
 if (gameMode === "v")
     beginCountdownToStart();
-// ---------- TEST FUNCTIONS ----------
-// const testFunction = () => {
-//   submitPlayerNameToDatabase();
-// };
-// const testButton = document.querySelector(`#testing`)! as HTMLButtonElement;
-// testButton.addEventListener("click", testFunction);

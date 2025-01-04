@@ -1,6 +1,5 @@
 # To Do
 
-- Remove all possible correct answers from wrongAnswers[] with a comparison algorithm
 - Users table need "last_visited" column
 - Feature sponsored bonus parts brought to you by companies.
 
@@ -32,6 +31,7 @@
 
 # Done
 
+- Remove all possible correct answers from wrongAnswers[] with a comparison algorithm
 - "Play in veteran mode to get on the scoreboard" after every rookie game
 - Turn "share" feature back on
 - Open Graph meta data

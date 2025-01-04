@@ -51,8 +51,8 @@ const statsColumnNames = [
   "Display Name",
   "Game End Type",
   "Losing Part",
-  "Game End Local Time",
-  "Game End Date Time",
+  "Game End Local Date",
+  "Game End Central Time",
   "UUID",
 ];
 
@@ -106,6 +106,27 @@ const buildUsersTable = (usersData: any) => {
   }
 };
 
+// An LLM wrote this function. It seems to work well.
+// I don't like messing with time. Too many consequences.
+const convertToCentralTime = (utcDateTimeString: string) => {
+  const utcDate = new Date(utcDateTimeString);
+
+  // Use toLocaleString with the IANA time zone name for Central Time.
+  // This handles Daylight Saving Time automatically.
+  const centralTimeString = utcDate.toLocaleString("en-US", {
+    timeZone: "America/Chicago", // IANA time zone for Central Time
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Use 24-hour format
+  });
+
+  return centralTimeString;
+};
+
 const buildStatsTable = (statsData: any) => {
   // Get headers
   const statsColumns = Object.keys(statsData[0]);
@@ -132,7 +153,11 @@ const buildStatsTable = (statsData: any) => {
     rowData.forEach((cell, index) => {
       const tdElement = document.createElement("td");
       tdElement.classList.add(statsColumnClasses[index]);
-      tdElement.innerText = cell || "";
+      if (index === 11) {
+        tdElement.innerText = convertToCentralTime(cell);
+      } else {
+        tdElement.innerText = cell || "";
+      }
       trElement.appendChild(tdElement);
     });
 
