@@ -15,9 +15,13 @@ label {
   margin: 1rem auto;
 }
 
+table {
+  width: 100%;
+}
+
 td {
   text-align: center;
-  padding: 0.25rem;
+  padding: 0.5rem;
 }
 
 tbody tr:nth-child(odd) {
@@ -32,4 +36,10 @@ tbody tr:nth-child(odd) {
   [aria-labelledby="dashboard-title"] {
     display: block;
   }
+}
+
+.device-info {
+  text-align: left;
+  font-size: 50%;
+  width: 9rem;
 }

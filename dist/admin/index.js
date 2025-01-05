@@ -33,38 +33,18 @@ const usersTheadElement = document.querySelector("#users-table thead");
 const usersTbodyElement = document.querySelector("#users-table tbody");
 const statsTheadElement = document.querySelector("#stats-table thead");
 const statsTbodyElement = document.querySelector("#stats-table tbody");
-const usersColumnNames = ["ID", "UUID", "Player Names", "Play Again Count", "First Visit", "Games Played"];
-const usersColumnClasses = ["id", "uuid", "player-names", "play-again", "created-at", "games-played"];
-const statsColumnNames = [
-    "ID",
-    "Connection",
-    "Game Mode",
-    "Correct Answers",
-    "Final Score",
-    "Total Parts",
-    "Game Seconds",
-    "Display Name",
-    "Game End Type",
-    "Losing Part",
-    "Game End Local Date",
-    "Game End Central Time",
-    "UUID",
-    "Device Info",
-];
+const usersColumnClasses = ["id", "uuid", "player-names", "play-again", "games-played", "first-visit"];
 const statsColumnClasses = [
     "id",
-    "connection",
+    "uuid",
+    "game-mode",
     "correct-answers",
     "final-score",
-    "total-parts",
     "game-duration-in-seconds",
     "display-name",
     "game-end-type",
     "losing-part",
-    "game-end-local-time",
-    "game-end-date-time",
-    "uuid",
-    "game-mode",
+    "game-end-central-time",
     "device-info",
 ];
 const buildUsersTable = (usersData) => {
@@ -72,11 +52,10 @@ const buildUsersTable = (usersData) => {
     const usersColumns = Object.keys(usersData[0]);
     const theadTRElement = document.createElement("tr");
     // Build <th> elements.
-    usersColumns.forEach((column, index) => {
+    usersColumns.forEach((column) => {
         const thElement = document.createElement("th");
         thElement.setAttribute("scope", "col");
-        thElement.classList.add(usersColumnClasses[index]);
-        thElement.innerText = usersColumnNames[index];
+        thElement.innerText = column;
         theadTRElement.appendChild(thElement);
     });
     usersTheadElement.appendChild(theadTRElement);
@@ -87,12 +66,95 @@ const buildUsersTable = (usersData) => {
         rowData.forEach((cell, index) => {
             const tdElement = document.createElement("td");
             tdElement.classList.add(usersColumnClasses[index]);
-            tdElement.innerText = cell + "";
+            tdElement.innerHTML = cell;
             trElement.appendChild(tdElement);
         });
         usersTbodyElement.appendChild(trElement);
     }
 };
+const buildStatsTable = (statsData) => {
+    // Get headers
+    const statsColumns = Object.keys(statsData[0]);
+    const theadTRElement = document.createElement("tr");
+    // Build <th> elements.
+    statsColumns.forEach((column) => {
+        const thElement = document.createElement("th");
+        thElement.setAttribute("scope", "col");
+        thElement.innerText = column;
+        theadTRElement.appendChild(thElement);
+    });
+    statsTheadElement.appendChild(theadTRElement);
+    // Build <tbody>
+    for (const row of statsData) {
+        const trElement = document.createElement("tr");
+        const rowData = Object.values(row);
+        rowData.forEach((cell, index) => {
+            const tdElement = document.createElement("td");
+            tdElement.classList.add(statsColumnClasses[index]);
+            tdElement.innerHTML = cell;
+            trElement.appendChild(tdElement);
+        });
+        statsTbodyElement.appendChild(trElement);
+    }
+};
+const cleanUpDom = () => {
+    const loginSection = document.querySelector(`section[aria-labelledby="login-title"]`);
+    loginSection.remove();
+    document.body.setAttribute("data-logged-in", "true");
+};
+const cleanUsersData = (data) => {
+    const newOrderData = data.map((item) => {
+        return {
+            ID: item.id,
+            UUID: item.uuid,
+            "Player Names": item.player_names,
+            "Play Again": item.play_again_count,
+            "Games Played": item.games_played,
+            "First Visit": `<span>${convertToCentralTime(item.created_at).replace(", ", "<br />")}</span>`,
+        };
+    });
+    return newOrderData;
+};
+const cleanStatsData = (data) => {
+    const newOrderData = data.map((item) => {
+        return {
+            ID: item.id,
+            UUID: item.uuid,
+            "Game Mode": item.game_mode,
+            Correct: `${item.correct_answers} / ${item.total_parts}`,
+            "Final Score": item.final_score.toLocaleString(),
+            "Game Seconds": item.game_duration_in_seconds,
+            "Display Name": item.display_name,
+            "Game End": item.game_end_type,
+            "Losing Part": item.losing_part,
+            "Game End Central Time": `<span>${convertToCentralTime(item.game_end_date_time).replace(", ", "<br />")}</span>`,
+            "Device Info": renderDeviceInfoHTML(item.device_info),
+        };
+    });
+    return newOrderData;
+};
+const renderDeviceInfoHTML = (deviceInfo) => {
+    if (!deviceInfo)
+        return "";
+    const device = JSON.parse(deviceInfo);
+    const html = `<span>ipAddress: ${device.ipAddress} <br />Language: ${device.lang} <br />Mobile Device: ${device.mobile.toString()} <br />Screen Size: ${device.screenSize}</span>`;
+    return html;
+};
+const handleLoginClick = async (event) => {
+    event.preventDefault();
+    const request = await attemptLogin(emailInputElement.value, passwordInputElement.value);
+    if (request === null || request === void 0 ? void 0 : request.data.login) {
+        cleanUpDom();
+        const usersData = cleanUsersData(request.data.usersData);
+        buildUsersTable(usersData);
+        const statsData = cleanStatsData(request.data.statsData);
+        buildStatsTable(statsData);
+    }
+    else {
+        alert("You suck at hacking.");
+    }
+};
+submitButtonElement.addEventListener("click", handleLoginClick);
 // An LLM wrote this function. It seems to work well.
 // I don't like messing with time. Too many consequences.
 const convertToCentralTime = (utcDateTimeString) => {
@@ -111,52 +173,3 @@ const convertToCentralTime = (utcDateTimeString) => {
     });
     return centralTimeString;
 };
-const buildStatsTable = (statsData) => {
-    // Get headers
-    const statsColumns = Object.keys(statsData[0]);
-    const theadTRElement = document.createElement("tr");
-    // Build <th> elements.
-    statsColumns.forEach((column, index) => {
-        const thElement = document.createElement("th");
-        thElement.setAttribute("scope", "col");
-        thElement.classList.add(statsColumnClasses[index]);
-        thElement.innerText = statsColumnNames[index];
-        theadTRElement.appendChild(thElement);
-    });
-    statsTheadElement.appendChild(theadTRElement);
-    // Build <tbody>
-    for (const row of statsData) {
-        const trElement = document.createElement("tr");
-        const rowData = Object.values(row);
-        rowData.forEach((cell, index) => {
-            const tdElement = document.createElement("td");
-            tdElement.classList.add(statsColumnClasses[index]);
-            if (index === 11) {
-                tdElement.innerText = convertToCentralTime(cell);
-            }
-            else {
-                tdElement.innerText = cell || "";
-            }
-            trElement.appendChild(tdElement);
-        });
-        statsTbodyElement.appendChild(trElement);
-    }
-};
-const cleanUpDom = () => {
-    const loginSection = document.querySelector(`section[aria-labelledby="login-title"]`);
-    loginSection.remove();
-    document.body.setAttribute("data-logged-in", "true");
-};
-const handleLoginClick = async (event) => {
-    event.preventDefault();
-    const request = await attemptLogin(emailInputElement.value, passwordInputElement.value);
-    if (request === null || request === void 0 ? void 0 : request.data.login) {
-        cleanUpDom();
-        buildUsersTable(request.data.usersData);
-        buildStatsTable(request.data.statsData);
-    }
-    else {
-        alert("You suck at hacking.");
-    }
-};
-submitButtonElement.addEventListener("click", handleLoginClick);
