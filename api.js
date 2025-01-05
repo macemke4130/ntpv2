@@ -1,7 +1,23 @@
 import * as express from "express";
 import { query, apiRoute, prepData } from "./dbConnect.js";
+import { publicIpv4 } from "public-ip";
 
 const router = express.Router();
+
+const addIPAddressToGameData = async (gameData) => {
+  try {
+    const gameDataObject = gameData;
+
+    const deviceInfoObject = JSON.parse(gameData.device_info);
+    deviceInfoObject.ipAddress = await publicIpv4();
+    gameDataObject.device_info = JSON.stringify(deviceInfoObject);
+
+    return gameDataObject;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 
 router.get(`${apiRoute}/greet/`, async (req, res) => {
   const response = {
@@ -83,9 +99,10 @@ router.post(`${apiRoute}/users/new-user`, async (req, res) => {
   // converting the device_info string to an object, adding
   // ip_address, then converting back to string before I
   // call prepData().
+
   const bodyData = req.body;
   const deviceInfoObject = JSON.parse(bodyData.device_info);
-  deviceInfoObject.ipAddress = req.ip;
+  deviceInfoObject.ipAddress = await publicIpv4();
   bodyData.device_info = JSON.stringify(deviceInfoObject);
 
   const data = prepData(bodyData);
@@ -280,7 +297,8 @@ router.post(`${apiRoute}/users/game-played`, async (req, res) => {
 
 // Log new veteran game.
 router.post(`${apiRoute}/stats/log-game`, async (req, res) => {
-  const data = prepData(req.body);
+  const gameData = await addIPAddressToGameData(req.body);
+  const data = prepData(gameData);
 
   try {
     const sql = await query(`INSERT INTO stats (${data.columns}) VALUES (${data.marks})`, data.values);
@@ -306,7 +324,8 @@ router.post(`${apiRoute}/stats/log-game`, async (req, res) => {
 
 // Log new rookie game.
 router.post(`${apiRoute}/stats/log-rookie-game`, async (req, res) => {
-  const data = prepData(req.body);
+  const gameData = await addIPAddressToGameData(req.body);
+  const data = prepData(gameData);
 
   try {
     const sql = await query(`INSERT INTO stats (${data.columns}) VALUES (${data.marks})`, data.values);

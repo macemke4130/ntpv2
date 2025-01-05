@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 ALTER TABLE users ADD games_played int default 0;
 ALTER TABLE users MODIFY COLUMN games_played int DEFAULT 1;
+ALTER TABLE users DROP COLUMN device_info;
 
 DROP TABLE stats;
 CREATE TABLE IF NOT EXISTS stats (
@@ -35,6 +36,8 @@ CREATE TABLE IF NOT EXISTS stats (
   uuid CHAR(8) NOT NULL
 );
 
+ALTER TABLE stats ADD device_info text;
+
 SELECT * FROM stats ORDER BY id DESC LIMIT 2;
 SELECT * FROM users;
 
@@ -44,5 +47,3 @@ email_address VARCHAR(128) UNIQUE NOT NULL,
 password VARCHAR(32) NOT NULL,
 permissions VARCHAR(32)
 );
-
-INSERT INTO admin (email_address, password) VALUES ("lucasmace4130@gmail.com", "Usetact");

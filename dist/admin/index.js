@@ -33,8 +33,8 @@ const usersTheadElement = document.querySelector("#users-table thead");
 const usersTbodyElement = document.querySelector("#users-table tbody");
 const statsTheadElement = document.querySelector("#stats-table thead");
 const statsTbodyElement = document.querySelector("#stats-table tbody");
-const usersColumnNames = ["ID", "UUID", "Player Names", "Device Info", "Play Again Count", "Created At", "Games Played"];
-const usersColumnClasses = ["id", "uuid", "player-names", "device-info", "play-again", "created-at", "games-played"];
+const usersColumnNames = ["ID", "UUID", "Player Names", "Play Again Count", "First Visit", "Games Played"];
+const usersColumnClasses = ["id", "uuid", "player-names", "play-again", "created-at", "games-played"];
 const statsColumnNames = [
     "ID",
     "Connection",
@@ -49,6 +49,7 @@ const statsColumnNames = [
     "Game End Local Date",
     "Game End Central Time",
     "UUID",
+    "Device Info",
 ];
 const statsColumnClasses = [
     "id",
@@ -64,6 +65,7 @@ const statsColumnClasses = [
     "game-end-date-time",
     "uuid",
     "game-mode",
+    "device-info",
 ];
 const buildUsersTable = (usersData) => {
     // Get headers
@@ -105,7 +107,7 @@ const convertToCentralTime = (utcDateTimeString) => {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
-        hour12: false, // Use 24-hour format
+        hour12: true,
     });
     return centralTimeString;
 };

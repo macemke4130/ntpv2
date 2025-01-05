@@ -5,7 +5,7 @@ if (!window.location.hostname.includes("localhost")) {
   }
 }
 
-import { GameMode, Part, DBResponse, RookieScoreObject } from "./types";
+import { GameMode, Part, DBResponse, RookieScoreObject, Stat } from "./types";
 
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -598,16 +598,17 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
   // Clear timer first to prevent duplicate gameOver("timer") calls.
   clearInterval(playTimer);
 
-  const gameStats = {
+  const gameStats: Stat = {
     correct_answers: type === "win" ? parts.length : currentPart,
-    losing_part: type !== "win" ? correctAnswer : null,
+    losing_part: type !== "win" ? correctAnswer : "",
     final_score: totalPoints,
     total_parts: parts.length,
     game_duration_in_seconds: totalGameDuration(),
-    game_end_type: type.charAt(0),
+    game_end_type: type.charAt(0) as "s" | "t" | "w",
     connection: getConnectionSpeed(),
     uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
     game_mode: gameMode,
+    device_info: getDeviceInfo(),
   };
 
   await createUserOrIncrementUserGamePlayed(gameStats.uuid);
@@ -902,16 +903,9 @@ const logStartTime = () => {
   gameStartTimeMS = Date.now();
 };
 
-const logRookieGame = async (gameStats: {
-  correct_answers: number;
-  total_parts: number;
-  game_duration_in_seconds: number;
-  connection: any;
-  uuid: string;
-  game_mode: GameMode;
-}) => {
+const logRookieGame = async (gameStats: Stat) => {
   // Removing some unapplicable game data from stats by creating new object.
-  const gameData = {
+  const gameData: Stat = {
     correct_answers: rookieScore.reduce((acc, part) => acc + (part.correct ? 1 : 0), 0),
     total_parts: gameStats.total_parts,
     connection: gameStats.connection,
@@ -919,7 +913,9 @@ const logRookieGame = async (gameStats: {
     game_mode: "r",
     uuid: gameStats.uuid,
     final_score: 0,
+    device_info: gameStats.device_info,
   };
+
   try {
     const loggingRookieGame = await apiHelper(`${dbHost}/api/stats/log-rookie-game`, "POST", gameData);
     if (loggingRookieGame?.status === 200) databaseInsertId = loggingRookieGame.data.insertId;

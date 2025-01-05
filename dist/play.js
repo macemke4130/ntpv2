@@ -509,7 +509,7 @@ const gameOver = async (type) => {
     clearInterval(playTimer);
     const gameStats = {
         correct_answers: type === "win" ? parts.length : currentPart,
-        losing_part: type !== "win" ? correctAnswer : null,
+        losing_part: type !== "win" ? correctAnswer : "",
         final_score: totalPoints,
         total_parts: parts.length,
         game_duration_in_seconds: totalGameDuration(),
@@ -517,6 +517,7 @@ const gameOver = async (type) => {
         connection: getConnectionSpeed(),
         uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
         game_mode: gameMode,
+        device_info: getDeviceInfo(),
     };
     await createUserOrIncrementUserGamePlayed(gameStats.uuid);
     if (type === "selection" || type === "timer")
@@ -775,6 +776,7 @@ const logRookieGame = async (gameStats) => {
         game_mode: "r",
         uuid: gameStats.uuid,
         final_score: 0,
+        device_info: gameStats.device_info,
     };
     try {
         const loggingRookieGame = await apiHelper(`${dbHost}/api/stats/log-rookie-game`, "POST", gameData);
