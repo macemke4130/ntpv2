@@ -38,6 +38,14 @@ tbody tr:nth-child(odd) {
   }
 }
 
+.correct-answers {
+  white-space: nowrap;
+}
+
+.losing-part {
+  font-size: 75%;
+}
+
 .device-info {
   text-align: left;
   font-size: 50%;
