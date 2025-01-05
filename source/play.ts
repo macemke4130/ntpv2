@@ -28,7 +28,6 @@ const countdownSecondsElement = document.querySelector("#countdown-seconds")! as
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
-
 const gameProgressTextElement = document.querySelector(`#progress-text`) as HTMLDivElement;
 const gameProgressBarElement = document.querySelector(`#progress-bar`) as HTMLProgressElement;
 const currentPartPointsElement = document.querySelector(`#current-points`)! as HTMLDivElement;
@@ -1043,6 +1042,30 @@ const handleModeSwitchClick = async (event: Event) => {
   }
 };
 
+// This is overengineered. I don't care.
+const sizeImageHeight = () => {
+  const answerButtonsContainerElement = document.querySelector(`[aria-label="Answers"]`)! as HTMLElement;
+  const imagesContainerElement = document.querySelector(`[aria-label="Images"]`)! as HTMLElement;
+  const scoreContainerElement = document.querySelector(`[aria-label="Score"]`)! as HTMLDivElement;
+
+  const answerButtonsHeight = answerButtonsContainerElement.offsetHeight;
+  const imagesHeight = imagesContainerElement.offsetHeight;
+  const scoreHeight = scoreContainerElement.offsetHeight;
+  const footerHeight = footerElement.offsetHeight;
+
+  const totalElementHeight = answerButtonsHeight + imagesHeight + scoreHeight + footerHeight;
+
+  if (totalElementHeight > window.innerHeight) {
+    const heightDifference = totalElementHeight - window.innerHeight;
+
+    for (const image of quizImageElements) {
+      const currentImageHeight = image.offsetHeight;
+      image.style.maxHeight = `${currentImageHeight - heightDifference - scoreHeight}px`;
+    }
+  }
+};
+
+sizeImageHeight();
 imageLoadListeners("add");
 answerButtonListeners("add");
 readyPartsLists();

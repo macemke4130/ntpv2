@@ -885,6 +885,25 @@ const handleModeSwitchClick = async (event) => {
         console.error(error);
     }
 };
+// This is overengineered. I don't care.
+const sizeImageHeight = () => {
+    const answerButtonsContainerElement = document.querySelector(`[aria-label="Answers"]`);
+    const imagesContainerElement = document.querySelector(`[aria-label="Images"]`);
+    const scoreContainerElement = document.querySelector(`[aria-label="Score"]`);
+    const answerButtonsHeight = answerButtonsContainerElement.offsetHeight;
+    const imagesHeight = imagesContainerElement.offsetHeight;
+    const scoreHeight = scoreContainerElement.offsetHeight;
+    const footerHeight = footerElement.offsetHeight;
+    const totalElementHeight = answerButtonsHeight + imagesHeight + scoreHeight + footerHeight;
+    if (totalElementHeight > window.innerHeight) {
+        const heightDifference = totalElementHeight - window.innerHeight;
+        for (const image of quizImageElements) {
+            const currentImageHeight = image.offsetHeight;
+            image.style.maxHeight = `${currentImageHeight - heightDifference - scoreHeight}px`;
+        }
+    }
+};
+sizeImageHeight();
 imageLoadListeners("add");
 answerButtonListeners("add");
 readyPartsLists();

@@ -35,9 +35,14 @@ CREATE TABLE IF NOT EXISTS stats (
   uuid CHAR(8) NOT NULL
 );
 
-SELECT * FROM stats ORDER BY id DESC LIMIT 10;
+SELECT * FROM stats ORDER BY id DESC LIMIT 2;
 SELECT * FROM users;
 
-INSERT INTO users (uuid, player_names, device_info) VALUES ("jdieydji", "Lucas, Billy, Tony", "Laptop");
+CREATE TABLE IF NOT EXISTS admin (
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+email_address VARCHAR(128) UNIQUE NOT NULL,
+password VARCHAR(32) NOT NULL,
+permissions VARCHAR(32)
+);
 
-insert into stats (correct_answers, final_score, total_parts, game_duration_in_seconds, display_name, game_end_type, uuid) values (9, 6000, 9, 20, "Lucas Mace", "w", "poiuytre");
+INSERT INTO admin (email_address, password) VALUES ("lucasmace4130@gmail.com", "Usetact");
