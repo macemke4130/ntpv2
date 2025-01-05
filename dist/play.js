@@ -96,9 +96,6 @@ const buildWrongAnswers = (parts) => {
             wrongAnswers.push(answer);
     });
 };
-const shuffleParts = (parts) => {
-    return parts.sort(() => 0.5 - Math.random());
-};
 const determineGameMode = () => {
     if (!localStorage.getItem("gameMode"))
         localStorage.setItem("gameMode", "r");
@@ -142,7 +139,7 @@ const readyPartsLists = async () => {
         console.error(e);
     }
 };
-const updateGameProgress = () => {
+const updateGameProgressBar = () => {
     if (currentPart === 0) {
         gameProgressBarElement.setAttribute("max", parts.length + "");
     }
@@ -758,7 +755,7 @@ const imageLoaded = (event) => {
         loadAnswers(currentPart);
         blurPartImages(false);
         imageLoadListeners("remove");
-        updateGameProgress();
+        updateGameProgressBar();
         // First part, set start time.
         if (currentPart === 0)
             logStartTime();
@@ -813,7 +810,7 @@ const createLocalUUID = () => {
 const startGame = () => {
     loadPartImages(0);
     focusStage();
-    updateGameProgress();
+    updateGameProgressBar();
 };
 const removeCountdownElement = () => {
     countdownToStartCurtainElement.remove();

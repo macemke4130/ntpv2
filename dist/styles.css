@@ -156,3 +156,9 @@ dialog::backdrop {
     font-weight: bold;
   }
 }
+
+.not-found {
+  display: grid;
+  place-content: center;
+  height: 90vh;
+}

@@ -108,10 +108,6 @@ const buildWrongAnswers = (parts: Part[]) => {
   });
 };
 
-const shuffleParts = (parts: Part[]) => {
-  return parts.sort(() => 0.5 - Math.random());
-};
-
 const determineGameMode = () => {
   if (!localStorage.getItem("gameMode")) localStorage.setItem("gameMode", "r");
   gameMode = localStorage.getItem("gameMode") as GameMode;
@@ -162,7 +158,7 @@ const readyPartsLists = async () => {
   }
 };
 
-const updateGameProgress = () => {
+const updateGameProgressBar = () => {
   if (currentPart === 0) {
     gameProgressBarElement.setAttribute("max", parts.length + "");
   }
@@ -894,7 +890,7 @@ const imageLoaded = (event: Event) => {
     loadAnswers(currentPart);
     blurPartImages(false);
     imageLoadListeners("remove");
-    updateGameProgress();
+    updateGameProgressBar();
 
     // First part, set start time.
     if (currentPart === 0) logStartTime();
@@ -958,7 +954,7 @@ const createLocalUUID = () => {
 const startGame = () => {
   loadPartImages(0);
   focusStage();
-  updateGameProgress();
+  updateGameProgressBar();
 };
 
 const removeCountdownElement = () => {
