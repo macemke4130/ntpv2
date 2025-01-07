@@ -67,7 +67,7 @@ let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
 const timerOff = false;
-const shortPartsList = window.location.host.includes("localhost");
+const shortPartsList = false; // window.location.host.includes("localhost");
 
 const imageLoadState = {
   one: false,
@@ -675,7 +675,6 @@ const createUserOrIncrementUserGamePlayed = async (uuid: string) => {
       const playerData = {
         uuid,
         player_names: getLocalPlayerNames(),
-        device_info: getDeviceInfo(),
       };
 
       const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);

@@ -1,6 +1,26 @@
 {
-  "dateLastUpdated": "01/01/2025",
+  "dateLastUpdated": "01/05/2025",
   "parts": [
+    {
+      "images": ["PXL_20210929_185229970.jpg", "PXL_20210929_185238103.jpg"],
+      "answers": ["Pinnarello Headset Top Cap", "Cervelo Headset Top Cap", "Pinnarello Headset Preload Bolt", ""]
+    },
+    {
+      "images": ["PXL_20210928_230653461.jpg", "PXL_20210928_230714343.jpg"],
+      "answers": ["Rockshox Reverb Barb Connector", "Sram Olive", "", ""]
+    },
+    {
+      "images": ["PXL_20210928_223204404.jpg", "PXL_20210928_223212686.jpg"],
+      "answers": ["Training Wheel Axle", "Cotter Pin", "", ""]
+    },
+    {
+      "images": ["PXL_20210928_194343280.jpg", "PXL_20210928_194352218.jpg"],
+      "answers": ["Magura Shroud Bolt", "Shimano Shroud Bolt", "Sram Shroud Bolt", "Tektro Shroud Bolt"]
+    },
+    {
+      "images": ["PXL_20210928_183739280.jpg", "PXL_20210928_183747894.jpg"],
+      "answers": ["Tektro Barb", "Tektro Olive", "Shimano Low Power Barb", "Tektro Low Power Barb"]
+    },
     {
       "images": ["PXL_20211014_233756406.jpg", "PXL_20211014_233804848.jpg"],
       "answers": ["Cantilever Stud", "V-Brake Bolt", "Cantilever Bolt", ""]

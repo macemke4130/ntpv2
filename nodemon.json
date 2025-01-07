@@ -1,5 +1,5 @@
 {
   "watch": ["./dist"],
-  "ext": "ts, html, css",
+  "ext": "ts, html, css, js",
   "exec": "concurrently \"npx tsc --watch\" \"ts-node src/index.ts\""
 }
