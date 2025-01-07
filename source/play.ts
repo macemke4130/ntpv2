@@ -675,6 +675,7 @@ const createUserOrIncrementUserGamePlayed = async (uuid: string) => {
       const playerData = {
         uuid,
         player_names: getLocalPlayerNames(),
+        device_info: getDeviceInfo(),
       };
 
       const request = await apiHelper(`${dbHost}/api/users/new-user`, "POST", playerData);
