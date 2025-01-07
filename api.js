@@ -95,7 +95,7 @@ router.get(`${apiRoute}/users/`, async (req, res) => {
 });
 
 router.post(`${apiRoute}/users/new-user`, async (req, res) => {
-  const data = prepData(bodyData);
+  const data = prepData(req.body);
 
   try {
     const sql = await query(`INSERT INTO users (${data.columns}) VALUES (${data.marks})`, data.values);
