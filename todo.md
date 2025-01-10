@@ -9,17 +9,6 @@
   - Wrong answers don't end the game
   - Keep track of sponsored parts seen with the stats table
 
-- Stats page
-
-  - Not password protected, but needs a special parameter in the url or a local variable
-  - Could get "'whatever part' gives an average of X points to a user" data
-  - All games played, all users...
-
-- Scoreboard
-
-  - Overflow <div> window scrolls to the player's score
-  - 75vh or similar
-
 - Need loading / inactive state animation for some fetch calls.
 
   - Submit name button
@@ -31,6 +20,8 @@
 
 # Done
 
+- Scoreboard
+- Dashboard
 - Remove all possible correct answers from wrongAnswers[] with a comparison algorithm
 - "Play in veteran mode to get on the scoreboard" after every rookie game
 - Turn "share" feature back on

@@ -103,6 +103,22 @@ section[aria-label="Score"] div {
   text-align: center;
 }
 
+#current-points,
+#total-points {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+#current-points.flare {
+  color: red;
+  animation-name: point-flare;
+  animation-duration: 1000ms;
+  animation-timing-function: ease-in-out;
+}
+
+.points-label {
+}
+
 body[data-game-mode="r"] section[aria-label="Score"] {
   display: none;
 }
@@ -516,4 +532,21 @@ h1 {
 
 body[data-game-mode="v"] #veteran-plug-text {
   display: none;
+}
+
+@keyframes point-flare {
+  0% {
+    transform: translateY(0%);
+    scale: 100%;
+  }
+
+  50% {
+    transform: translateY(-50%);
+    scale: 150%;
+  }
+
+  100% {
+    transform: translateY(0%);
+    scale: 100%;
+  }
 }

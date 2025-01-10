@@ -66,8 +66,8 @@ let totalPoints = 0;
 let playTimer = 0;
 let gameStartTimeMS = 0;
 let databaseInsertId = 0;
-const timerOff = false;
-const shortPartsList = false; // window.location.host.includes("localhost");
+const timerOff = window.location.host.includes("localhost");
+const shortPartsList = window.location.host.includes("localhost");
 
 const imageLoadState = {
   one: false,
@@ -186,6 +186,7 @@ const resetTimer = () => {
   currentPartPointsElement.innerText = startPoints + "";
   currentPoints = startPoints;
   currentPointsDOMValue = startPoints;
+  currentPartPointsElement.classList.remove("flare");
   playTimer = setInterval(() => {
     if (timerOff) return; // For Dev.
     if (currentPoints <= 0) {
@@ -205,9 +206,7 @@ const updateCurrentPointsDOM = (currentPoints: number) => {
 
     // Low point warning.
     if (currentPointsDOMValue < 150) {
-      currentPartPointsElement.style.color = "red";
-    } else {
-      currentPartPointsElement.style.color = "";
+      currentPartPointsElement.classList.add("flare");
     }
   }
 };
