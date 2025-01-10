@@ -29,6 +29,8 @@ const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
 const gameProgressTextElement = document.querySelector(`#progress-text`);
 const gameProgressBarElement = document.querySelector(`#progress-bar`);
+const fakegameProgressBarBackgroundElement = document.querySelector(`#fake-progress-bar-background`);
+const fakegameProgressBarElement = document.querySelector(`#fake-progress-bar`);
 const currentPartPointsElement = document.querySelector(`#current-points`);
 const totalPointsElement = document.querySelector(`#total-points`);
 // Game Over Screen Elements.
@@ -145,6 +147,7 @@ const updateGameProgressBar = () => {
     }
     gameProgressTextElement.innerText = `${currentPart + 1} out of ${parts.length}`;
     gameProgressBarElement.setAttribute("value", currentPart + 1 + "");
+    fakegameProgressBarElement.style.width = `${(currentPart / parts.length) * 100}%`;
 };
 const explode = () => {
     quizButtonElements.forEach((button) => {

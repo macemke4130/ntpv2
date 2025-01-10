@@ -154,7 +154,7 @@ main li {
   max-width: var(--rules-max-width);
   overflow-x: hidden;
   margin: 0 auto 1rem auto;
-  background: rgb(68, 34, 102);
+  background: var(--rules-background);
   color: white;
 }
 

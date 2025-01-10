@@ -5,6 +5,7 @@
   --backdrop-color: rgba(0, 0, 0, 0.6);
   --text-color: rgb(205, 205, 205);
   --btn-border: 1px solid var(--btn-border-color);
+  --rules-background: rgb(68, 34, 102);
   --rules-width: 90vw;
   --rules-max-width: 38rem;
 }

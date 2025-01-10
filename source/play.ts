@@ -30,6 +30,8 @@ const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as N
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
 const gameProgressTextElement = document.querySelector(`#progress-text`) as HTMLDivElement;
 const gameProgressBarElement = document.querySelector(`#progress-bar`) as HTMLProgressElement;
+const fakegameProgressBarBackgroundElement = document.querySelector(`#fake-progress-bar-background`) as HTMLProgressElement;
+const fakegameProgressBarElement = document.querySelector(`#fake-progress-bar`) as HTMLProgressElement;
 const currentPartPointsElement = document.querySelector(`#current-points`)! as HTMLDivElement;
 const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
 
@@ -165,6 +167,8 @@ const updateGameProgressBar = () => {
 
   gameProgressTextElement.innerText = `${currentPart + 1} out of ${parts.length}`;
   gameProgressBarElement.setAttribute("value", currentPart + 1 + "");
+
+  fakegameProgressBarElement.style.width = `${(currentPart / parts.length) * 100}%`;
 };
 
 const explode = () => {

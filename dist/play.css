@@ -142,6 +142,33 @@ body[data-game-mode="r"] [aria-label="Game Progress"] {
   margin-top: 0;
 }
 
+#progress-bar {
+  opacity: 0;
+  position: absolute;
+}
+
+#progress-text {
+  margin-bottom: 0.25rem;
+}
+
+#fake-progress-bar-background {
+  background: var(--btn-color);
+  height: 1.25rem;
+  width: 12.5rem;
+  position: relative;
+  margin: 0 auto;
+  border: var(--btn-border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+#fake-progress-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--rules-background);
+  width: 0%;
+}
+
 @media (max-width: 1026px) {
   [aria-label="Game Progress"] {
     margin-top: 0;
