@@ -30,7 +30,6 @@ const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as N
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
 const gameProgressTextElement = document.querySelector(`#progress-text`) as HTMLDivElement;
 const gameProgressBarElement = document.querySelector(`#progress-bar`) as HTMLProgressElement;
-const fakegameProgressBarBackgroundElement = document.querySelector(`#fake-progress-bar-background`) as HTMLProgressElement;
 const fakegameProgressBarElement = document.querySelector(`#fake-progress-bar`) as HTMLProgressElement;
 const currentPartPointsElement = document.querySelector(`#current-points`)! as HTMLDivElement;
 const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
@@ -59,6 +58,7 @@ const updateDOMInterval = 3; // This value is arbitrary.
 let gameMode: GameMode = "v";
 let parts: Part[] = [];
 const wrongAnswers: string[] = [];
+let wrongAnswerIndex = 0;
 const rookieScore: RookieScoreObject[] = [];
 let correctAnswer = "";
 let currentPart = 0;
@@ -97,6 +97,7 @@ const buildWrongAnswers = (parts: Part[]) => {
   const potentialWrongAnswers = getPotentialWrongAnswers(parts);
 
   const correctAnswersSet: Set<string> = new Set();
+  const tempWrongAnswersSet: Set<string> = new Set();
 
   // Fill correctAnsersSet
   correctAnswers.forEach((answer) => {
@@ -106,7 +107,11 @@ const buildWrongAnswers = (parts: Part[]) => {
   // Push only wrong answers into wrongAnswers[]
   potentialWrongAnswers.forEach((answer) => {
     const notInCorrectAnswerList = !correctAnswersSet.has(answer);
-    if (notInCorrectAnswerList) wrongAnswers.push(answer);
+    if (notInCorrectAnswerList) tempWrongAnswersSet.add(answer);
+  });
+
+  tempWrongAnswersSet.forEach((wrongAnswer) => {
+    wrongAnswers.push(wrongAnswer);
   });
 };
 
@@ -193,10 +198,12 @@ const resetTimer = () => {
   currentPartPointsElement.classList.remove("flare");
   playTimer = setInterval(() => {
     if (timerOff) return; // For Dev.
+
     if (currentPoints <= 0) {
       gameOver("timer");
       return;
     }
+
     currentPoints = currentPoints - pointDropPerInterval;
     updateCurrentPointsDOM(currentPoints);
   }, timerInterval);
@@ -338,7 +345,7 @@ const getRandomWrongAnswer = () => {
 };
 
 // Populate all answer buttons with currentPart answers.
-const loadAnswers = (partNumber: number) => {
+const fillAnswerButtons = (partNumber: number) => {
   const part = parts[partNumber];
 
   // Store correct value to state before shuffle.
@@ -346,10 +353,31 @@ const loadAnswers = (partNumber: number) => {
 
   const shuffledAnswers = [...part.answers].sort(() => 0.5 - Math.random());
 
+  // Source to search for unique button answers.
+  const validAnswers = shuffledAnswers.filter((answer) => !!answer);
+
   shuffledAnswers.forEach((answer, index) => {
     const button = quizButtonElements[index];
-    button.innerText = answer || getRandomWrongAnswer();
-    button.setAttribute("data-quiz-button", index + "");
+
+    // getRandomWrongAnswer() could return the same part for multiple buttons.
+    // Here I'm using a while loop and a temporary validAnswers[] to determine
+    // if the new proposedWrongAnswer already exists in the answer list.
+    if (!answer) {
+      let proposedWrongAnswer = getRandomWrongAnswer();
+      let validAnswersContainsProposedWrongAnswer = validAnswers.includes(proposedWrongAnswer);
+
+      while (validAnswersContainsProposedWrongAnswer) {
+        proposedWrongAnswer = getRandomWrongAnswer();
+        validAnswersContainsProposedWrongAnswer = validAnswers.includes(proposedWrongAnswer);
+      }
+
+      const acceptedWrongAnswer = proposedWrongAnswer;
+
+      validAnswers.push(acceptedWrongAnswer);
+      button.innerText = acceptedWrongAnswer;
+    } else {
+      button.innerText = answer;
+    }
   });
 };
 
@@ -890,7 +918,7 @@ const imageLoaded = (event: Event) => {
     imageLoadState.two = false;
 
     if (gameMode === "v") resetTimer();
-    loadAnswers(currentPart);
+    fillAnswerButtons(currentPart);
     blurPartImages(false);
     imageLoadListeners("remove");
     updateGameProgressBar();

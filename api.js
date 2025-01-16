@@ -1,8 +1,77 @@
 import * as express from "express";
 import { query, apiRoute, prepData } from "./dbConnect.js";
 import { publicIpv4 } from "public-ip";
+import quiz from "./quiz.json" with {type: "json"};
+
+const allParts = quiz.parts;
+const correctAnswers = allParts.map(part => part.answers[0]);
+const wrongAnswers = [];
+
+const correctAnswerSet = new Set();
+const wrongAnswerSet = new Set();
+
+correctAnswers.forEach(answer => {
+  correctAnswerSet.add(answer);
+});
+
+allParts.forEach(part => {
+
+  // Index 0 is the correct answer so skip it and start at 1.
+  for (let index = 1; index < part.answers.length; index++) {
+    const answer = part.answers[index];
+    const isNotMatchingCorrectAnswer = !correctAnswerSet.has(answer);
+
+    if (isNotMatchingCorrectAnswer && answer !== "") {
+      wrongAnswerSet.add(answer);
+    }
+  }
+});
+
+wrongAnswerSet.forEach(answer => {
+  wrongAnswers.push(answer);
+});
 
 const router = express.Router();
+
+router.get(`${apiRoute}/parts/date-updated`, async (req, res) => {
+  const response = {
+    message: "Date last updated.",
+    status: 200,
+    data: quiz.dateLastUpdated,
+  };
+
+  res.json(response);
+});
+
+router.get(`${apiRoute}/parts/`, async (req, res) => {
+  const response = {
+    message: "All parts and answers.",
+    status: 200,
+    data: allParts,
+  };
+
+  res.json(response);
+});
+
+router.get(`${apiRoute}/parts/correct-answers`, async (req, res) => {
+  const response = {
+    message: "All correct answers.",
+    status: 200,
+    data: correctAnswers,
+  };
+
+  res.json(response);
+});
+
+router.get(`${apiRoute}/parts/wrong-answers`, async (req, res) => {
+  const response = {
+    message: "All wrong answers without matching correct answers or duplicates.",
+    status: 200,
+    data: wrongAnswers,
+  };
+
+  res.json(response);
+});
 
 const addIPAddressToGameData = async (gameData) => {
   try {

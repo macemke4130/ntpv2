@@ -29,7 +29,6 @@ const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
 const gameProgressTextElement = document.querySelector(`#progress-text`);
 const gameProgressBarElement = document.querySelector(`#progress-bar`);
-const fakegameProgressBarBackgroundElement = document.querySelector(`#fake-progress-bar-background`);
 const fakegameProgressBarElement = document.querySelector(`#fake-progress-bar`);
 const currentPartPointsElement = document.querySelector(`#current-points`);
 const totalPointsElement = document.querySelector(`#total-points`);
@@ -55,6 +54,7 @@ const updateDOMInterval = 3; // This value is arbitrary.
 let gameMode = "v";
 let parts = [];
 const wrongAnswers = [];
+let wrongAnswerIndex = 0;
 const rookieScore = [];
 let correctAnswer = "";
 let currentPart = 0;
@@ -87,6 +87,7 @@ const buildWrongAnswers = (parts) => {
     const correctAnswers = getCorrectAnswers(parts);
     const potentialWrongAnswers = getPotentialWrongAnswers(parts);
     const correctAnswersSet = new Set();
+    const tempWrongAnswersSet = new Set();
     // Fill correctAnsersSet
     correctAnswers.forEach((answer) => {
         correctAnswersSet.add(answer);
@@ -95,7 +96,10 @@ const buildWrongAnswers = (parts) => {
     potentialWrongAnswers.forEach((answer) => {
         const notInCorrectAnswerList = !correctAnswersSet.has(answer);
         if (notInCorrectAnswerList)
-            wrongAnswers.push(answer);
+            tempWrongAnswersSet.add(answer);
+    });
+    tempWrongAnswersSet.forEach((wrongAnswer) => {
+        wrongAnswers.push(wrongAnswer);
     });
 };
 const determineGameMode = () => {
@@ -295,15 +299,32 @@ const getRandomWrongAnswer = () => {
     return wrongAnswers[randomInteger];
 };
 // Populate all answer buttons with currentPart answers.
-const loadAnswers = (partNumber) => {
+const fillAnswerButtons = (partNumber) => {
     const part = parts[partNumber];
     // Store correct value to state before shuffle.
     correctAnswer = part.answers[0];
     const shuffledAnswers = [...part.answers].sort(() => 0.5 - Math.random());
+    // Source to search for unique button answers.
+    const validAnswers = shuffledAnswers.filter((answer) => !!answer);
     shuffledAnswers.forEach((answer, index) => {
         const button = quizButtonElements[index];
-        button.innerText = answer || getRandomWrongAnswer();
-        button.setAttribute("data-quiz-button", index + "");
+        // getRandomWrongAnswer() could return the same part for multiple buttons.
+        // Here I'm using a while loop and a temporary validAnswers[] to determine
+        // if the new proposedWrongAnswer already exists in the answer list.
+        if (!answer) {
+            let proposedWrongAnswer = getRandomWrongAnswer();
+            let validAnswersContainsProposedWrongAnswer = validAnswers.includes(proposedWrongAnswer);
+            while (validAnswersContainsProposedWrongAnswer) {
+                proposedWrongAnswer = getRandomWrongAnswer();
+                validAnswersContainsProposedWrongAnswer = validAnswers.includes(proposedWrongAnswer);
+            }
+            const acceptedWrongAnswer = proposedWrongAnswer;
+            validAnswers.push(acceptedWrongAnswer);
+            button.innerText = acceptedWrongAnswer;
+        }
+        else {
+            button.innerText = answer;
+        }
     });
 };
 // On correct answer, update totalPoints state.
@@ -753,7 +774,7 @@ const imageLoaded = (event) => {
         imageLoadState.two = false;
         if (gameMode === "v")
             resetTimer();
-        loadAnswers(currentPart);
+        fillAnswerButtons(currentPart);
         blurPartImages(false);
         imageLoadListeners("remove");
         updateGameProgressBar();

@@ -1,5 +1,6 @@
 # To Do
 
+- Add "Time Out" to time out game over "Game Over" text
 - Users table need "last_visited" column
 - Feature sponsored bonus parts brought to you by companies.
 

@@ -1,3 +1,19 @@
+#no-script-alert-container {
+  display: grid;
+  place-content: center;
+  height: 100vh;
+  position: fixed;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.85);
+  font-size: 2rem;
+  font-weight: bold;
+  text-wrap: balance;
+  text-shadow: 2px 2px 2px black;
+  padding: 2rem;
+  text-align: center;
+  inset: 0;
+}
+
 h1 {
   text-align: center;
   padding-top: 0.5rem;
@@ -20,6 +36,14 @@ section[aria-label="Images"] [data-quiz-image] {
   transition-property: filter;
   transition-duration: 100ms;
   transition-timing-function: linear;
+}
+
+[data-quiz-image="one"] {
+  border-right: 1px solid var(--bg-color);
+}
+
+[data-quiz-image="two"]:last-of-type {
+  border-left: 1px solid var(--bg-color);
 }
 
 section[aria-label="Images"] [data-blur="true"] {
