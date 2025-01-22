@@ -21,6 +21,7 @@
 
 # Done
 
+- Make state an object. Would make it more clear that I'm updating state with state.gameMode = ...
 - Scoreboard
 - Dashboard
 - Remove all possible correct answers from wrongAnswers[] with a comparison algorithm

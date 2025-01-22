@@ -2,6 +2,7 @@ import * as express from "express";
 import { query, apiRoute, prepData } from "./dbConnect.js";
 import { publicIpv4 } from "public-ip";
 import quiz from "./quiz.json" with {type: "json"};
+import { UAParser } from "ua-parser-js";
 
 const allParts = quiz.parts;
 const correctAnswers = allParts.map(part => part.answers[0]);
@@ -44,10 +45,12 @@ router.get(`${apiRoute}/parts/date-updated`, async (req, res) => {
 });
 
 router.get(`${apiRoute}/parts/`, async (req, res) => {
+  const shuffledParts = allParts.toSorted(() => 0.5 - Math.random());
+
   const response = {
     message: "All parts and answers.",
     status: 200,
-    data: allParts,
+    data: shuffledParts,
   };
 
   res.json(response);
@@ -354,10 +357,37 @@ router.post(`${apiRoute}/users/game-played`, async (req, res) => {
   }
 });
 
+const addUserAgentInfo = (gameData) => {
+  const deviceInfoString = gameData.device_info;
+  const deviceInfoObject = JSON.parse(deviceInfoString);
+  
+  const uap = UAParser(deviceInfoObject.userAgentInfo);
+  
+  deviceInfoObject.browserName = uap.browser.name;
+  deviceInfoObject.browserVersion = uap.browser.version;
+  deviceInfoObject.browserType = uap.browser.type;
+  
+  deviceInfoObject.cpuChip = uap.cpu.architecture;
+
+  deviceInfoObject.device = `${uap.device.type ? uap.device.type + " - " : ""}${uap.device.vendor} ${uap.device.model}`;
+
+  deviceInfoObject.engine = `${uap.engine.name} - ${uap.engine.version}`;
+
+  deviceInfoObject.os = `${uap.os.name} - ${uap.os.version}`;
+
+  delete deviceInfoObject.userAgentInfo;
+
+  gameData.device_info = JSON.stringify(deviceInfoObject);
+
+  return gameData;
+};
+
 // Log new veteran game.
 router.post(`${apiRoute}/stats/log-game`, async (req, res) => {
-  const gameData = await addIPAddressToGameData(req.body);
-  const data = prepData(gameData);
+  const gameDataWithIpAddress = await addIPAddressToGameData(req.body);
+  const gameDataWithUAInfo = addUserAgentInfo(gameDataWithIpAddress);
+
+  const data = prepData(gameDataWithUAInfo);
 
   try {
     const sql = await query(`INSERT INTO stats (${data.columns}) VALUES (${data.marks})`, data.values);

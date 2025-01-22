@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const dbHost = "";
 const apiHelper = async (url, method = "GET", data) => {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
@@ -19,7 +18,7 @@ const apiHelper = async (url, method = "GET", data) => {
 };
 const attemptLogin = async (emailAddress, password) => {
     try {
-        const request = await apiHelper(`${dbHost}/api/admin/login-attempt`, "POST", { emailAddress, password });
+        const request = await apiHelper(`/api/admin/login-attempt`, "POST", { emailAddress, password });
         return request;
     }
     catch (error) {
@@ -133,11 +132,27 @@ const cleanStatsData = (data) => {
     });
     return newOrderData;
 };
+const deviceColumnNames = {
+    lang: "Language",
+    mobile: "Mobile?",
+    screenSize: "Screen Size",
+    ipAddress: "IP Address",
+    browserName: "Browser",
+    browserVersion: "Browser Version",
+    device: "Device",
+    engine: "Engine",
+    os: "OS",
+};
 const renderDeviceInfoHTML = (deviceInfo) => {
     if (!deviceInfo)
         return "";
     const device = JSON.parse(deviceInfo);
-    const html = `<span>ipAddress: ${device.ipAddress} <br />Language: ${device.lang} <br />Mobile Device: ${device.mobile.toString()} <br />Screen Size: ${device.screenSize}</span>`;
+    let html = "<span>";
+    for (const [col, value] of Object.entries(device)) {
+        const keyFix = col;
+        html = html + `${deviceColumnNames[keyFix] || col}: ${value} <br /> `;
+    }
+    html = html + "</span>";
     return html;
 };
 const handleLoginClick = async (event) => {

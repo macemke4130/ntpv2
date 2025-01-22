@@ -1,3 +1,20 @@
+export type GameState = {
+  gameMode: GameMode;
+  parts: Part[];
+  wrongAnswers: string[];
+  rookieScore: RookieScoreObject[];
+  correctAnswer: string;
+  currentPart: number;
+  currentPoints: number;
+  currentPointsDOMValue: number;
+  totalPoints: number;
+  playTimer: number;
+  gameStartTimeMS: number;
+  databaseInsertId: number;
+  timerOff: boolean;
+  shortPartsList: boolean;
+};
+
 export type GameMode = "r" | "v";
 
 export type Part = {
@@ -30,6 +47,17 @@ export type DBResponse = {
 
 export type RookieScoreObject = {
   correct: boolean;
-  partName: string;
   images: string;
+};
+
+export type DeviceColumnNames = {
+  lang: string;
+  mobile: string;
+  screenSize: string;
+  ipAddress: string;
+  browserName: string;
+  browserVersion: string;
+  device: string;
+  engine: string;
+  os: string;
 };

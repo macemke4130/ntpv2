@@ -1,6 +1,4 @@
-import { DBResponse } from "../types";
-
-const dbHost = "";
+import { DBResponse, DeviceColumnNames } from "../types";
 
 const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -23,7 +21,7 @@ const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any
 
 const attemptLogin = async (emailAddress: string, password: string) => {
   try {
-    const request = await apiHelper(`${dbHost}/api/admin/login-attempt`, "POST", { emailAddress, password });
+    const request = await apiHelper(`/api/admin/login-attempt`, "POST", { emailAddress, password });
     return request;
   } catch (error) {
     console.error(error);
@@ -160,14 +158,32 @@ const cleanStatsData = (data: any[]) => {
   return newOrderData;
 };
 
+const deviceColumnNames: DeviceColumnNames = {
+  lang: "Language",
+  mobile: "Mobile?",
+  screenSize: "Screen Size",
+  ipAddress: "IP Address",
+  browserName: "Browser",
+  browserVersion: "Browser Version",
+  device: "Device",
+  engine: "Engine",
+  os: "OS",
+};
+
 const renderDeviceInfoHTML = (deviceInfo: string) => {
   if (!deviceInfo) return "";
 
   const device = JSON.parse(deviceInfo);
 
-  const html = `<span>ipAddress: ${device.ipAddress} <br />Language: ${device.lang} <br />Mobile Device: ${device.mobile.toString()} <br />Screen Size: ${
-    device.screenSize
-  }</span>`;
+  let html = "<span>";
+
+  for (const [col, value] of Object.entries(device)) {
+    const keyFix = col as keyof DeviceColumnNames;
+
+    html = html + `${deviceColumnNames[keyFix] || col}: ${value} <br /> `;
+  }
+
+  html = html + "</span>";
 
   return html;
 };
