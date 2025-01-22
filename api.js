@@ -45,7 +45,7 @@ router.get(`${apiRoute}/parts/date-updated`, async (req, res) => {
 });
 
 router.get(`${apiRoute}/parts/`, async (req, res) => {
-  const shuffledParts = allParts.toSorted(() => 0.5 - Math.random());
+  const shuffledParts = allParts.sort(() => 0.5 - Math.random());
 
   const response = {
     message: "All parts and answers.",
