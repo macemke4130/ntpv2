@@ -38,7 +38,30 @@ router.get(`${apiRoute}/parts/date-updated`, async (req, res) => {
   const response = {
     message: "Date last updated.",
     status: 200,
-    data: quiz.dateLastUpdated,
+    data: allParts.length,
+  };
+
+  res.json(response);
+});
+
+router.get(`${apiRoute}/parts/size`, async (req, res) => {
+  const response = {
+    message: "Number of parts in game.",
+    status: 200,
+    data: quiz.parts.length,
+  };
+
+  res.json(response);
+});
+
+router.get(`${apiRoute}/parts/info`, async (req, res) => {
+  const response = {
+    message: "Number of parts in game and date last updated",
+    status: 200,
+    data: {
+      size: quiz.parts.length,
+      dateLastUpdated: quiz.dateLastUpdated
+    }
   };
 
   res.json(response);
@@ -252,7 +275,7 @@ router.get(`${apiRoute}/stats/total-games`, async (req, res) => {
     const response = {
       message: "Total number of games played.",
       status: 200,
-      data: sql[0],
+      data: sql[0].total.toLocaleString()
     };
 
     res.json(response);

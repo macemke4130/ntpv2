@@ -488,48 +488,41 @@ body[data-game-mode="v"] #rookie-game-over {
 }
 
 #rookie-results {
-  --rookie-result-image-width: 12rem;
-  --rookie-result-image-gap: 1rem;
-
   list-style: none;
   margin: 0;
   padding: 0;
+  max-width: 50rem;
+  margin: 0 auto;
 }
 
-#rookie-results li {
-  display: flex;
-  justify-content: space-between;
-  margin: 0;
-  margin-bottom: 0.5rem;
-  padding: 0;
+#rookie-results .rookie-answer {
   list-style: inherit;
-  position: relative;
+  display: grid;
+  margin-bottom: 1rem;
+}
+
+#rookie-results .rookie-answer > *,
+#rookie-results .answer-container > * {
+  grid-area: 1 / 1;
 }
 
 #rookie-results .rookie-images {
-  display: flex;
-  width: 100%;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 #rookie-results .rookie-images img {
-  width: 50%;
+  width: 100%;
   height: auto;
-  max-width: 20rem;
 }
 
 #rookie-results .answer-container {
   --answer-height: 2rem;
 
   display: grid;
-  place-items: center;
-  position: absolute;
-  bottom: 2rem;
-  width: 100%;
-}
-
-#rookie-results .answer-container > * {
-  grid-area: 1 / 1;
+  justify-items: center;
+  align-items: end;
+  padding-bottom: 2rem;
 }
 
 #rookie-results .answer {

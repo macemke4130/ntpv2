@@ -7,24 +7,10 @@ if (!window.location.hostname.includes("localhost")) {
 
 import { DBResponse, GameMode } from "./types";
 
-const dbHost = "";
-
 const totalPartsElement = document.querySelector(`#total-parts`)! as HTMLSpanElement;
 const totalGamesElement = document.querySelector(`#total-games`)! as HTMLDivElement;
 const dateUpdatedElement = document.querySelector(`#date-updated`)! as HTMLSpanElement;
 const gameModeSwitchElements = document.querySelectorAll(`input[name="gameMode"]`)! as NodeListOf<HTMLInputElement>;
-
-const fillGameData = async () => {
-  try {
-    const request = await fetch("./quiz.json");
-    const jsonResponse = await request.json();
-
-    totalPartsElement.innerText = jsonResponse.parts.length + "";
-    dateUpdatedElement.innerText = jsonResponse.dateLastUpdated;
-  } catch (e) {
-    console.error(e);
-  }
-};
 
 const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -45,11 +31,24 @@ const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any
   }
 };
 
+const fillGameData = async () => {
+  try {
+    const request = await apiHelper(`api/parts/info`);
+
+    if (request?.status === 200) {
+      totalPartsElement.innerText = request.data.size;
+      dateUpdatedElement.innerText = request.data.dateLastUpdated;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 const getTotalGames = async () => {
-  const request = await apiHelper(`${dbHost}/api/stats/total-games`);
+  const request = await apiHelper(`/api/stats/total-games`);
   if (request?.status === 200) {
-    const totalGames: number = request.data.total;
-    totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
+    const totalGames: number = request.data;
+    totalGamesElement.innerText = totalGames + "";
   }
 };
 

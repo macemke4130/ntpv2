@@ -6,22 +6,10 @@ if (!window.location.hostname.includes("localhost")) {
         window.location.replace("https://www.namethatpart.com/");
     }
 }
-const dbHost = "";
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);
 const dateUpdatedElement = document.querySelector(`#date-updated`);
 const gameModeSwitchElements = document.querySelectorAll(`input[name="gameMode"]`);
-const fillGameData = async () => {
-    try {
-        const request = await fetch("./quiz.json");
-        const jsonResponse = await request.json();
-        totalPartsElement.innerText = jsonResponse.parts.length + "";
-        dateUpdatedElement.innerText = jsonResponse.dateLastUpdated;
-    }
-    catch (e) {
-        console.error(e);
-    }
-};
 const apiHelper = async (url, method = "GET", data) => {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
@@ -38,11 +26,23 @@ const apiHelper = async (url, method = "GET", data) => {
         console.error(e);
     }
 };
+const fillGameData = async () => {
+    try {
+        const request = await apiHelper(`api/parts/info`);
+        if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
+            totalPartsElement.innerText = request.data.size;
+            dateUpdatedElement.innerText = request.data.dateLastUpdated;
+        }
+    }
+    catch (e) {
+        console.error(e);
+    }
+};
 const getTotalGames = async () => {
-    const request = await apiHelper(`${dbHost}/api/stats/total-games`);
+    const request = await apiHelper(`/api/stats/total-games`);
     if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
-        const totalGames = request.data.total;
-        totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
+        const totalGames = request.data;
+        totalGamesElement.innerText = totalGames + "";
     }
 };
 const showGameRules = (gameMode) => {

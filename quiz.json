@@ -1,6 +1,26 @@
 {
-  "dateLastUpdated": "01/06/2025",
+  "dateLastUpdated": "01/23/2025",
   "parts": [
+    {
+      "images": ["PXL_20211002_180324298.jpg", "PXL_20211002_180335310.jpg"],
+      "answers": ["Front Derailleur Cable Adjust Unit", "Rear Derailleur Cable Adjust Unit", "", ""]
+    },
+    {
+      "images": ["PXL_20211002_000028898.jpg", "PXL_20211002_000037500.jpg"],
+      "answers": ["Post Mount Brake Bolt Snap Ring", "Flat Mount Brake Bolt Snap Ring", "", ""]
+    },
+    {
+      "images": ["PXL_20211001_235936709.jpg", "PXL_20211001_235950440.jpg"],
+      "answers": ["Shimano Di2 Port Plug", "Jagwire Hooded Brake Ferrule", "Sram AXS Port Plug", ""]
+    },
+    {
+      "images": ["PXL_20210930_221619580.jpg", "PXL_20210930_221619580.jpg"],
+      "answers": ["Shimano Road Shroud Bolt", "Shimano Road Shroud Nut", "", ""]
+    },
+    {
+      "images": ["PXL_20210930_221552937.jpg", "PXL_20210930_221600793.jpg"],
+      "answers": ["Sram Road Shroud Bolt", "Sram Mountain Shroud Nut", "", ""]
+    },
     {
       "images": ["PXL_20210929_185229970.jpg", "PXL_20210929_185238103.jpg"],
       "answers": ["Pinnarello Headset Top Cap", "Cervelo Headset Top Cap", "Pinnarello Headset Preload Bolt", ""]
@@ -163,7 +183,7 @@
     },
     {
       "images": ["PXL_20210913_182105933.jpg", "PXL_20210913_182118531.jpg"],
-      "answers": ["Shimano Slotted Shift Ferrule", "Jagwire Hooded Brake Ferrule", "Jagwire Shift Ferrule", "Shimano Di2 Plug"]
+      "answers": ["Shimano Slotted Shift Ferrule", "Jagwire Hooded Brake Ferrule", "Jagwire Shift Ferrule", "Shimano Di2 Port Plug"]
     },
     {
       "images": ["PXL_20210914_233628067.jpg", "PXL_20210914_233638321.jpg"],
