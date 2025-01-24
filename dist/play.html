@@ -55,7 +55,11 @@
           <progress id="progress-bar" value="0" max="0"></progress>
         </section>
       </div>
-      <div data-game-over>
+      <section id="rookie-game-over">
+        <ol id="rookie-results"></ol>
+      </section>
+      <div data-game-over="false">
+        <div id="rookie-score"></div>
         <section id="game-over-screen" data-game-end-type data-screen-active="false">
           <h2 id="game-over-title"></h2>
           <div id="final-score-title">Total Points</div>
@@ -73,10 +77,6 @@
             <div id="veteran-plug-text">Play in Veteran Mode to join the scoreboard</div>
           </div>
           <button id="share">Share Name That Part with friends</button>
-        </section>
-        <section id="rookie-game-over">
-          <div id="rookie-score"></div>
-          <ol id="rookie-results"></ol>
         </section>
         <table id="scoreboard">
           <thead>

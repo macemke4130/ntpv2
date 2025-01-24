@@ -1,9 +1,9 @@
 // Secure redirect.
-if (!window.location.hostname.includes("localhost")) {
-  if (!window.location.protocol.includes("s")) {
-    window.location.replace("https://www.namethatpart.com/play.html");
-  }
-}
+// if (!window.location.hostname.includes("localhost")) {
+//   if (!window.location.protocol.includes("s")) {
+//     window.location.replace("https://www.namethatpart.com/play.html");
+//   }
+// }
 
 import { GameState, GameMode, DBResponse, RookieScoreObject, Stat } from "./types";
 
@@ -33,6 +33,7 @@ const currentPartPointsElement = document.querySelector(`#current-points`)! as H
 const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
 
 // Game Over Screen Elements.
+const gameOverScreenContainerElement = document.querySelector("[data-game-over]")! as HTMLDivElement;
 const gameOverScreenElement = document.querySelector("#game-over-screen")! as HTMLDivElement;
 const scoreboardOffsetElement = document.querySelector("#scoreboard-offset")! as HTMLDivElement;
 const gameOverTitleElement = document.querySelector("#game-over-title")! as HTMLHeadingElement;
@@ -66,7 +67,7 @@ const state: GameState = {
   gameStartTimeMS: 0,
   databaseInsertId: 0,
   timerOff: window.location.host.includes("localhost"),
-  shortPartsList: false,
+  shortPartsList: false, // window.location.host.includes("localhost"),
 };
 
 const imageLoadState = {
@@ -111,6 +112,7 @@ const pullData = async () => {
 
     if (state.gameMode === "r") {
       removeCountdownElement();
+      if (state.shortPartsList) state.parts.length = 5;
       startGame();
     }
   } catch (error) {
@@ -439,6 +441,9 @@ const reportScoreToPlayer = () => {
 
     rookieResultsElement.appendChild(liElement);
   });
+
+  // Hide address bar on mobile.
+  window.scrollTo(0, 1);
 };
 
 // Function is called by the end of the explode() transition or by a game win.
@@ -609,6 +614,7 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     await logRookieGame(gameStats);
   }
 
+  gameOverScreenContainerElement.setAttribute("data-game-over", "true");
   if (type === "win") clearPlayScreen("win");
 };
 
@@ -1046,7 +1052,6 @@ const sizeImageHeight = () => {
 sizeImageHeight();
 imageLoadListeners("add");
 answerButtonListeners("add");
-// readyPartsLists();
 
 // Veteran mode starts countdown. Rookie mode starts on parts[] loaded.
 if (state.gameMode === "v") beginCountdownToStart();

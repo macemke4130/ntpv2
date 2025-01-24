@@ -1,5 +1,8 @@
 # To Do
 
+- Highlight tie games in the scoreboard
+- Move all appendChild() calls inside for loops to build an element outside of the dom, then update the dom after the loop
+- Move all "data-game-over" "data-game-mode" attributes to <body>
 - Delay import of gameWin instructions to further along in the game.
 - Add "Time Out" to time out game over "Game Over" text
 - Users table need "last_visited" column

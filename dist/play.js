@@ -1,11 +1,11 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 // Secure redirect.
-if (!window.location.hostname.includes("localhost")) {
-    if (!window.location.protocol.includes("s")) {
-        window.location.replace("https://www.namethatpart.com/play.html");
-    }
-}
+// if (!window.location.hostname.includes("localhost")) {
+//   if (!window.location.protocol.includes("s")) {
+//     window.location.replace("https://www.namethatpart.com/play.html");
+//   }
+// }
+Object.defineProperty(exports, "__esModule", { value: true });
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const getDaySuffix = (dayOfMonth) => {
@@ -32,6 +32,7 @@ const fakegameProgressBarElement = document.querySelector(`#fake-progress-bar`);
 const currentPartPointsElement = document.querySelector(`#current-points`);
 const totalPointsElement = document.querySelector(`#total-points`);
 // Game Over Screen Elements.
+const gameOverScreenContainerElement = document.querySelector("[data-game-over]");
 const gameOverScreenElement = document.querySelector("#game-over-screen");
 const scoreboardOffsetElement = document.querySelector("#scoreboard-offset");
 const gameOverTitleElement = document.querySelector("#game-over-title");
@@ -63,7 +64,7 @@ const state = {
     gameStartTimeMS: 0,
     databaseInsertId: 0,
     timerOff: window.location.host.includes("localhost"),
-    shortPartsList: false,
+    shortPartsList: false, // window.location.host.includes("localhost"),
 };
 const imageLoadState = {
     one: false,
@@ -100,6 +101,8 @@ const pullData = async () => {
         state.wrongAnswers = allWrongAnswers === null || allWrongAnswers === void 0 ? void 0 : allWrongAnswers.data;
         if (state.gameMode === "r") {
             removeCountdownElement();
+            if (state.shortPartsList)
+                state.parts.length = 5;
             startGame();
         }
     }
@@ -371,6 +374,8 @@ const reportScoreToPlayer = () => {
         liElement.appendChild(answerContainerElement);
         rookieResultsElement.appendChild(liElement);
     });
+    // Hide address bar on mobile.
+    window.scrollTo(0, 1);
 };
 // Function is called by the end of the explode() transition or by a game win.
 const clearPlayScreen = (type) => {
@@ -515,6 +520,7 @@ const gameOver = async (type) => {
     else {
         await logRookieGame(gameStats);
     }
+    gameOverScreenContainerElement.setAttribute("data-game-over", "true");
     if (type === "win")
         clearPlayScreen("win");
 };
@@ -890,7 +896,6 @@ const sizeImageHeight = () => {
 sizeImageHeight();
 imageLoadListeners("add");
 answerButtonListeners("add");
-// readyPartsLists();
 // Veteran mode starts countdown. Rookie mode starts on parts[] loaded.
 if (state.gameMode === "v")
     beginCountdownToStart();
