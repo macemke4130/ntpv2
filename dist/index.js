@@ -1,11 +1,11 @@
 "use strict";
-// Secure redirect.
-// if (!window.location.hostname.includes("localhost")) {
-//   if (!window.location.protocol.includes("s")) {
-//     window.location.replace("https://www.namethatpart.com/");
-//   }
-// }
 Object.defineProperty(exports, "__esModule", { value: true });
+// Secure redirect.
+if (!window.location.hostname.includes("localhost")) {
+    if (!window.location.protocol.includes("s")) {
+        window.location.replace("https://www.namethatpart.com/");
+    }
+}
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);
 const dateUpdatedElement = document.querySelector(`#date-updated`);

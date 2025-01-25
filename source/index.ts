@@ -1,9 +1,9 @@
 // Secure redirect.
-// if (!window.location.hostname.includes("localhost")) {
-//   if (!window.location.protocol.includes("s")) {
-//     window.location.replace("https://www.namethatpart.com/");
-//   }
-// }
+if (!window.location.hostname.includes("localhost")) {
+  if (!window.location.protocol.includes("s")) {
+    window.location.replace("https://www.namethatpart.com/");
+  }
+}
 
 import { DBResponse, GameMode } from "./types";
 

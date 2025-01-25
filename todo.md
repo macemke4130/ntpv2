@@ -1,5 +1,27 @@
 # To Do
 
+-When someone makes the scoreboard, send me an email https://nodemailer.com/
+
+- Defer offscreen images in film strip for index and about
+- track referring site
+- validAnswers[] should be a set. The while loop should have a validAnswer.has() instead of an includes() 01 vs 0n
+- Wizard Mode
+  - 10 possible answers
+  - One image only
+  - 10 seconds per part
+- Rookie - "You'll get your results after the game" during gameplay
+- Veteran Mode Countdown clock animation?
+- Dynamic import for game ending code
+- Admin
+
+  - JWT
+  - Split up games and users
+  - Remove ID from admin tables. Just keep it in an attribute. I don't care.
+  - Make users' UUID an <a> and link to all their stats and games
+  - Admin section has games per day SVG chart
+
+- Add ?s=1 or similar to URL of share API
+  Different color lines for veteran games and rookie games
 - Highlight tie games in the scoreboard
 - Move all appendChild() calls inside for loops to build an element outside of the dom, then update the dom after the loop
 - Move all "data-game-over" "data-game-mode" attributes to <body>
