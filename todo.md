@@ -1,7 +1,8 @@
 # To Do
 
--When someone makes the scoreboard, send me an email https://nodemailer.com/
-
+- Update readme.md
+- Uninstall CORS
+- When someone makes the scoreboard, send me an email https://nodemailer.com/
 - track referring site
 - validAnswers[] should be a set. The while loop should have a validAnswer.has() instead of an includes() 01 vs 0n
 - Wizard Mode
