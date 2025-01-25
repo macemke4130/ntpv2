@@ -2,7 +2,6 @@
 
 -When someone makes the scoreboard, send me an email https://nodemailer.com/
 
-- Defer offscreen images in film strip for index and about
 - track referring site
 - validAnswers[] should be a set. The while loop should have a validAnswer.has() instead of an includes() 01 vs 0n
 - Wizard Mode
@@ -47,6 +46,7 @@
 
 # Done
 
+- Defer offscreen images in film strip for index and about
 - Make state an object. Would make it more clear that I'm updating state with state.gameMode = ...
 - Scoreboard
 - Dashboard

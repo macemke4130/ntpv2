@@ -1,29 +1,8 @@
-import { DBResponse } from "./types";
-
-const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
-  const headers = { "Content-Type": "application/json", Accept: "application/json" };
-
-  const options: { method: string; headers: typeof headers; body?: any } = { method, headers };
-
-  if (data) {
-    const body = JSON.stringify(data);
-    options.body = body;
-  }
-
-  try {
-    const request = await fetch(url, options);
-    const jsonResponse: DBResponse = await request.json();
-    return jsonResponse;
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const dbHost = "";
+import { apiHelper } from "./utils.js";
 
 const fetchScoreboardData = async () => {
   try {
-    const statsFromDatabase = await apiHelper(`${dbHost}/api/stats/scoreboard`);
+    const statsFromDatabase = await apiHelper(`/api/stats/scoreboard`);
     if (!statsFromDatabase) return null;
 
     return statsFromDatabase.data;

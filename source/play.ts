@@ -5,7 +5,8 @@ if (!window.location.hostname.includes("localhost")) {
   }
 }
 
-import { GameState, GameMode, DBResponse, RookieScoreObject, Stat } from "./types";
+import { GameState, GameMode, RookieScoreObject, Stat } from "./types";
+import { apiHelper } from "./utils.js";
 
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -71,25 +72,6 @@ const determineGameMode = () => {
 };
 
 determineGameMode();
-
-const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
-  const headers = { "Content-Type": "application/json", Accept: "application/json" };
-
-  const options: { method: string; headers: typeof headers; body?: any } = { method, headers };
-
-  if (data) {
-    const body = JSON.stringify(data);
-    options.body = body;
-  }
-
-  try {
-    const request = await fetch(url, options);
-    const jsonResponse: DBResponse = await request.json();
-    return jsonResponse;
-  } catch (e) {
-    console.error(e);
-  }
-};
 
 const pullData = async () => {
   try {

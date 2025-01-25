@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const apiHelper = async (url, method = "GET", data) => {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };
@@ -158,7 +156,7 @@ const renderDeviceInfoHTML = (deviceInfo) => {
 const handleLoginClick = async (event) => {
     event.preventDefault();
     const request = await attemptLogin(emailInputElement.value, passwordInputElement.value);
-    if (request === null || request === void 0 ? void 0 : request.data.login) {
+    if (request?.data.login) {
         cleanUpDom();
         const usersData = cleanUsersData(request.data.usersData);
         buildUsersTable(usersData);
@@ -188,3 +186,4 @@ const convertToCentralTime = (utcDateTimeString) => {
     });
     return centralTimeString;
 };
+export {};

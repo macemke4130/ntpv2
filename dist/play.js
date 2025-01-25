@@ -1,11 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 // Secure redirect.
 if (!window.location.hostname.includes("localhost")) {
     if (!window.location.protocol.includes("s")) {
         window.location.replace("https://www.namethatpart.com/play.html");
     }
 }
+import { apiHelper } from "./utils.js";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const getDaySuffix = (dayOfMonth) => {
@@ -66,30 +65,14 @@ const determineGameMode = () => {
     document.body.setAttribute("data-game-mode", state.gameMode);
 };
 determineGameMode();
-const apiHelper = async (url, method = "GET", data) => {
-    const headers = { "Content-Type": "application/json", Accept: "application/json" };
-    const options = { method, headers };
-    if (data) {
-        const body = JSON.stringify(data);
-        options.body = body;
-    }
-    try {
-        const request = await fetch(url, options);
-        const jsonResponse = await request.json();
-        return jsonResponse;
-    }
-    catch (e) {
-        console.error(e);
-    }
-};
 const pullData = async () => {
     try {
         const allPartsRequest = await apiHelper("/api/parts");
-        state.parts = allPartsRequest === null || allPartsRequest === void 0 ? void 0 : allPartsRequest.data;
+        state.parts = allPartsRequest?.data;
         if (state.shortPartsList)
             state.parts.length = 5;
         const allWrongAnswers = await apiHelper("/api/parts/wrong-answers");
-        state.wrongAnswers = allWrongAnswers === null || allWrongAnswers === void 0 ? void 0 : allWrongAnswers.data;
+        state.wrongAnswers = allWrongAnswers?.data;
         if (state.gameMode === "r") {
             removeCountdownElement();
             startGame();
@@ -323,9 +306,8 @@ const getHumanReadableLocalTime = () => {
     return `${dayOfWeek}, ${month} ${date}${suffix} ${year}`;
 };
 const getConnectionSpeed = () => {
-    var _a;
     const nav = navigator;
-    return ((_a = nav.connection) === null || _a === void 0 ? void 0 : _a.effectiveType) || null;
+    return nav.connection?.effectiveType || null;
 };
 const printRookieScore = () => {
     let rookieCorrectAnswers = 0;
@@ -527,7 +509,7 @@ const updateDatabaseUserNamesList = async () => {
     };
     try {
         const updateUserNames = await apiHelper(`/api/users/new-players`, "POST", playerData);
-        if ((updateUserNames === null || updateUserNames === void 0 ? void 0 : updateUserNames.status) !== 200)
+        if (updateUserNames?.status !== 200)
             throw new Error("Updating player names failed.");
     }
     catch (e) {
@@ -545,7 +527,7 @@ const submitPlayerNameToDatabaseFromModal = async () => {
         id: state.databaseInsertId,
     };
     const submitPlayerNames = await apiHelper(`/api/stats/display-name`, "POST", playerData);
-    if ((submitPlayerNames === null || submitPlayerNames === void 0 ? void 0 : submitPlayerNames.status) === 200) {
+    if (submitPlayerNames?.status === 200) {
         displayFakeData(playerName);
     }
 };
@@ -553,7 +535,7 @@ const submitPlayerNameToDatabaseFromModal = async () => {
 const createUserOrIncrementUserGamePlayed = async (uuid) => {
     try {
         const checkUUID = await apiHelper(`/api/users/exists/${uuid}`);
-        if ((checkUUID === null || checkUUID === void 0 ? void 0 : checkUUID.data) === true) {
+        if (checkUUID?.data === true) {
             // User exists. Increment games_played
             const request = await apiHelper(`/api/users/game-played`, "POST", { uuid });
         }
@@ -615,7 +597,7 @@ const logLocalTime = async () => {
         game_end_local_time: getHumanReadableLocalTime(),
     };
     const request = await apiHelper(`/api/stats/local-time`, "POST", data);
-    if ((request === null || request === void 0 ? void 0 : request.status) !== 200)
+    if (request?.status !== 200)
         throw new Error("Error setting local time.");
 };
 const buildGameOverScreen = (type) => {
@@ -634,7 +616,7 @@ const playAgainClick = async () => {
         uuid: getLocalUUID(),
     };
     const request = await apiHelper(`/api/users/play-again`, "POST", data);
-    if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
+    if (request?.status === 200) {
         window.location.reload();
     }
 };
@@ -757,7 +739,7 @@ const logRookieGame = async (gameStats) => {
     };
     try {
         const loggingRookieGame = await apiHelper(`/api/stats/log-rookie-game`, "POST", gameData);
-        if ((loggingRookieGame === null || loggingRookieGame === void 0 ? void 0 : loggingRookieGame.status) === 200)
+        if (loggingRookieGame?.status === 200)
             state.databaseInsertId = loggingRookieGame.data.insertId;
     }
     catch (error) {
@@ -768,7 +750,7 @@ const logRookieGame = async (gameStats) => {
 const logGameToStatsTable = async (gameData) => {
     try {
         const loggingGame = await apiHelper(`/api/stats/log-game`, "POST", gameData);
-        if ((loggingGame === null || loggingGame === void 0 ? void 0 : loggingGame.status) === 200)
+        if (loggingGame?.status === 200)
             state.databaseInsertId = loggingGame.data.insertId;
     }
     catch (error) {
@@ -853,7 +835,7 @@ const handleModeSwitchClick = async (event) => {
     };
     try {
         const request = await apiHelper(`/api/users/play-again`, "POST", data);
-        if ((request === null || request === void 0 ? void 0 : request.status) === 200) {
+        if (request?.status === 200) {
             window.location.reload();
         }
     }

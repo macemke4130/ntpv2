@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const cameraElement = document.querySelector(`#camera`);
 const filmStripElement = document.querySelector(`#filmstrip`);
 const filmStripImages = [];
@@ -53,3 +51,4 @@ filmStripElement.addEventListener("animationiteration", (event) => {
 });
 getRandomPartImages();
 createAnimation();
+export {};
