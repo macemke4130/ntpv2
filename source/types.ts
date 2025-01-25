@@ -9,6 +9,7 @@ export type GameState = {
   currentPointsDOMValue: number;
   totalPoints: number;
   playTimer: number;
+  countdownTimer: number;
   gameStartTimeMS: number;
   databaseInsertId: number;
   timerOff: boolean;

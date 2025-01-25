@@ -20,29 +20,17 @@ const getDaySuffix = (dayOfMonth: number) => {
   if (lastNumberInDay >= 4) return "th";
 };
 
-const countdownToStartCurtainElement = document.querySelector("#countdown-to-start")! as HTMLDivElement;
-const countdownSecondsElement = document.querySelector("#countdown-seconds")! as HTMLSpanElement;
+const dom: Map<string, HTMLElement> = new Map();
+const allNamedElements = document.querySelectorAll(`[id]`);
+
+allNamedElements.forEach((element) => {
+  dom.set(element.id, element as HTMLElement);
+});
 
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
-const gameProgressTextElement = document.querySelector(`#progress-text`) as HTMLDivElement;
-const gameProgressBarElement = document.querySelector(`#progress-bar`) as HTMLProgressElement;
-const fakegameProgressBarElement = document.querySelector(`#fake-progress-bar`) as HTMLProgressElement;
-const currentPartPointsElement = document.querySelector(`#current-points`)! as HTMLDivElement;
-const totalPointsElement = document.querySelector(`#total-points`)! as HTMLDivElement;
-
-// Game Over Screen Elements.
 const gameOverScreenContainerElement = document.querySelector("[data-game-over]")! as HTMLDivElement;
-const gameOverScreenElement = document.querySelector("#game-over-screen")! as HTMLDivElement;
-const scoreboardOffsetElement = document.querySelector("#scoreboard-offset")! as HTMLDivElement;
-const gameOverTitleElement = document.querySelector("#game-over-title")! as HTMLHeadingElement;
-const finalScoreElement = document.querySelector("#final-score")! as HTMLDivElement;
-const correctElement = document.querySelector("#correct")! as HTMLDivElement;
-const playAgainButton = document.querySelector("#play-again")! as HTMLButtonElement;
-const rookieModeButton = document.querySelector("#rookie-mode")! as HTMLButtonElement;
-const rookieResultsElement = document.querySelector("#rookie-results")! as HTMLOListElement;
-const veteranModeButton = document.querySelector("#veteran-mode")! as HTMLButtonElement;
 const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`)! as HTMLButtonElement;
 currentModeButton.classList.add("active");
 
@@ -64,10 +52,11 @@ const state: GameState = {
   currentPointsDOMValue: startPoints,
   totalPoints: 0,
   playTimer: 0,
+  countdownTimer: 0,
   gameStartTimeMS: 0,
   databaseInsertId: 0,
   timerOff: window.location.host.includes("localhost"),
-  shortPartsList: false, // window.location.host.includes("localhost"),
+  shortPartsList: false, //window.location.host.includes("localhost"),
 };
 
 const imageLoadState = {
@@ -106,14 +95,19 @@ const pullData = async () => {
   try {
     const allPartsRequest = await apiHelper("/api/parts");
     state.parts = allPartsRequest?.data;
+    if (state.shortPartsList) state.parts.length = 5;
 
     const allWrongAnswers = await apiHelper("/api/parts/wrong-answers");
     state.wrongAnswers = allWrongAnswers?.data;
 
     if (state.gameMode === "r") {
       removeCountdownElement();
-      if (state.shortPartsList) state.parts.length = 5;
       startGame();
+    } else {
+      if (state.shortPartsList) {
+        removeCountdownElement();
+        startGame();
+      }
     }
   } catch (error) {
     console.error(error);
@@ -124,13 +118,13 @@ pullData();
 
 const updateGameProgressBar = () => {
   if (state.currentPart === 0) {
-    gameProgressBarElement.setAttribute("max", state.parts.length + "");
+    dom.get("progress-bar")!.setAttribute("max", state.parts.length + "");
   }
 
-  gameProgressTextElement.innerText = `${state.currentPart + 1} out of ${state.parts.length}`;
-  gameProgressBarElement.setAttribute("value", state.currentPart + 1 + "");
+  dom.get("progress-text")!.innerText = `${state.currentPart + 1} out of ${state.parts.length}`;
+  dom.get("progress-bar")!.setAttribute("value", state.currentPart + 1 + "");
 
-  fakegameProgressBarElement.style.width = `${(state.currentPart / state.parts.length) * 100}%`;
+  dom.get("fake-progress-bar")!.style.width = `${(state.currentPart / state.parts.length) * 100}%`;
 };
 
 const explode = () => {
@@ -149,10 +143,10 @@ const explode = () => {
 // Called after every correct answer from imageLoaded().
 // Double check: Maybe not after final correct answer.
 const resetTimer = () => {
-  currentPartPointsElement.innerText = startPoints + "";
+  dom.get("current-points")!.innerText = startPoints + "";
   state.currentPoints = startPoints;
   state.currentPointsDOMValue = startPoints;
-  currentPartPointsElement.classList.remove("flare");
+  dom.get("current-points")!.classList.remove("flare");
   state.playTimer = setInterval(() => {
     if (state.timerOff) return; // For Dev.
 
@@ -170,11 +164,11 @@ const resetTimer = () => {
 const updateCurrentPointsDOM = (currentPoints: number) => {
   if (currentPoints < state.currentPointsDOMValue - updateDOMInterval) {
     state.currentPointsDOMValue = currentPoints;
-    currentPartPointsElement.innerText = state.currentPointsDOMValue + "";
+    dom.get("current-points")!.innerText = state.currentPointsDOMValue + "";
 
     // Low point warning.
     if (state.currentPointsDOMValue < 150) {
-      currentPartPointsElement.classList.add("flare");
+      dom.get("current-points")!.classList.add("flare");
     }
   }
 };
@@ -267,7 +261,7 @@ const answerClick = (event: MouseEvent) => {
 
 // Clear DOM element.
 const clearCurrentPoints = () => {
-  currentPartPointsElement.innerText = "";
+  dom.get("current-points")!.innerText = "";
 };
 
 // Blank out current button answers.
@@ -341,7 +335,7 @@ const fillAnswerButtons = (partNumber: number) => {
 // On correct answer, update totalPoints state.
 const updateTotalPoints = () => {
   state.totalPoints = state.totalPoints + state.currentPoints;
-  totalPointsElement.innerText = state.totalPoints.toLocaleString();
+  dom.get("total-points")!.innerText = state.totalPoints.toLocaleString();
 };
 
 // Logs duration of game in seconds.
@@ -439,7 +433,7 @@ const reportScoreToPlayer = () => {
     liElement.appendChild(imagesContainerElement);
     liElement.appendChild(answerContainerElement);
 
-    rookieResultsElement.appendChild(liElement);
+    dom.get("rookie-results")!.appendChild(liElement);
   });
 
   // Hide address bar on mobile.
@@ -455,8 +449,8 @@ const clearPlayScreen = (type: "selection" | "timer" | "win") => {
   answerButtonListeners("remove");
   imageLoadListeners("remove");
   buildGameOverScreen(type);
-  rookieModeButton.addEventListener("click", handleModeSwitchClick);
-  veteranModeButton.addEventListener("click", handleModeSwitchClick);
+  dom.get("rookie-mode")!.addEventListener("click", handleModeSwitchClick);
+  dom.get("veteran-mode")!.addEventListener("click", handleModeSwitchClick);
   buildShareButton();
 
   if (state.gameMode === "v") {
@@ -688,7 +682,7 @@ const calculatePointDifference = (type: "new-first" | "first-tie" | "on-scoreboa
     case "first-tie": {
       const tiedFirstTimeDifference = timerInterval / 1000;
 
-      scoreboardOffsetElement.innerText = `Tied for first place! 
+      dom.get("scoreboard-offset")!.innerText = `Tied for first place! 
       1 point (${tiedFirstTimeDifference.toFixed(2)} seconds) away from being alone in first place!`;
       break;
     }
@@ -697,7 +691,7 @@ const calculatePointDifference = (type: "new-first" | "first-tie" | "on-scoreboa
       const aheadOfSecondPlace = state.totalPoints - score;
       const newFirstScoreTimeDifference = (aheadOfSecondPlace * timerInterval) / 1000;
 
-      scoreboardOffsetElement.innerText = `New first place! 
+      dom.get("scoreboard-offset")!.innerText = `New first place! 
       ${aheadOfSecondPlace.toLocaleString()} point${aheadOfSecondPlace === 1 ? "" : "s"} (${newFirstScoreTimeDifference.toFixed(
         2
       )} seconds) ahead of previous first place!`;
@@ -709,7 +703,7 @@ const calculatePointDifference = (type: "new-first" | "first-tie" | "on-scoreboa
       const pointDifference = score + 1 - state.totalPoints;
       const timeDifference = (pointDifference * timerInterval) / 1000;
 
-      scoreboardOffsetElement.innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from first place!`;
+      dom.get("scoreboard-offset")!.innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from first place!`;
       break;
     }
 
@@ -717,7 +711,7 @@ const calculatePointDifference = (type: "new-first" | "first-tie" | "on-scoreboa
       const pointDifference = score + 1 - state.totalPoints;
       const timeDifference = (pointDifference * timerInterval) / 1000;
 
-      scoreboardOffsetElement.innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from the scoreboard!`;
+      dom.get("scoreboard-offset")!.innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from the scoreboard!`;
       break;
     }
 
@@ -739,17 +733,17 @@ const logLocalTime = async () => {
 };
 
 const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
-  gameOverScreenElement.setAttribute("data-game-end-type", type);
-  gameOverScreenElement.setAttribute("data-screen-active", "true");
+  dom.get("game-over-screen")!.setAttribute("data-game-end-type", type);
+  dom.get("game-over-screen")!.setAttribute("data-screen-active", "true");
 
-  gameOverTitleElement.innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
-  finalScoreElement.innerText = state.totalPoints.toLocaleString();
+  dom.get("game-over-title")!.innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
+  dom.get("final-score")!.innerText = state.totalPoints.toLocaleString();
 
   // currentPart does not advance after last part on gameOver("win")
   // so I check here before displaying the score.
-  correctElement.innerText = `${type === "win" ? state.currentPart + 1 : state.currentPart} out of ${state.parts.length}`;
+  dom.get("correct")!.innerText = `${type === "win" ? state.currentPart + 1 : state.currentPart} out of ${state.parts.length}`;
 
-  playAgainButton.addEventListener("click", playAgainClick);
+  dom.get("play-again")!.addEventListener("click", playAgainClick);
 };
 
 // This API adds 1 to the current play_again column when a user clicks the Play Again <button>.
@@ -844,17 +838,6 @@ const buildScoreboard = async () => {
 
   tableBodyElement.setAttribute("data-active", "true");
   highlightMyScore();
-  getTotalGames();
-};
-
-const getTotalGames = async () => {
-  const totalGamesElement = document.querySelector(`#total-games`)! as HTMLDivElement;
-
-  const request = await apiHelper(`/api/stats/total-games`);
-  if (request?.status === 200) {
-    const totalGames: number = request.data.total;
-    totalGamesElement.innerText = `There have been ${totalGames.toLocaleString()} games played in total.`;
-  }
 };
 
 // Shows user where their score is on the database.
@@ -946,26 +929,27 @@ const startGame = () => {
 };
 
 const removeCountdownElement = () => {
-  countdownToStartCurtainElement.remove();
+  dom.get("countdown-to-start")!.remove();
+  clearInterval(state.countdownTimer);
 };
 
 const beginCountdownToStart = () => {
   let secondsUntilStart = 3;
 
-  countdownSecondsElement.innerText = secondsUntilStart + "";
+  dom.get("countdown-seconds")!.innerText = secondsUntilStart + "";
 
-  const countdownTimer = setInterval(() => {
+  state.countdownTimer = setInterval(() => {
     if (secondsUntilStart === 1) {
-      clearInterval(countdownTimer);
       removeCountdownElement();
+
       // Start game.
       startGame();
     }
 
     secondsUntilStart--;
     const bgColor = secondsUntilStart === 3 ? "red" : secondsUntilStart === 2 ? "yellow" : "green";
-    countdownSecondsElement.innerText = secondsUntilStart + "";
-    countdownSecondsElement.setAttribute("data-color", bgColor);
+    dom.get("countdown-seconds")!.innerText = secondsUntilStart + "";
+    dom.get("countdown-seconds")!.setAttribute("data-color", bgColor);
   }, 1250);
 };
 
@@ -1054,4 +1038,6 @@ imageLoadListeners("add");
 answerButtonListeners("add");
 
 // Veteran mode starts countdown. Rookie mode starts on parts[] loaded.
-if (state.gameMode === "v") beginCountdownToStart();
+if (state.gameMode === "v") {
+  beginCountdownToStart();
+}
