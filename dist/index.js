@@ -1,7 +1,8 @@
+const isDevSpace = window.location.hostname.includes("localhost");
 // Secure redirect.
-if (!window.location.hostname.includes("localhost")) {
+if (!isDevSpace) {
     if (!window.location.protocol.includes("s")) {
-        window.location.replace("https://www.namethatpart.com/");
+        window.location.replace("https://www.namethatpart.com/play.html");
     }
 }
 import { apiHelper } from "./utils.js";

@@ -1,5 +1,6 @@
+const isDevSpace = window.location.hostname.includes("localhost");
 // Secure redirect.
-if (!window.location.hostname.includes("localhost")) {
+if (!isDevSpace) {
     if (!window.location.protocol.includes("s")) {
         window.location.replace("https://www.namethatpart.com/play.html");
     }
@@ -51,8 +52,8 @@ const state = {
     countdownTimer: 0,
     gameStartTimeMS: 0,
     databaseInsertId: 0,
-    timerOff: window.location.host.includes("localhost"),
-    shortPartsList: false, //window.location.host.includes("localhost"),
+    timerOff: isDevSpace,
+    shortPartsList: isDevSpace,
 };
 const imageLoadState = {
     one: false,
@@ -310,11 +311,9 @@ const getConnectionSpeed = () => {
     return nav.connection?.effectiveType || null;
 };
 const printRookieScore = () => {
-    let rookieCorrectAnswers = 0;
-    state.rookieScore.forEach((part) => {
-        if (part.correct)
-            rookieCorrectAnswers++;
-    });
+    const rookieCorrectAnswers = state.rookieScore.reduce((acc, current) => {
+        return acc + Number(current.correct);
+    }, 0);
     const rookieScoreElement = document.querySelector("#rookie-score");
     rookieScoreElement.innerText = `${rookieCorrectAnswers} correct out of ${state.parts.length}`;
 };
