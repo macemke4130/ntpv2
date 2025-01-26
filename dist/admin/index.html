@@ -15,6 +15,7 @@
     <main>
       <section aria-labelledby="login-title">
         <h3 id="login-title">Login</h3>
+        <div id="login-flag">Ya gotta be logged in to look at that.</div>
         <form>
           <label>
             <span>Email:</span>
@@ -27,25 +28,6 @@
           <button id="submit-login">Submit</button>
         </form>
       </section>
-      <section aria-labelledby="dashboard-title">
-        <h3 id="dashboard-title">Dashboard</h3>
-        <div id="users-table-container">
-          <h4>Users</h4>
-          <table id="users-table">
-            <thead></thead>
-            <tbody></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
-        <div id="stats-table-container">
-          <h4>Games</h4>
-          <table id="stats-table">
-            <thead></thead>
-            <tbody></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
-      </section>
     </main>
 
     <footer id="footer"></footer>
@@ -54,7 +36,6 @@
       // TS Hack. Fix later.
       var exports = {};
     </script>
-    <!-- <script src="./filmstrip.js"></script> -->
     <script src="./index.js" type="module"></script>
     <script src="../footer.js"></script>
   </body>

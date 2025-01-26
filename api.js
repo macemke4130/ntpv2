@@ -3,6 +3,8 @@ import { query, apiRoute, prepData } from "./dbConnect.js";
 import { publicIpv4 } from "public-ip";
 import quiz from "./quiz.json" with {type: "json"};
 import { UAParser } from "ua-parser-js";
+import config from "./config/index.js";
+import * as jsonwebtoken from 'jsonwebtoken';
 
 const allParts = quiz.parts;
 const correctAnswers = allParts.map(part => part.answers[0]);
@@ -31,6 +33,8 @@ allParts.forEach(part => {
 wrongAnswerSet.forEach(answer => {
   wrongAnswers.push(answer);
 });
+
+const privateKey = config.keys.jwt;
 
 const router = express.Router();
 
@@ -124,26 +128,110 @@ router.get(`${apiRoute}/greet/`, async (req, res) => {
   res.json(response);
 });
 
+router.post(`${apiRoute}/admin/jwt`, async (req, res) => {
+  const tokenFromFrontEnd = req.body.token;
+
+  let response = {};
+
+  const auth = await jsonwebtoken.default.verify(tokenFromFrontEnd, privateKey, function (err, decoded) {
+    if (err) {
+      response = {
+        message: "Invalid JWT",
+        status: 401,
+        data: { valid: false }
+      };
+    } else {
+      response = {
+        message: "Valid JWT",
+        status: 200,
+        data: { valid: true }
+      };
+    }
+
+    res.json(response);
+  });
+});
+
+router.post(`${apiRoute}/admin/games`, async (req, res) => {
+  const tokenFromFrontEnd = req.body.token;
+  
+  let response = {};
+  let validJWT = false;
+
+  try {
+    const auth = await jsonwebtoken.default.verify(tokenFromFrontEnd, privateKey, function (err, decoded) {
+      validJWT = err ? false : true;
+    });
+
+    const resultLimit = 50;
+
+    if (validJWT) {
+      const gameData = await query(`SELECT id, uuid, game_mode, correct_answers, final_score, total_parts, game_duration_in_seconds, display_name, game_end_type, losing_part, game_end_date_time, device_info FROM stats ORDER BY id DESC LIMIT ${resultLimit};`);
+      const userData = await query(`SELECT * FROM users ORDER BY id DESC LIMIT ${resultLimit};`);
+
+        response = {
+          message: `Most recent ${resultLimit} game stats.`,
+          status: 200,
+          data: { 
+            valid: true,
+            games: gameData,
+            users: userData
+           }
+        };
+    }
+
+    res.json(response);
+  } catch (error) {
+    response = {
+      message: `Error.`,
+      status: error.errno,
+      data: null,
+    };
+
+    res.json(response);
+    console.log(e);
+  }
+});
+
 // Log in to admin
 router.post(`${apiRoute}/admin/login-attempt`, async (req, res) => {
   const loginData = req.body;
 
+  let response = {};
+
   try {
-    const sql = await query(`SELECT password FROM admin WHERE email_address = "${loginData.emailAddress}"`);
+    const sql = await query(`SELECT password, permissions FROM admin WHERE email_address = "${loginData.emailAddress}"`);
+    
+    // Email address not found.
+    if (!sql.length) {
+      response = {
+        message: `Login failed.`,
+        status: 200,
+        data: { login: false },
+      };
+
+      res.json(response);
+      return;
+    }
 
     const passwordFromDatabase = sql[0].password;
     const loginSuccess = loginData.password === passwordFromDatabase;
 
-    let response = {};
-
     if (loginSuccess) {
-      const usersData = await query(`SELECT * FROM users ORDER BY id DESC LIMIT 1000;`);
-      const statsData = await query(`SELECT * FROM stats ORDER BY id DESC LIMIT 1000;`);
+      const dataForToken = {
+        emailAddress: loginData.emailAddress,
+        permissions: sql[0].permissions
+      }
+
+      const token = await jsonwebtoken.default.sign({ data: dataForToken }, privateKey, { expiresIn: '1d' });
+
+      // const usersData = await query(`SELECT * FROM users ORDER BY id DESC LIMIT 1000;`);
+      
 
       response = {
-        message: `Admin dashboard.`,
+        message: `Login Success and JSON Web Token.`,
         status: 200,
-        data: { login: true, usersData, statsData },
+        data: { login: true, token },
       };
     } else {
       response = {
@@ -156,9 +244,9 @@ router.post(`${apiRoute}/admin/login-attempt`, async (req, res) => {
     res.json(response);
   } catch (e) {
     response = {
-      message: e.sqlMessage,
-      status: e.errno,
-      data: null,
+      message: `Login failed.`,
+      status: 200,
+      data: { login: false },
     };
 
     res.json(response);
