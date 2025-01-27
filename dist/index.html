@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A challenging and fun game for bicycle mechanics and nerds." />
+    <meta property="og:title" content="Name That Part" />
+    <meta property="og:description" content="A challenging and fun game for bicycle mechanics and nerds." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.namethatpart.com/" />
+    <meta property="og:image" content="https://www.namethatpart.com/images/PXL_20210930_221619580.jpg" />
+    <link rel="preload" as="image" href="images/PXL_20211014_170259369.jpg" />
+    <link rel="stylesheet" media="screen" href="./styles.css" />
+    <link rel="stylesheet" media="screen" href="./index.css" />
+    <title>Name That Part</title>
+    <!-- Critical CSS -->
+    <style>
+      :root {
+        --bg-color: #343239;
+        --text-color: rgb(205, 205, 205);
+        --rules-background: rgb(68, 34, 102);
+      }
+
+      html,
+      body {
+        background: var(--bg-color);
+        color: var(--text-color);
+      }
+    </style>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C850TG6F0H"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -11,28 +37,17 @@
 
       gtag("config", "G-C850TG6F0H");
     </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A challenging and fun game for bicycle mechanics and nerds." />
-    <meta property="og:title" content="Name That Part" />
-    <meta property="og:description" content="A challenging and fun game for bicycle mechanics and nerds." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.namethatpart.com/" />
-    <meta property="og:image" content="https://www.namethatpart.com/images/PXL_20210930_221619580.jpg" />
-    <link rel="stylesheet" media="screen" href="./styles.css" />
-    <link rel="stylesheet" media="screen" href="./index.css" />
-    <title>Name That Part</title>
   </head>
   <body>
     <header>
       <div id="camera">
         <div id="film-roll">
           <div class="roll">
-            <img src="images/PXL_20210930_143834927.jpg" width="800" height="600" class="cell" alt="" fetchpriority="high" />
-            <img src="images/PXL_20211014_170259369.jpg" width="800" height="600" class="cell" alt="" loading="lazy" />
-            <img src="images/PXL_20210930_221619580.jpg" width="800" height="600" class="cell" alt="" loading="lazy" />
-            <img src="images/PXL_20210914_235108556.jpg" width="800" height="600" class="cell" alt="" loading="lazy" />
-            <img src="images/PXL_20211014_233804848.jpg" width="800" height="600" class="cell" alt="" loading="lazy" />
+            <img src="images/PXL_20210930_143834927.jpg" width="800" height="600" class="cell" alt="" fetchpriority="low" />
+            <img src="images/PXL_20211014_170259369.jpg" width="800" height="600" class="cell" alt="" fetchpriority="high" />
+            <img src="images/PXL_20210930_221619580.jpg" width="800" height="600" class="cell" alt="" fetchpriority="low" />
+            <img src="images/PXL_20210914_235108556.jpg" width="800" height="600" class="cell" alt="" fetchpriority="low" />
+            <img src="images/PXL_20211014_233804848.jpg" width="800" height="600" class="cell" alt="" fetchpriority="low" />
           </div>
           <div class="roll">
             <img src="images/PXL_20210930_143834927.jpg" width="800" height="600" class="cell" alt="" loading="lazy" />

@@ -58,8 +58,8 @@ const state: GameState = {
   countdownTimer: 0,
   gameStartTimeMS: 0,
   databaseInsertId: 0,
-  timerOff: isDevSpace,
-  shortPartsList: isDevSpace,
+  timerOff: false, // isDevSpace,
+  shortPartsList: false, // isDevSpace,
 };
 
 const imageLoadState = {
@@ -289,7 +289,7 @@ const fillAnswerButtons = (partNumber: number) => {
   const shuffledAnswers = [...part.answers].sort(() => 0.5 - Math.random());
 
   // Source to search for unique button answers.
-  const validAnswers = shuffledAnswers.filter((answer) => !!answer);
+  const validAnswers = new Set(shuffledAnswers.filter((answer) => !!answer));
 
   shuffledAnswers.forEach((answer, index) => {
     const button = quizButtonElements[index];
@@ -299,16 +299,16 @@ const fillAnswerButtons = (partNumber: number) => {
     // if the new proposedWrongAnswer already exists in the answer list.
     if (!answer) {
       let proposedWrongAnswer = getRandomWrongAnswer();
-      let validAnswersContainsProposedWrongAnswer = validAnswers.includes(proposedWrongAnswer);
+      let validAnswersContainsProposedWrongAnswer = validAnswers.has(proposedWrongAnswer);
 
       while (validAnswersContainsProposedWrongAnswer) {
         proposedWrongAnswer = getRandomWrongAnswer();
-        validAnswersContainsProposedWrongAnswer = validAnswers.includes(proposedWrongAnswer);
+        validAnswersContainsProposedWrongAnswer = validAnswers.has(proposedWrongAnswer);
       }
 
       const acceptedWrongAnswer = proposedWrongAnswer;
 
-      validAnswers.push(acceptedWrongAnswer);
+      validAnswers.add(acceptedWrongAnswer);
       button.innerText = acceptedWrongAnswer;
     } else {
       button.innerText = answer;

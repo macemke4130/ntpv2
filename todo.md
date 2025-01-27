@@ -1,10 +1,11 @@
 # To Do
 
+- Create media specific CSS files
+- Device info click opens information in modal
 - Update readme.md
 - Uninstall CORS
 - When someone makes the scoreboard, send me an email https://nodemailer.com/
 - track referring site
-- validAnswers[] should be a set. The while loop should have a validAnswer.has() instead of an includes() 01 vs 0n
 - Wizard Mode
   - 10 possible answers
   - One image only
@@ -14,8 +15,6 @@
 - Dynamic import for game ending code
 - Admin
 
-  - JWT
-  - Split up games and users
   - Remove ID from admin tables. Just keep it in an attribute. I don't care.
   - Make users' UUID an <a> and link to all their stats and games
   - Admin section has games per day SVG chart
@@ -47,6 +46,10 @@
 
 # Done
 
+- Move critical css to style tag
+- validAnswers[] should be a set.
+- Admin: JWT
+- Admin: Split up games and users
 - Defer offscreen images in film strip for index and about
 - Make state an object. Would make it more clear that I'm updating state with state.gameMode = ...
 - Scoreboard
