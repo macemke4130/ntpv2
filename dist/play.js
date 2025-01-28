@@ -1,4 +1,4 @@
-const isDevSpace = window.location.hostname.includes("localhost");
+const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 // Secure redirect.
 if (!isDevSpace) {
     if (!window.location.protocol.includes("s")) {
@@ -150,7 +150,7 @@ const preloadNextPart = () => {
 };
 const handleRookieAnswer = (answer) => {
     const rookieScoreTemp = {
-        correct: state.correctAnswer === answer,
+        correct: answerWasCorrect(answer),
         images: state.parts[state.currentPart].images.join(" && "),
     };
     state.rookieScore.push(rookieScoreTemp);
@@ -164,8 +164,38 @@ const handleRookieAnswer = (answer) => {
     imageLoadListeners("add");
     loadPartImages(state.currentPart);
 };
+const answerWasCorrect = (selectedAnswer) => {
+    return selectedAnswer === state.correctAnswer;
+};
+// After first correct answer, remove hint and glows.
+// I'm only removing text content to avoid layout shift.
+const removeGlowAndHint = () => {
+    const hintElement = document.querySelector("#hint");
+    hintElement.innerText = "";
+    quizButtonElements.forEach((answer) => {
+        answer.classList.remove("glow");
+    });
+};
+const handleEnterKey = (event) => {
+    const enterKeyPressed = event.key === "Enter" || event.key === " ";
+    if (!enterKeyPressed)
+        return;
+    const target = document.activeElement;
+    if (target) {
+        const answerButtonHasFocus = target.hasAttribute("data-quiz-button");
+        if (answerButtonHasFocus) {
+            const targetButton = target;
+            verifyAnswer(targetButton.innerText, targetButton);
+        }
+    }
+};
+const handleAnswerClick = (event) => {
+    const target = event.currentTarget;
+    const answer = target.innerText;
+    verifyAnswer(answer, target);
+};
 // User has chosen an answer.
-const answerClick = (event) => {
+const verifyAnswer = (answer, target) => {
     // It's possible to use the keyboard to focus and click
     // the answer buttons before the game begins, while the
     // curtain is still blurred. This can result in an "Out
@@ -173,16 +203,8 @@ const answerClick = (event) => {
     // error. So if the gameStartTimeMS isn't set, exit function.
     if (!state.gameStartTimeMS)
         return;
-    const target = event.currentTarget;
-    const answer = target.innerHTML;
-    // After first correct answer, remove hint and glows.
-    // I'm only removing text content to avoid layout shift.
     if (state.currentPart === 0) {
-        const hintElement = document.querySelector("#hint");
-        hintElement.innerText = "";
-        quizButtonElements.forEach((answer) => {
-            answer.classList.remove("glow");
-        });
+        removeGlowAndHint();
     }
     // Interrupt for Rookie Mode.
     if (state.gameMode === "r") {
@@ -190,7 +212,7 @@ const answerClick = (event) => {
         return;
     }
     // Correct answer was chosen.
-    if (answer === state.correctAnswer) {
+    if (answerWasCorrect(answer)) {
         // Game Win if this was the final part.
         if (state.currentPart === state.parts.length - 1) {
             updateTotalPoints();
@@ -816,11 +838,13 @@ const removeRewardClass = (event) => {
 const answerButtonListeners = (type) => {
     for (const quizButton of quizButtonElements) {
         if (type === "add") {
-            quizButton.addEventListener("click", answerClick);
+            quizButton.addEventListener("mousedown", handleAnswerClick);
+            window.addEventListener("keydown", handleEnterKey);
             quizButton.addEventListener("animationend", removeRewardClass);
         }
         else {
-            quizButton.removeEventListener("click", answerClick);
+            quizButton.removeEventListener("mousedown", handleAnswerClick);
+            window.removeEventListener("keydown", handleEnterKey);
             quizButton.removeEventListener("animationend", removeRewardClass);
         }
     }

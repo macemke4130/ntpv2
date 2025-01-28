@@ -1,4 +1,4 @@
-const isDevSpace = window.location.hostname.includes("localhost");
+const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 // Secure redirect.
 if (!isDevSpace) {
