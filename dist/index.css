@@ -147,6 +147,10 @@ main li {
   padding: 0.75rem;
 }
 
+#difficulty label span {
+  display: block;
+}
+
 #rules-container {
   border-radius: 1rem;
   border: 2px solid var(--btn-border-color);
