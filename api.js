@@ -40,6 +40,7 @@ const router = express.Router();
 
 router.get('*', (req, res, next) => {
   console.log(req.headers);
+  console.log(`https://www.namethatpart.com${req.url}`);
   // if (req.headers['x-forwarded-proto'] !== 'https') {
   //   res.redirect(301, `https://www.namethatpart.com${req.url}`);
   // } else {
