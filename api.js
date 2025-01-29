@@ -39,14 +39,11 @@ const privateKey = config.keys.jwt;
 const router = express.Router();
 
 router.get('*', (req, res, next) => {
-  console.log(req.headers);
-  console.log(`https://www.namethatpart.com${req.url}`);
-  // if (req.headers['x-forwarded-proto'] !== 'https') {
-  //   res.redirect(301, `https://www.namethatpart.com${req.url}`);
-  // } else {
-  //   next();
-  // }
-  next();
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    res.redirect(307, `https://www.namethatpart.com${req.url}`);
+  } else {
+    next();
+  }
 });
 
 router.get(`${apiRoute}/parts/date-updated`, async (req, res) => {

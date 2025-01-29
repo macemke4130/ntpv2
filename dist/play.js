@@ -1,10 +1,4 @@
 const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
-// Secure redirect.
-if (!isDevSpace) {
-    if (!window.location.protocol.includes("s")) {
-        window.location.replace("https://www.namethatpart.com/play.html");
-    }
-}
 import { apiHelper } from "./utils.js";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

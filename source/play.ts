@@ -1,12 +1,5 @@
 const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
-// Secure redirect.
-if (!isDevSpace) {
-  if (!window.location.protocol.includes("s")) {
-    window.location.replace("https://www.namethatpart.com/play.html");
-  }
-}
-
 import { GameState, GameMode, RookieScoreObject, Stat } from "./types";
 import { apiHelper } from "./utils.js";
 
