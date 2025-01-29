@@ -1,4 +1,4 @@
-import * as express from "express";
+import express from "express";
 import { query, apiRoute, prepData } from "./dbConnect.js";
 import { publicIpv4 } from "public-ip";
 import quiz from "./quiz.json" with {type: "json"};
@@ -36,7 +36,18 @@ wrongAnswerSet.forEach(answer => {
 
 const privateKey = config.keys.jwt;
 
+// const app = express();
 const router = express.Router();
+
+router.get('*', (req, res, next) => {
+  console.log(`Protocol: ${req.headers["x-forwarded-proto"]}`);
+  // if (req.headers['x-forwarded-proto'] !== 'https') {
+  //   // res.redirect(301, `https://${req.headers.host}${req.url}`);
+  // } else {
+  //   next(); 
+  // }
+  next();
+});
 
 router.get(`${apiRoute}/parts/date-updated`, async (req, res) => {
   const response = {

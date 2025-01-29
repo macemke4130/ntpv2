@@ -1,10 +1,3 @@
-const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
-// Secure redirect.
-if (!isDevSpace) {
-    if (!window.location.protocol.includes("s")) {
-        window.location.replace("https://www.namethatpart.com/");
-    }
-}
 import { apiHelper } from "./utils.js";
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);
