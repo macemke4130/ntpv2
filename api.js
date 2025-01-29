@@ -36,15 +36,14 @@ wrongAnswerSet.forEach(answer => {
 
 const privateKey = config.keys.jwt;
 
-// const app = express();
 const router = express.Router();
 
 router.get('*', (req, res, next) => {
-  console.log(`Protocol: ${req.headers["x-forwarded-proto"]}`);
+  console.log(req.headers);
   // if (req.headers['x-forwarded-proto'] !== 'https') {
-  //   // res.redirect(301, `https://${req.headers.host}${req.url}`);
+  //   res.redirect(301, `https://www.namethatpart.com${req.url}`);
   // } else {
-  //   next(); 
+  //   next();
   // }
   next();
 });
