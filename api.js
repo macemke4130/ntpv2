@@ -39,10 +39,14 @@ const privateKey = config.keys.jwt;
 const router = express.Router();
 
 router.get('*', (req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https') {
-    res.redirect(301, `https://www.namethatpart.com${req.url}`);
-  } else {
+  if (req.headers.host.includes("localhost")) {
     next();
+  } else {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      res.redirect(301, `https://www.namethatpart.com${req.url}`);
+    } else {
+      next();
+    }
   }
 });
 

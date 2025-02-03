@@ -1,10 +1,9 @@
 # To Do
 
+- Write overflow catch for game_seconds tinyint column. 65_535 maximum
 - Create UUID Backup for non-secure testing
 - Create media specific CSS files
 - Device info click opens information in modal
-- Update readme.md
-- Uninstall CORS
 - When someone makes the scoreboard, send me an email https://nodemailer.com/
 - track referring site
 - Wizard Mode
@@ -47,6 +46,9 @@
 
 # Done
 
+- Update readme.md
+- Remove CORS
+- Add exception for local development in 301 redirect
 - Move critical css to style tag
 - validAnswers[] should be a set.
 - Admin: JWT
