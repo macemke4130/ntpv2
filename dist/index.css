@@ -46,11 +46,15 @@ header {
 
 @keyframes scroll {
   0% {
-    transform: translateX(0px);
+    /* I want to hide 100px of the first image in 
+    the film strip to help the second image be 
+    flagged as the LCP so I can focus my
+    preloading techniques - LM */
+    transform: translateX(-100px);
   }
 
   100% {
-    transform: translateX(-2000px);
+    transform: translateX(-2100px);
   }
 }
 
