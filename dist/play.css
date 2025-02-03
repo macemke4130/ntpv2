@@ -256,6 +256,15 @@ td {
   color: aqua;
 }
 
+dialog {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+dialog::backdrop {
+  background: var(--backdrop-color);
+}
+
 #scoreboard {
   margin-top: 1rem;
 }

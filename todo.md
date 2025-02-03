@@ -1,5 +1,7 @@
 # To Do
 
+- Wait until DOMContentLoaded to add film strip animation?
+- Move fetchpriority="high" to first image in dom tree, and reorder with flex so the browser will see this image first?
 - Write overflow catch for game_seconds tinyint column. 65_535 maximum
 - Create UUID Backup for non-secure testing
 - Create media specific CSS files
