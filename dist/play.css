@@ -374,6 +374,27 @@ dialog::backdrop {
   cursor: pointer;
 }
 
+.spinner {
+  display: grid;
+  place-items: center;
+  scale: 1.5;
+
+  animation-name: loading-spinner;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes loading-spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
 #countdown-to-start {
   display: none;
   place-items: center;

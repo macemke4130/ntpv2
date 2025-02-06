@@ -1,6 +1,6 @@
 const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
-import { GameState, GameMode, RookieScoreObject, Stat } from "./types";
+import { GameState, GameMode, RookieScoreObject, Stat, Part } from "./types";
 import { apiHelper } from "./utils.js";
 
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -68,15 +68,20 @@ const determineGameMode = () => {
 
 determineGameMode();
 
-const buildSpeculationRules = (images: string[]) => {
+const buildSpeculationRules = (parts: Part[]) => {
   const speculationScriptElement = document.createElement("script");
   speculationScriptElement.setAttribute("type", "speculationrules");
+
+  const allImages = parts
+    .map((part: Part) => part.images)
+    .flat()
+    .map((image: string) => `/images/${image}`);
 
   const specRules = {
     prefetch: [
       {
         source: "list",
-        urls: images,
+        urls: allImages,
       },
     ],
   };
@@ -89,15 +94,13 @@ const pullData = async () => {
   try {
     const allPartsRequest = await apiHelper("/api/parts");
     state.parts = allPartsRequest?.data.parts;
+    state.wrongAnswers = allPartsRequest?.data.wrongAnswers;
 
     if (HTMLScriptElement.supports("speculationrules")) {
-      buildSpeculationRules(allPartsRequest?.data.images);
+      buildSpeculationRules(allPartsRequest?.data.parts);
     }
 
     if (state.shortPartsList) state.parts.length = 5;
-
-    const allWrongAnswers = await apiHelper("/api/parts/wrong-answers");
-    state.wrongAnswers = allWrongAnswers?.data;
 
     const flag = false; // isDevSpace;
 

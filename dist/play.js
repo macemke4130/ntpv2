@@ -60,14 +60,18 @@ const determineGameMode = () => {
     document.body.setAttribute("data-game-mode", state.gameMode);
 };
 determineGameMode();
-const buildSpeculationRules = (images) => {
+const buildSpeculationRules = (parts) => {
     const speculationScriptElement = document.createElement("script");
     speculationScriptElement.setAttribute("type", "speculationrules");
+    const allImages = parts
+        .map((part) => part.images)
+        .flat()
+        .map((image) => `/images/${image}`);
     const specRules = {
         prefetch: [
             {
                 source: "list",
-                urls: images,
+                urls: allImages,
             },
         ],
     };
@@ -78,13 +82,12 @@ const pullData = async () => {
     try {
         const allPartsRequest = await apiHelper("/api/parts");
         state.parts = allPartsRequest?.data.parts;
+        state.wrongAnswers = allPartsRequest?.data.wrongAnswers;
         if (HTMLScriptElement.supports("speculationrules")) {
-            buildSpeculationRules(allPartsRequest?.data.images);
+            buildSpeculationRules(allPartsRequest?.data.parts);
         }
         if (state.shortPartsList)
             state.parts.length = 5;
-        const allWrongAnswers = await apiHelper("/api/parts/wrong-answers");
-        state.wrongAnswers = allWrongAnswers?.data;
         const flag = false; // isDevSpace;
         if (state.gameMode === "r" || flag) {
             removeCountdownElement();

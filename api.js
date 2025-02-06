@@ -78,11 +78,11 @@ router.get(`${apiRoute}/parts/`, async (req, res) => {
   const shuffledParts = allParts.sort(() => 0.5 - Math.random());
 
   const response = {
-    message: "All images and answers. All images.",
+    message: "All images and answers. All wrong answers without matching correct answers or duplicates.",
     status: 200,
     data: {
       parts: shuffledParts,
-      images: shuffledParts.map(part => part.images).flat().map(image => `/images/${image}`)
+      wrongAnswers: wrongAnswers
     },
   };
 
