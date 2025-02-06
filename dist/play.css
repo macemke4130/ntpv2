@@ -131,6 +131,7 @@ section[aria-label="Score"] div {
 #total-points {
   font-size: 1.5rem;
   font-weight: bold;
+  height: 1.75rem;
 }
 
 #current-points.flare {

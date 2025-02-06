@@ -38,6 +38,7 @@ const privateKey = config.keys.jwt;
 
 const router = express.Router();
 
+// Secure redirect for produciton.
 router.get('*', (req, res, next) => {
   if (req.headers.host.includes("localhost")) {
     next();
@@ -60,16 +61,6 @@ router.get(`${apiRoute}/parts/date-updated`, async (req, res) => {
   res.json(response);
 });
 
-router.get(`${apiRoute}/parts/size`, async (req, res) => {
-  const response = {
-    message: "Number of parts in game.",
-    status: 200,
-    data: quiz.parts.length,
-  };
-
-  res.json(response);
-});
-
 router.get(`${apiRoute}/parts/info`, async (req, res) => {
   const response = {
     message: "Number of parts in game and date last updated",
@@ -87,9 +78,12 @@ router.get(`${apiRoute}/parts/`, async (req, res) => {
   const shuffledParts = allParts.sort(() => 0.5 - Math.random());
 
   const response = {
-    message: "All parts and answers.",
+    message: "All images and answers. All images.",
     status: 200,
-    data: shuffledParts,
+    data: {
+      parts: shuffledParts,
+      images: shuffledParts.map(part => part.images).flat().map(image => `/images/${image}`)
+    },
   };
 
   res.json(response);
@@ -236,10 +230,7 @@ router.post(`${apiRoute}/admin/login-attempt`, async (req, res) => {
       }
 
       const token = await jsonwebtoken.default.sign({ data: dataForToken }, privateKey, { expiresIn: '1d' });
-
-      // const usersData = await query(`SELECT * FROM users ORDER BY id DESC LIMIT 1000;`);
       
-
       response = {
         message: `Login Success and JSON Web Token.`,
         status: 200,

@@ -1,4 +1,4 @@
-const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 import { GameState, GameMode, RookieScoreObject, Stat } from "./types";
 import { apiHelper } from "./utils.js";
@@ -51,7 +51,7 @@ const state: GameState = {
   countdownTimer: 0,
   gameStartTimeMS: 0,
   databaseInsertId: 0,
-  timerOff: false, // isDevSpace,
+  timerOff: isDevSpace,
   shortPartsList: false, // isDevSpace,
 };
 
@@ -68,23 +68,45 @@ const determineGameMode = () => {
 
 determineGameMode();
 
+const buildSpeculationRules = (images: string[]) => {
+  const speculationScriptElement = document.createElement("script");
+  speculationScriptElement.setAttribute("type", "speculationrules");
+
+  const specRules = {
+    prefetch: [
+      {
+        source: "list",
+        urls: images,
+      },
+    ],
+  };
+
+  speculationScriptElement.textContent = JSON.stringify(specRules);
+  document.body.appendChild(speculationScriptElement);
+};
+
 const pullData = async () => {
   try {
     const allPartsRequest = await apiHelper("/api/parts");
-    state.parts = allPartsRequest?.data;
+    state.parts = allPartsRequest?.data.parts;
+
+    if (HTMLScriptElement.supports("speculationrules")) {
+      buildSpeculationRules(allPartsRequest?.data.images);
+    }
+
     if (state.shortPartsList) state.parts.length = 5;
 
     const allWrongAnswers = await apiHelper("/api/parts/wrong-answers");
     state.wrongAnswers = allWrongAnswers?.data;
 
-    if (state.gameMode === "r") {
+    const flag = false; // isDevSpace;
+
+    if (state.gameMode === "r" || flag) {
       removeCountdownElement();
       startGame();
     } else {
-      if (state.shortPartsList) {
-        removeCountdownElement();
-        startGame();
-      }
+      // Verteran Game.
+      beginCountdownToStart();
     }
   } catch (error) {
     console.error(error);
@@ -225,6 +247,9 @@ const verifyAnswer = (answer: string, target: HTMLButtonElement) => {
   // error. So if the gameStartTimeMS isn't set, exit function.
   if (!state.gameStartTimeMS) return;
 
+  // Prevent double clicks.
+  answerButtonListeners("remove");
+
   if (state.currentPart === 0) {
     removeGlowAndHint();
   }
@@ -236,7 +261,7 @@ const verifyAnswer = (answer: string, target: HTMLButtonElement) => {
   }
 
   // Correct answer was chosen.
-  if (answerWasCorrect(answer)) {
+  if (answerWasCorrect(answer) || isDevSpace) {
     // Game Win if this was the final part.
     if (state.currentPart === state.parts.length - 1) {
       updateTotalPoints();
@@ -849,6 +874,21 @@ const highlightMyScore = () => {
   }
 };
 
+const continueGameAfterPartsLoaded = () => {
+  imageLoadState.one = false;
+  imageLoadState.two = false;
+
+  if (state.gameMode === "v") resetTimer();
+  fillAnswerButtons(state.currentPart);
+  answerButtonListeners("add");
+  blurPartImages(false);
+  imageLoadListeners("remove");
+  updateGameProgressBar();
+
+  // First part, set start time.
+  if (state.currentPart === 0) logStartTime();
+};
+
 // Function is important for moving the game forward.
 // Will be called each time both part images are finished loading.
 const imageLoaded = (event: Event) => {
@@ -858,19 +898,8 @@ const imageLoaded = (event: Event) => {
   imageLoadState[imageName] = true;
 
   // Both images are loaded, continue gameplay.
-  if (imageLoadState.one && imageLoadState.two) {
-    imageLoadState.one = false;
-    imageLoadState.two = false;
-
-    if (state.gameMode === "v") resetTimer();
-    fillAnswerButtons(state.currentPart);
-    blurPartImages(false);
-    imageLoadListeners("remove");
-    updateGameProgressBar();
-
-    // First part, set start time.
-    if (state.currentPart === 0) logStartTime();
-  }
+  const bothPartImagesLoaded = imageLoadState.one && imageLoadState.two;
+  if (bothPartImagesLoaded) continueGameAfterPartsLoaded();
 };
 
 // For calculating total game time.
@@ -1040,6 +1069,6 @@ imageLoadListeners("add");
 answerButtonListeners("add");
 
 // Veteran mode starts countdown. Rookie mode starts on parts[] loaded.
-if (state.gameMode === "v") {
-  beginCountdownToStart();
-}
+// if (state.gameMode === "v") {
+//   beginCountdownToStart();
+// }
