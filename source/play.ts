@@ -1,4 +1,4 @@
-const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = false; // window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 import { GameState, GameMode, RookieScoreObject, Stat, Part } from "./types";
 import { apiHelper } from "./utils.js";
@@ -90,6 +90,34 @@ const buildSpeculationRules = (parts: Part[]) => {
   document.body.appendChild(speculationScriptElement);
 };
 
+const frontLoadEasyParts = () => {
+  const easyPartAnswers = ["Star Nut", "Straddle Cable Carrier", "Sturmey Archer Cable Adjuster", "Park Tool Truing Stand Arm Cap"];
+  const shuffledEasyParts = new Set(easyPartAnswers.sort(() => 0.5 - Math.random()));
+
+  const partsMapWithSortPriority: Part[] = [];
+
+  state.parts.forEach((part) => {
+    const correctAnswer = part.answers[0];
+    const partIsEasy = shuffledEasyParts.has(correctAnswer);
+
+    const partWithSortPriority = structuredClone(part);
+    partWithSortPriority.sortPriority = partIsEasy ? 0 : 1;
+
+    partsMapWithSortPriority.push(partWithSortPriority);
+  });
+
+  const allPartsWithEasyPartsFrontLoaded = partsMapWithSortPriority.toSorted((a, b) => {
+    const aSort = a.sortPriority || 0;
+    const bSort = b.sortPriority || 0;
+
+    if (aSort > bSort) return 1;
+    if (aSort < bSort) return -1;
+    return -1;
+  });
+
+  state.parts = allPartsWithEasyPartsFrontLoaded;
+};
+
 const pullData = async () => {
   try {
     const allPartsRequest = await apiHelper("/api/parts");
@@ -102,8 +130,14 @@ const pullData = async () => {
 
     if (state.shortPartsList) state.parts.length = 5;
 
-    const flag = false; // isDevSpace;
+    const flag = isDevSpace;
 
+    // First time user.
+    if (!getLocalStorageUUID()) {
+      frontLoadEasyParts();
+    }
+
+    // Rookie Game or DevSpace Veteran Game.
     if (state.gameMode === "r" || flag) {
       removeCountdownElement();
       startGame();
@@ -620,7 +654,7 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     game_duration_in_seconds: totalGameDuration(),
     game_end_type: type.charAt(0) as "s" | "t" | "w",
     connection: getConnectionSpeed(),
-    uuid: isReturningUser() ? getLocalUUID() : createLocalUUID(),
+    uuid: isReturningUser() ? getLocalStorageUUID() : createLocalUUID(),
     game_mode: state.gameMode,
     device_info: getDeviceInfo(),
   };
@@ -643,7 +677,7 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
 // Updates users table with the current players names at local machine.
 const updateDatabaseUserNamesList = async () => {
   const playerData = {
-    uuid: getLocalUUID(),
+    uuid: getLocalStorageUUID(),
     player_names: getLocalPlayerNames(),
   };
 
@@ -777,7 +811,7 @@ const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
 // This API adds 1 to the current play_again column when a user clicks the Play Again <button>.
 const playAgainClick = async () => {
   const data = {
-    uuid: getLocalUUID(),
+    uuid: getLocalStorageUUID(),
   };
 
   const request = await apiHelper(`/api/users/play-again`, "POST", data);
@@ -944,7 +978,7 @@ const logGameToStatsTable = async (gameData: any) => {
 // I don't need or want 36 characters.
 // A lenth of 8 gives over 218 trillion possibilites.
 const createUUID = () => crypto.randomUUID().substring(0, 8);
-const getLocalUUID = () => localStorage.getItem("uuid") || "";
+const getLocalStorageUUID = () => localStorage.getItem("uuid") || "";
 const isReturningUser = () => !!localStorage.getItem("uuid");
 const getLocalPlayerNames = () => localStorage.getItem("playerNames") || "";
 
@@ -1031,7 +1065,7 @@ const handleModeSwitchClick = async (event: Event) => {
   localStorage.setItem("gameMode", eventGameMode);
 
   const data = {
-    uuid: getLocalUUID(),
+    uuid: getLocalStorageUUID(),
   };
 
   try {

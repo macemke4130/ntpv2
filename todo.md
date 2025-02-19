@@ -1,6 +1,5 @@
 # To Do
 
-- Wait until all parts have been fetched to begin countdown. For very slow connections.
 - Wait until DOMContentLoaded to add film strip animation?
 - Move fetchpriority="high" to first image in dom tree, and reorder with flex so the browser will see this image first?
 - Write overflow catch for game_seconds tinyint column. 65_535 maximum
@@ -49,6 +48,7 @@
 
 # Done
 
+- Wait until all parts have been fetched to begin countdown. For very slow connections.
 - Update readme.md
 - Remove CORS
 - Add exception for local development in 301 redirect

@@ -59,7 +59,7 @@
     },
     {
       "images": ["PXL_20210930_143834927.jpg", "PXL_20210930_143857592.jpg"],
-      "answers": ["Star Nut", "Star Bolt", "Sun Bolt", "Sun Nut"]
+      "answers": ["Star Nut", "Star Bolt", "Bottom Bracket", "Seatpost"]
     },
     {
       "images": ["PXL_20210929_191156660.jpg", "PXL_20210929_191212702.jpg"],
@@ -75,7 +75,7 @@
     },
     {
       "images": ["PXL_20211014_233735511.jpg", "PXL_20211014_233748602.jpg"],
-      "answers": ["Straddle Cable Carrier", "", "", ""]
+      "answers": ["Straddle Cable Carrier", "M5 Bolt", "Headset Cap", "Allen Wrench"]
     },
     {
       "images": ["PXL_20211002_180203430.jpg", "PXL_20211002_180222213.jpg"],
@@ -87,7 +87,7 @@
     },
     {
       "images": ["PXL_20211002_174953380.jpg", "PXL_20211002_175006954.jpg"],
-      "answers": ["Sturmey Archer Cable Adjuster", "", "", ""]
+      "answers": ["Sturmey Archer Cable Adjuster", "Shimano Di2 Satellite Shifter", "Tire Lever", "Chainring Bolt"]
     },
     {
       "images": ["PXL_20210930_223256224.jpg", "PXL_20210930_223305862.jpg"],
@@ -155,7 +155,7 @@
     },
     {
       "images": ["PXL_20210914_234016348.jpg", "PXL_20210914_234027632.jpg"],
-      "answers": ["Park Tool Truing Stand Arm Cap", "Sram Front Derailleur Shim", "Unior Truing Stand Arm Cap", "Var Truing Stand Arm Cap"]
+      "answers": ["Park Tool Truing Stand Arm Cap", "Crank Bolt", "Pedal Wrench", "Spoke"]
     },
     {
       "images": ["PXL_20210908_211730084.jpg", "PXL_20210908_211745660.jpg"],
