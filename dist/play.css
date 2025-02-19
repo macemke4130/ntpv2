@@ -204,7 +204,7 @@ body[data-game-mode="r"] [aria-label="Game Progress"] {
   position: fixed;
   inset: auto 0 0 0;
   z-index: 1;
-  padding-bottom: 3rem;
+  padding-bottom: 4rem;
   border-top: 1px solid var(--btn-border-color);
   background: var(--bg-color);
 }
@@ -213,7 +213,7 @@ body[data-game-mode="r"] [aria-label="Game Progress"] {
   [data-game-mode="r"] [data-game-over="true"] {
     inset: auto 0 0 auto;
     padding: 1rem;
-    padding-bottom: 3rem;
+    padding-bottom: 4rem;
     border-top: 1px solid var(--btn-border-color);
     border-left: 1px solid var(--btn-border-color);
   }
@@ -359,6 +359,12 @@ dialog::backdrop {
   text-align: center;
   margin-top: 0.5rem;
   line-height: 1.5;
+}
+
+#veteran-plug-text {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
 }
 
 #play-again {
