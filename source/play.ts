@@ -1,4 +1,4 @@
-const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 import { GameState, GameMode, RookieScoreObject, Stat, Part } from "./types";
 import { apiHelper } from "./utils.js";
@@ -510,7 +510,6 @@ const reportScoreToPlayer = () => {
 // Function is called by the end of the explode() transition or by a game win.
 const clearPlayScreen = (type: "selection" | "timer" | "win") => {
   document.body.setAttribute("data-game-over", "true");
-  document.body.setAttribute("data-game-curtain", "down");
 
   // Clean up and build.
   answerButtonListeners("remove");
@@ -800,7 +799,6 @@ const logLocalTime = async () => {
 
 const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
   document.body.setAttribute("data-game-end-type", type);
-  // dom.get("game-over-screen")!.setAttribute("data-screen-active", "true");
 
   dom.get("game-over-title")!.innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
   dom.get("final-score")!.innerText = state.totalPoints.toLocaleString();
@@ -902,7 +900,6 @@ const buildScoreboard = async () => {
     previousRank = ranking;
   }
 
-  tableBodyElement.setAttribute("data-active", "true");
   highlightMyScore();
 };
 

@@ -1,4 +1,4 @@
-const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 import { apiHelper } from "./utils.js";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -423,7 +423,6 @@ const reportScoreToPlayer = () => {
 // Function is called by the end of the explode() transition or by a game win.
 const clearPlayScreen = (type) => {
     document.body.setAttribute("data-game-over", "true");
-    document.body.setAttribute("data-game-curtain", "down");
     // Clean up and build.
     answerButtonListeners("remove");
     imageLoadListeners("remove");
@@ -667,7 +666,6 @@ const logLocalTime = async () => {
 };
 const buildGameOverScreen = (type) => {
     document.body.setAttribute("data-game-end-type", type);
-    // dom.get("game-over-screen")!.setAttribute("data-screen-active", "true");
     dom.get("game-over-title").innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
     dom.get("final-score").innerText = state.totalPoints.toLocaleString();
     // currentPart does not advance after last part on gameOver("win")
@@ -754,7 +752,6 @@ const buildScoreboard = async () => {
         previousScore = stat.final_score;
         previousRank = ranking;
     }
-    tableBodyElement.setAttribute("data-active", "true");
     highlightMyScore();
 };
 // Shows user where their score is on the database.
