@@ -23,9 +23,9 @@
       gtag("config", "G-C850TG6F0H");
     </script>
   </head>
-  <body>
+  <body data-game-over="false">
     <main>
-      <div data-game-curtain="up">
+      <div id="game-container">
         <section aria-label="Images">
           <img data-quiz-image="one" data-blur="true" alt="" loading="eager" />
           <img data-quiz-image="two" data-blur="true" alt="" loading="eager" />
@@ -58,7 +58,7 @@
       <section id="rookie-game-over">
         <ol id="rookie-results"></ol>
       </section>
-      <div data-game-over="false">
+      <div id="game-over-container">
         <div id="rookie-score"></div>
         <section id="game-over-screen" data-game-end-type data-screen-active="false">
           <h2 id="game-over-title"></h2>

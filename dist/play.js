@@ -1,4 +1,4 @@
-const isDevSpace = false; // window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 import { apiHelper } from "./utils.js";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -23,7 +23,6 @@ allNamedElements.forEach((element) => {
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
-const gameOverScreenContainerElement = document.querySelector("[data-game-over]");
 const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`);
 currentModeButton.classList.add("active");
 const startPoints = 500;
@@ -47,7 +46,7 @@ const state = {
     gameStartTimeMS: 0,
     databaseInsertId: 0,
     timerOff: isDevSpace,
-    shortPartsList: false, // isDevSpace,
+    shortPartsList: isDevSpace,
 };
 const imageLoadState = {
     one: false,
@@ -100,6 +99,10 @@ const frontLoadEasyParts = () => {
     });
     state.parts = allPartsWithEasyPartsFrontLoaded;
 };
+const removeRookieDOM = () => {
+    dom.get("rookie-game-over").remove();
+    dom.get("rookie-score").remove();
+};
 const pullData = async () => {
     try {
         const allPartsRequest = await apiHelper("/api/parts");
@@ -139,15 +142,15 @@ const updateGameProgressBar = () => {
     dom.get("fake-progress-bar").style.width = `${(state.currentPart / state.parts.length) * 100}%`;
 };
 const explode = () => {
-    quizButtonElements.forEach((button) => {
-        button.setAttribute("data-boom", "true");
-    });
-    // Either "selection" or "timer" would work as a parameter here.
     quizButtonElements[quizButtonElements.length - 1].addEventListener("transitionend", (event) => {
         // Important to only listen for one property to finish to
         // prevent multiple calls to clearPlayScreen();
+        // Either "selection" or "timer" would work as a parameter here.
         if (event.propertyName === "transform")
             clearPlayScreen("selection");
+    });
+    quizButtonElements.forEach((button) => {
+        button.setAttribute("data-boom", "true");
     });
 };
 // Called after every correct answer from imageLoaded().
@@ -419,8 +422,8 @@ const reportScoreToPlayer = () => {
 };
 // Function is called by the end of the explode() transition or by a game win.
 const clearPlayScreen = (type) => {
-    const gameCurtain = document.querySelector(`[data-game-curtain]`);
-    gameCurtain.setAttribute("data-game-curtain", "down");
+    document.body.setAttribute("data-game-over", "true");
+    document.body.setAttribute("data-game-curtain", "down");
     // Clean up and build.
     answerButtonListeners("remove");
     imageLoadListeners("remove");
@@ -560,7 +563,6 @@ const gameOver = async (type) => {
     else {
         await logRookieGame(gameStats);
     }
-    gameOverScreenContainerElement.setAttribute("data-game-over", "true");
     if (type === "win")
         clearPlayScreen("win");
 };
@@ -664,8 +666,8 @@ const logLocalTime = async () => {
         throw new Error("Error setting local time.");
 };
 const buildGameOverScreen = (type) => {
-    dom.get("game-over-screen").setAttribute("data-game-end-type", type);
-    dom.get("game-over-screen").setAttribute("data-screen-active", "true");
+    document.body.setAttribute("data-game-end-type", type);
+    // dom.get("game-over-screen")!.setAttribute("data-screen-active", "true");
     dom.get("game-over-title").innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
     dom.get("final-score").innerText = state.totalPoints.toLocaleString();
     // currentPart does not advance after last part on gameOver("win")
@@ -933,7 +935,5 @@ const sizeImageHeight = () => {
 sizeImageHeight();
 imageLoadListeners("add");
 answerButtonListeners("add");
-// Veteran mode starts countdown. Rookie mode starts on parts[] loaded.
-// if (state.gameMode === "v") {
-//   beginCountdownToStart();
-// }
+if (state.gameMode === "v")
+    removeRookieDOM();

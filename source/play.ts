@@ -1,4 +1,4 @@
-const isDevSpace = false; // window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 import { GameState, GameMode, RookieScoreObject, Stat, Part } from "./types";
 import { apiHelper } from "./utils.js";
@@ -26,7 +26,6 @@ allNamedElements.forEach((element) => {
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`)! as NodeListOf<HTMLImageElement>;
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`)! as NodeListOf<HTMLButtonElement>;
 const preloadImageElements = document.querySelectorAll(`#preload img`)! as NodeListOf<HTMLImageElement>;
-const gameOverScreenContainerElement = document.querySelector("[data-game-over]")! as HTMLDivElement;
 const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`)! as HTMLButtonElement;
 currentModeButton.classList.add("active");
 
@@ -52,7 +51,7 @@ const state: GameState = {
   gameStartTimeMS: 0,
   databaseInsertId: 0,
   timerOff: isDevSpace,
-  shortPartsList: false, // isDevSpace,
+  shortPartsList: isDevSpace,
 };
 
 const imageLoadState = {
@@ -118,6 +117,11 @@ const frontLoadEasyParts = () => {
   state.parts = allPartsWithEasyPartsFrontLoaded;
 };
 
+const removeRookieDOM = () => {
+  dom.get("rookie-game-over")!.remove();
+  dom.get("rookie-score")!.remove();
+};
+
 const pullData = async () => {
   try {
     const allPartsRequest = await apiHelper("/api/parts");
@@ -164,15 +168,16 @@ const updateGameProgressBar = () => {
 };
 
 const explode = () => {
-  quizButtonElements.forEach((button) => {
-    button.setAttribute("data-boom", "true");
-  });
-
-  // Either "selection" or "timer" would work as a parameter here.
   quizButtonElements[quizButtonElements.length - 1].addEventListener("transitionend", (event) => {
     // Important to only listen for one property to finish to
     // prevent multiple calls to clearPlayScreen();
+
+    // Either "selection" or "timer" would work as a parameter here.
     if (event.propertyName === "transform") clearPlayScreen("selection");
+  });
+
+  quizButtonElements.forEach((button) => {
+    button.setAttribute("data-boom", "true");
   });
 };
 
@@ -504,8 +509,8 @@ const reportScoreToPlayer = () => {
 
 // Function is called by the end of the explode() transition or by a game win.
 const clearPlayScreen = (type: "selection" | "timer" | "win") => {
-  const gameCurtain = document.querySelector(`[data-game-curtain]`)! as HTMLElement;
-  gameCurtain.setAttribute("data-game-curtain", "down");
+  document.body.setAttribute("data-game-over", "true");
+  document.body.setAttribute("data-game-curtain", "down");
 
   // Clean up and build.
   answerButtonListeners("remove");
@@ -670,7 +675,6 @@ const gameOver = async (type: "selection" | "timer" | "win") => {
     await logRookieGame(gameStats);
   }
 
-  gameOverScreenContainerElement.setAttribute("data-game-over", "true");
   if (type === "win") clearPlayScreen("win");
 };
 
@@ -795,8 +799,8 @@ const logLocalTime = async () => {
 };
 
 const buildGameOverScreen = (type: "selection" | "timer" | "win") => {
-  dom.get("game-over-screen")!.setAttribute("data-game-end-type", type);
-  dom.get("game-over-screen")!.setAttribute("data-screen-active", "true");
+  document.body.setAttribute("data-game-end-type", type);
+  // dom.get("game-over-screen")!.setAttribute("data-screen-active", "true");
 
   dom.get("game-over-title")!.innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
   dom.get("final-score")!.innerText = state.totalPoints.toLocaleString();
@@ -1105,7 +1109,4 @@ sizeImageHeight();
 imageLoadListeners("add");
 answerButtonListeners("add");
 
-// Veteran mode starts countdown. Rookie mode starts on parts[] loaded.
-// if (state.gameMode === "v") {
-//   beginCountdownToStart();
-// }
+if (state.gameMode === "v") removeRookieDOM();
