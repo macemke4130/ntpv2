@@ -1,4 +1,4 @@
-const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 import { GameState, GameMode, RookieScoreObject, Stat, Part } from "./types";
 import { apiHelper } from "./utils.js";
@@ -120,6 +120,10 @@ const frontLoadEasyParts = () => {
 const removeRookieDOM = () => {
   dom.get("rookie-game-over")!.remove();
   dom.get("rookie-score")!.remove();
+};
+
+const removeVeteranDOM = () => {
+  dom.get("scoreboard-container")!.remove();
 };
 
 const pullData = async () => {
@@ -274,7 +278,7 @@ const handleEnterKey = (event: KeyboardEvent) => {
   }
 };
 
-const handleAnswerClick = (event: MouseEvent) => {
+const handleAnswerClick = (event: MouseEvent | TouchEvent) => {
   const target = event.currentTarget as HTMLButtonElement;
   const answer = target.innerText;
   verifyAnswer(answer, target);
@@ -617,7 +621,8 @@ const displayFakeData = (playerName: string) => {
   recordDateCell.innerText = getHumanReadableLocalTime();
 
   closePlayerNameModal();
-  recordNameCell.scrollIntoView({ behavior: "smooth", block: "center" });
+  // recordNameCell.scrollIntoView({ behavior: "smooth", block: "start" });
+  document.documentElement.scrollTo({ behavior: "smooth", top: recordNameCell.offsetTop - 100 });
 };
 
 // Only listening for this event when the input play name <dialog> is open.
@@ -1048,11 +1053,11 @@ const removeRewardClass = (event: Event) => {
 const answerButtonListeners = (type: "add" | "remove") => {
   for (const quizButton of quizButtonElements) {
     if (type === "add") {
-      quizButton.addEventListener("mousedown", handleAnswerClick);
+      quizButton.addEventListener("ontouchstart" in window ? "touchstart" : "mousedown", handleAnswerClick);
       window.addEventListener("keydown", handleEnterKey);
       quizButton.addEventListener("animationend", removeRewardClass);
     } else {
-      quizButton.removeEventListener("mousedown", handleAnswerClick);
+      quizButton.removeEventListener("ontouchstart" in window ? "touchstart" : "mousedown", handleAnswerClick);
       window.removeEventListener("keydown", handleEnterKey);
       quizButton.removeEventListener("animationend", removeRewardClass);
     }
@@ -1107,3 +1112,4 @@ imageLoadListeners("add");
 answerButtonListeners("add");
 
 if (state.gameMode === "v") removeRookieDOM();
+if (state.gameMode === "r") removeVeteranDOM();

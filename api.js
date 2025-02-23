@@ -40,7 +40,8 @@ const router = express.Router();
 
 // Secure redirect for produciton.
 router.get('*', (req, res, next) => {
-  if (req.headers.host.includes("localhost")) {
+  console.log(req.headers.host);
+  if (req.headers.host.includes("localhost") || req.headers.host.includes("192")) {
     next();
   } else {
     if (req.headers['x-forwarded-proto'] !== 'https') {

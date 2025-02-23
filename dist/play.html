@@ -59,11 +59,29 @@
         <ol id="rookie-results"></ol>
       </section>
       <div id="game-over-container">
-        <div id="rookie-score"></div>
-        <section id="game-over-screen">
+        <section id="scoreboard-container" aria-label="Scoreboard">
+          <table id="scoreboard">
+            <caption>
+              Scoreboard - Top 100
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Name</th>
+                <th scope="col">Final Score</th>
+                <th scope="col">Parts Named</th>
+                <th scope="col">Local Time</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </section>
+        <section id="game-over-info">
+          <div id="rookie-score"></div>
           <h2 id="game-over-title"></h2>
-          <div id="final-score-title">Total Points</div>
           <div id="final-score"></div>
+          <div id="final-score-title">Total Points</div>
           <div id="fun-score"></div>
           <div id="correct"></div>
           <div id="scoreboard-offset"></div>
@@ -78,19 +96,6 @@
           </div>
           <button id="share">Share Name That Part with friends</button>
         </section>
-        <table id="scoreboard">
-          <thead>
-            <tr>
-              <th scope="col">Rank</th>
-              <th scope="col">Name</th>
-              <th scope="col">Final Score</th>
-              <th scope="col">Parts Named</th>
-              <th scope="col">Local Time</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-          <tfoot></tfoot>
-        </table>
       </div>
       <dialog id="player-name">
         <div id="player-form-container">
