@@ -117,6 +117,10 @@ header {
   padding: 0 1rem;
 }
 
+#article-container article {
+  border-bottom: 2px solid var(--btn-border-color);
+}
+
 .article-title {
   margin-bottom: 0;
 }
