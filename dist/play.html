@@ -55,10 +55,10 @@
           <progress id="progress-bar" value="0" max="0"></progress>
         </section>
       </div>
-      <section id="rookie-game-over">
-        <ol id="rookie-results"></ol>
-      </section>
       <div id="game-over-container">
+        <section id="rookie-game-over">
+          <ol id="rookie-results"></ol>
+        </section>
         <section id="scoreboard-container" aria-label="Scoreboard">
           <table id="scoreboard">
             <caption>
@@ -78,23 +78,25 @@
           </table>
         </section>
         <section id="game-over-info">
-          <div id="rookie-score"></div>
-          <h2 id="game-over-title"></h2>
-          <div id="final-score"></div>
-          <div id="final-score-title">Total Points</div>
-          <div id="fun-score"></div>
-          <div id="correct"></div>
-          <div id="scoreboard-offset"></div>
-          <button id="play-again">Play Again?</button>
-          <div id="veteran-plug-text">Play in Veteran Mode to join the scoreboard</div>
-          <div id="difficulty-selection">
-            Select Difficulty Mode
-            <div id="play-mode-buttons">
-              <button id="rookie-mode" data-game-mode="r">Rookie</button>
-              <button id="veteran-mode" data-game-mode="v">Veteran</button>
+          <div id="game-over-info-wrapper">
+            <div id="rookie-score"></div>
+            <h2 id="game-over-title"></h2>
+            <div id="final-score"></div>
+            <div id="final-score-title">Total Points</div>
+            <div id="fun-score"></div>
+            <div id="correct"></div>
+            <div id="scoreboard-offset"></div>
+            <button id="play-again">Play Again?</button>
+            <div id="veteran-plug-text">Play in Veteran Mode to join the scoreboard</div>
+            <div id="difficulty-selection">
+              Select Difficulty Mode
+              <div id="play-mode-buttons">
+                <button id="rookie-mode" data-game-mode="r">Rookie</button>
+                <button id="veteran-mode" data-game-mode="v">Veteran</button>
+              </div>
             </div>
+            <button id="share">Share Name That Part with friends</button>
           </div>
-          <button id="share">Share Name That Part with friends</button>
         </section>
       </div>
       <dialog id="player-name">

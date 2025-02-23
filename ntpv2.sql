@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS stats (
 
 ALTER TABLE stats ADD device_info text;
 
-SELECT * FROM stats ORDER BY id DESC LIMIT 2;
+SELECT * FROM stats ORDER BY final_score DESC LIMIT 5;
+SELECT * FROM stats ORDER BY id DESC LIMIT 5;
 SELECT * FROM users;
 
 CREATE TABLE IF NOT EXISTS admin (
@@ -47,3 +48,5 @@ email_address VARCHAR(128) UNIQUE NOT NULL,
 password VARCHAR(32) NOT NULL,
 permissions VARCHAR(32)
 );
+
+select * from stats order by id desc limit 5;

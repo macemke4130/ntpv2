@@ -196,15 +196,6 @@ body[data-game-mode="r"] [aria-label="Game Progress"] {
   }
 }
 
-body[data-game-mode="r"][data-game-over="true"] #game-over-container {
-  position: fixed;
-  inset: auto 0 0 0;
-  z-index: 1;
-  padding-bottom: 4rem;
-  border-top: 1px solid var(--btn-border-color);
-  background: var(--bg-color);
-}
-
 @media (min-width: 992px) {
   [data-game-mode="r"] [data-game-over="true"] {
     inset: auto 0 0 auto;
@@ -285,17 +276,37 @@ body[data-game-over="true"][data-game-mode="v"] [aria-label="Scoreboard"] {
 #game-over-info {
   position: fixed;
   inset: auto 0 0rem 0;
+  z-index: 1;
+}
+
+#game-over-info-wrapper {
   padding: 0 1rem 3.5rem 1rem;
-  background: linear-gradient(0deg, var(--bg-color) 95%, transparent);
+  margin: 0 auto;
+  width: fit-content;
+  background-color: var(--bg-color);
+  border: var(--btn-border);
 }
 
 body[data-game-over="true"] #game-over-container {
   display: block;
 }
 
+.day-of-week {
+  display: inline;
+  display: none;
+}
+
+.day-of-week:has(+ span:empty) {
+  display: none;
+}
+
 @media (max-width: 1026px) {
   #scoreboard {
     font-size: 90%;
+  }
+
+  .day-of-week {
+    display: none;
   }
 }
 
@@ -561,16 +572,16 @@ body[data-game-mode="v"] #rookie-game-over {
   display: none;
 }
 
+#rookie-game-over {
+  padding-bottom: 50vh;
+}
+
 #rookie-results {
   list-style: none;
   padding: 0;
   width: 75%;
   max-width: 50rem;
   margin: 0 auto;
-}
-
-body[data-game-over="true"] #rookie-results {
-  padding-bottom: 50vh;
 }
 
 @media (min-width: 768px) {

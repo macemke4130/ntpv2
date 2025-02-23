@@ -1,4 +1,4 @@
-const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = false; // window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 import { GameState, GameMode, RookieScoreObject, Stat, Part } from "./types";
 import { apiHelper } from "./utils.js";
@@ -443,7 +443,7 @@ const getHumanReadableLocalTime = () => {
   const suffix = getDaySuffix(date);
   const year = rightNow.getFullYear();
 
-  return `${dayOfWeek}, ${month} ${date}${suffix} ${year}`;
+  return `${month} ${date}${suffix} ${year}`;
 };
 
 const getConnectionSpeed = () => {
@@ -618,10 +618,9 @@ const displayFakeData = (playerName: string) => {
   const recordDateCell = document.querySelector(`#scoreboard-${state.databaseInsertId} .date`)! as HTMLTableCellElement;
 
   recordNameCell.innerText = playerName;
-  recordDateCell.innerText = getHumanReadableLocalTime();
+  recordDateCell.innerHTML = getHumanReadableLocalTime();
 
   closePlayerNameModal();
-  // recordNameCell.scrollIntoView({ behavior: "smooth", block: "start" });
   document.documentElement.scrollTo({ behavior: "smooth", top: recordNameCell.offsetTop - 100 });
 };
 
@@ -882,6 +881,9 @@ const buildScoreboard = async () => {
 
     const ranking = getRanking(stat.final_score);
 
+    const dayOfWeekOfGame = stat.game_end_local_time?.split(", ")[0] || "";
+    const dateOfGame = stat.game_end_local_time?.split(", ")[1] || "";
+
     rankCell.classList.add("rank");
     nameCell.classList.add("player-name");
     scoreCell.classList.add("score");
@@ -892,7 +894,7 @@ const buildScoreboard = async () => {
     nameCell.innerText = stat.display_name;
     scoreCell.innerText = stat.final_score.toLocaleString();
     partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
-    dateCell.innerText = stat.game_end_local_time;
+    dateCell.innerHTML = `<span class="day-of-week">${dayOfWeekOfGame}, </span><span>${dateOfGame}</span>`;
 
     tr.appendChild(rankCell);
     tr.appendChild(nameCell);

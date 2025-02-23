@@ -1,4 +1,4 @@
-const isDevSpace = window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = false; // window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 import { apiHelper } from "./utils.js";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -374,7 +374,7 @@ const getHumanReadableLocalTime = () => {
     const date = rightNow.getDate();
     const suffix = getDaySuffix(date);
     const year = rightNow.getFullYear();
-    return `${dayOfWeek}, ${month} ${date}${suffix} ${year}`;
+    return `${month} ${date}${suffix} ${year}`;
 };
 const getConnectionSpeed = () => {
     const nav = navigator;
@@ -514,9 +514,8 @@ const displayFakeData = (playerName) => {
     const recordNameCell = document.querySelector(`#scoreboard-${state.databaseInsertId} .player-name`);
     const recordDateCell = document.querySelector(`#scoreboard-${state.databaseInsertId} .date`);
     recordNameCell.innerText = playerName;
-    recordDateCell.innerText = getHumanReadableLocalTime();
+    recordDateCell.innerHTML = getHumanReadableLocalTime();
     closePlayerNameModal();
-    // recordNameCell.scrollIntoView({ behavior: "smooth", block: "start" });
     document.documentElement.scrollTo({ behavior: "smooth", top: recordNameCell.offsetTop - 100 });
 };
 // Only listening for this event when the input play name <dialog> is open.
@@ -737,6 +736,8 @@ const buildScoreboard = async () => {
         const partsCell = document.createElement("td");
         const dateCell = document.createElement("td");
         const ranking = getRanking(stat.final_score);
+        const dayOfWeekOfGame = stat.game_end_local_time?.split(", ")[0] || "";
+        const dateOfGame = stat.game_end_local_time?.split(", ")[1] || "";
         rankCell.classList.add("rank");
         nameCell.classList.add("player-name");
         scoreCell.classList.add("score");
@@ -746,7 +747,7 @@ const buildScoreboard = async () => {
         nameCell.innerText = stat.display_name;
         scoreCell.innerText = stat.final_score.toLocaleString();
         partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
-        dateCell.innerText = stat.game_end_local_time;
+        dateCell.innerHTML = `<span class="day-of-week">${dayOfWeekOfGame}, </span><span>${dateOfGame}</span>`;
         tr.appendChild(rankCell);
         tr.appendChild(nameCell);
         tr.appendChild(scoreCell);
