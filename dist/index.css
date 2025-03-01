@@ -30,7 +30,9 @@ header {
 
 #film-roll {
   display: flex;
+}
 
+.animate-film-roll {
   animation: scroll 25s linear infinite;
 }
 

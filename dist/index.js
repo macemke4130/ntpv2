@@ -51,3 +51,8 @@ const determineGameMode = () => {
 determineGameMode();
 fillGameData();
 getTotalGames();
+const startAnimationOnLoad = () => {
+    document.querySelector(`#film-roll`).classList.add("animate-film-roll");
+    window.removeEventListener("load", startAnimationOnLoad);
+};
+window.addEventListener("load", startAnimationOnLoad);
