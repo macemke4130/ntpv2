@@ -77,14 +77,19 @@
       <section aria-label="Game setup">
         <fieldset id="difficulty">
           <legend>Choose Game Difficulty</legend>
-          <label>
-            <span>Rookie</span>
-            <input type="radio" id="rookie" name="gameMode" value="r" checked />
-          </label>
-          <label>
-            <span>Veteran</span>
-            <input type="radio" id="veteran" name="gameMode" value="v" />
-          </label>
+          <div class="toggle-container">
+            <div class="toggle-slider"></div>
+            <div class="toggle-labels">
+              <div class="label-container">
+                <label for="rookie">Rookie</label>
+                <input type="radio" id="rookie" name="gameMode" value="r" checked />
+              </div>
+              <div class="label-container">
+                <label for="veteran">Veteran</label>
+                <input type="radio" id="veteran" name="gameMode" value="v" />
+              </div>
+            </div>
+          </div>
         </fieldset>
         <h3 style="margin-bottom: 0.25rem">How to play</h3>
         <section id="rules-container" aria-label="How to play the game">
@@ -101,10 +106,24 @@
             <div id="rules-v" aria-hidden="true">
               <h3>Veteran Difficulty</h3>
               <ul>
-                <li>Click 1 of the 4 options for the bike part you see</li>
-                <li>If you take longer than 20 seconds for any part, game over</li>
-                <li>If you choose the wrong answer for any part, game over</li>
-                <li>If you're in the top 100 scores, you'll join the scoreboard</li>
+                <li>
+                  How to win
+                  <ul>
+                    <li>Name every part correctly</li>
+                  </ul>
+                </li>
+                <li>
+                  How to lose
+                  <ul>
+                    <li>Choose the wrong part name</li>
+                    <li>
+                      Take more than 20 seconds on any part
+                      <ul>
+                        <li>Time resets on every correct answer</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
               </ul>
             </div>
           </div>

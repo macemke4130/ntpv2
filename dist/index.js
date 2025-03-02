@@ -34,6 +34,7 @@ const setDOMGameSwitch = (event, gameMode) => {
     const newGameMode = target ? target.value : gameMode;
     const input = document.querySelector(`input[value="${newGameMode}"]`);
     input.checked = true;
+    document.querySelector(`#difficulty`).setAttribute("data-game-mode", newGameMode);
     localStorage.setItem("gameMode", newGameMode);
     showGameRules(newGameMode);
 };

@@ -1,4 +1,4 @@
-const isDevSpace = false; // window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
+const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
 
 import { GameState, GameMode, RookieScoreObject, Stat, Part } from "./types";
 import { apiHelper } from "./utils.js";

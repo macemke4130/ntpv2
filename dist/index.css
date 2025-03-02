@@ -148,17 +148,77 @@ main li {
 #difficulty {
   display: flex;
   justify-content: space-evenly;
-  width: 20rem;
-  margin: 1rem auto;
   text-align: center;
+  border: none;
 }
 
 #difficulty legend {
-  padding: 0.75rem;
+  padding-top: 0.75rem;
 }
 
-#difficulty label span {
+#difficulty .toggle-container {
+  --toggle-width: 20rem;
+  --toggle-height: 2.5rem;
+  --toggle-padding: 0.5rem;
+
+  position: relative;
+  width: var(--toggle-width);
+  height: calc(var(--toggle-height) + var(--toggle-padding) * 2);
+  background-color: var(--btn-color);
+  border-radius: 100vw;
+  padding: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  #difficulty .toggle-container {
+    --toggle-width: 30rem;
+  }
+}
+
+#difficulty .toggle-slider {
+  width: calc(var(--toggle-width) / 2 - (var(--toggle-padding) * 2));
+  height: var(--toggle-height);
+  background-color: var(--rules-background);
+  border-radius: 100vw;
+
+  transition-property: transform;
+  transition-timing-function: ease-in-out;
+  transition-duration: 250ms;
+}
+
+#difficulty[data-game-mode="v"] .toggle-slider {
+  transform: translateX(calc(var(--toggle-width) / 2));
+}
+
+#difficulty .toggle-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  position: absolute;
+  inset: 0;
+}
+
+.toggle-labels label {
   display: block;
+  height: var(--toggle-height);
+  width: calc(var(--toggle-width) / 2);
+  align-content: center;
+  font-size: calc(var(--toggle-height) * 0.5);
+  font-weight: bold;
+}
+
+#difficulty .label-container {
+  position: relative;
+}
+
+#difficulty input {
+  appearance: none;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  inset: 0;
+  cursor: pointer;
+  border-radius: 100vw;
 }
 
 #rules-container {
