@@ -1,3 +1,4 @@
+export const defaultGameMode = "v";
 export const apiHelper = async (url, method = "GET", data) => {
     const headers = { "Content-Type": "application/json", Accept: "application/json" };
     const options = { method, headers };

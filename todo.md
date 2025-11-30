@@ -1,5 +1,7 @@
 # To Do
 
+- Replace date logic with the Temporal API.
+- Remove dom() map on play.ts and replace with $ querySelectory function.
 - Wait until DOMContentLoaded to add film strip animation?
 - Move fetchpriority="high" to first image in dom tree, and reorder with flex so the browser will see this image first?
 - Write overflow catch for game_seconds tinyint column. 65_535 maximum

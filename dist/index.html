@@ -50,6 +50,20 @@
   </head>
   <body>
     <header>
+      <button id="nav-hamburger" aria-label="Open Site Navigation">
+        <div class="hamburger-layer" aria-label="hidden"></div>
+        <div class="hamburger-layer" aria-label="hidden"></div>
+        <div class="hamburger-layer" aria-label="hidden"></div>
+      </button>
+      <div id="site-nav-container">
+        <nav id="site-nav">
+          <a href="/">Home</a>
+          <a href="/about.html">About</a>
+          <a href="/scoreboard.html">Scoreboard</a>
+          <button id="close-nav-button">Close Menu</button>
+        </nav>
+      </div>
+      <div id="site-nav-curtain" aria-hidden="true"></div>
       <div id="camera">
         <div id="film-roll">
           <div class="roll">
@@ -91,6 +105,7 @@
             </div>
           </div>
         </fieldset>
+        <a id="start-game-button" href="./play.html">Start Game</a>
         <h3 style="margin-bottom: 0.25rem">How to play</h3>
         <section id="rules-container" aria-label="How to play the game">
           <div id="rules-wrapper">
@@ -128,8 +143,6 @@
             </div>
           </div>
         </section>
-        <a class="start-game" href="./play.html">Start Game</a>
-
         <section aria-label="Current Game Stats" class="credit">
           <div><span id="total-parts">00</span> parts currently in game</div>
           <div>Last part added on <span id="date-updated">00/00/2024</span></div>
@@ -209,14 +222,12 @@
       </section>
     </main>
 
-    <footer id="footer"></footer>
-
     <script>
       // TS Hack. Fix later.
       var exports = {};
     </script>
     <script src="./utils.js" type="module"></script>
     <script src="./index.js" type="module"></script>
-    <script src="./footer.js" async></script>
+    <script src="./global.js" type="module"></script>
   </body>
 </html>

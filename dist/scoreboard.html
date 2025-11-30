@@ -15,36 +15,49 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C850TG6F0H"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'G-C850TG6F0H');
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-C850TG6F0H");
     </script>
   </head>
   <body>
     <header>
-        <h1>Name That Part</h1>
-        <h2>Scoreboard <br />Top 100</h2>
+      <button id="nav-hamburger" aria-label="Open Site Navigation">
+        <div class="hamburger-layer" aria-label="hidden"></div>
+        <div class="hamburger-layer" aria-label="hidden"></div>
+        <div class="hamburger-layer" aria-label="hidden"></div>
+      </button>
+      <div id="site-nav-container">
+        <nav id="site-nav">
+          <a href="/">Home</a>
+          <a href="/about.html">About</a>
+          <a href="/scoreboard.html">Scoreboard</a>
+          <button id="close-nav-button">Close Menu</button>
+        </nav>
       </div>
+      <div id="site-nav-curtain" aria-hidden="true"></div>
     </header>
     <main>
-        <table id="scoreboard">
-            <thead>
-              <tr>
-                <th scope="col">Rank</th>
-                <th scope="col">Name</th>
-                <th scope="col">Final Score</th>
-                <th scope="col">Parts Named</th>
-                <th scope="col">Local Time</th>
-              </tr>
-            </thead>
-            <tbody data-active="false"></tbody>
-            <tfoot></tfoot>
-          </table>
-          <div id="scoreboard-disclaimer"></div>
+      <h1>Name That Part</h1>
+      <h2>Scoreboard <br />Top 100</h2>
+      <table id="scoreboard">
+        <thead>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Name</th>
+            <th scope="col">Final Score</th>
+            <th scope="col">Parts Named</th>
+            <th scope="col">Local Time</th>
+          </tr>
+        </thead>
+        <tbody data-active="false"></tbody>
+        <tfoot></tfoot>
+      </table>
+      <div id="scoreboard-disclaimer"></div>
     </main>
-
-    <footer id="footer"></footer>
 
     <script>
       // TS Hack. Fix later.
@@ -52,6 +65,6 @@
     </script>
     <script src="./utils.js" type="module"></script>
     <script src="./scoreboard.js" type="module"></script>
-    <script src="./footer.js"></script>
+    <script src="./global.js" type="module"></script>
   </body>
 </html>

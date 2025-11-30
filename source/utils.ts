@@ -1,5 +1,7 @@
 import { DBResponse } from "./types";
 
+export const defaultGameMode = "v";
+
 export const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
 

@@ -27,12 +27,87 @@ body {
   font-family: system-ui, sans-serif;
   background: var(--bg-color);
   color: var(--text-color);
+  position: relative;
+}
+
+.sr-only {
+  white-space: nowrap;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+#nav-hamburger {
+  position: absolute;
+  inset: 1rem auto auto 1rem;
+  z-index: 2;
+  padding: 0.6rem;
+  block-size: 3rem;
+  inline-size: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  background-color: var(--bg-color);
+}
+
+.hamburger-layer {
+  block-size: 3px;
+  inline-size: 100%;
+  background-color: var(--text-color);
+}
+
+#site-nav-container {
+  position: absolute;
+  z-index: 3;
+  background-color: var(--bg-color);
+  block-size: 100dvh;
+  border-inline-end: 1px solid var(--text-color);
+  padding-inline: 5rem;
+  padding-block: 3rem;
+  transform: translateX(-100%);
+
+  transition-property: transform;
+  transition-duration: 300ms;
+  transition-timing-function: linear;
+}
+
+#site-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+#site-nav-curtain {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  z-index: 1;
+  background-color: #0007;
+  pointer-events: none;
+  opacity: 0;
+
+  transition-property: opacity;
+  transition-duration: 300ms;
+  transition-timing-function: linear;
+}
+
+#nav-hamburger[aria-expanded="true"] + #site-nav-container + #site-nav-curtain {
+  pointer-events: all;
+  opacity: 1;
+}
+
+#nav-hamburger[aria-expanded="true"] + #site-nav-container {
+  transform: translateX(0%);
 }
 
 a {
   color: inherit;
 }
 
+#site-nav a,
 button {
   display: block;
   margin: 0 auto;
@@ -44,6 +119,7 @@ button {
   border-radius: 0.5rem;
   background: var(--btn-color);
   padding: 0.5rem 1rem;
+  text-decoration: none;
 }
 
 img {
@@ -66,18 +142,6 @@ main {
 #camera {
   width: 100vw;
   overflow-x: hidden;
-}
-
-.start-game {
-  font-size: 2rem;
-  padding: 1.5rem 2rem;
-  text-decoration: none;
-  display: block;
-  margin: 0 auto;
-  width: fit-content;
-  border: var(--btn-border);
-  border-radius: 0.5rem;
-  background: var(--btn-color);
 }
 
 #footer {

@@ -1,6 +1,8 @@
 h1,
 h2 {
   text-align: center;
+  margin: 0;
+  padding-block-start: 1rem;
 }
 
 table {

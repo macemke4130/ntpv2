@@ -30,12 +30,14 @@
           <img data-quiz-image="one" data-blur="true" alt="" loading="eager" />
           <img data-quiz-image="two" data-blur="true" alt="" loading="eager" />
         </section>
-        <section aria-label="Answers" data-blur="true">
+        <section id="answers-section" aria-label="Answers" data-blur="true">
           <div id="hint">What is this part called? Choose your answer below.</div>
-          <button data-quiz-button class="glow"></button>
-          <button data-quiz-button class="glow"></button>
-          <button data-quiz-button class="glow"></button>
-          <button data-quiz-button class="glow"></button>
+          <div id="answer-buttons">
+            <button data-quiz-button class="glow"><span aria-hidden="true">&nbsp;</span></button>
+            <button data-quiz-button class="glow"><span aria-hidden="true">&nbsp;</span></button>
+            <button data-quiz-button class="glow"><span aria-hidden="true">&nbsp;</span></button>
+            <button data-quiz-button class="glow"><span aria-hidden="true">&nbsp;</span></button>
+          </div>
         </section>
         <section aria-label="Score" data-blur="true">
           <div>
@@ -56,27 +58,6 @@
         </section>
       </div>
       <div id="game-over-container">
-        <section id="rookie-game-over">
-          <ol id="rookie-results"></ol>
-        </section>
-        <section id="scoreboard-container" aria-label="Scoreboard">
-          <table id="scoreboard">
-            <caption>
-              Scoreboard - Top 100
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Rank</th>
-                <th scope="col">Name</th>
-                <th scope="col">Final Score</th>
-                <th scope="col">Parts Named</th>
-                <th scope="col">Local Time</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-            <tfoot></tfoot>
-          </table>
-        </section>
         <section id="game-over-info">
           <div id="game-over-info-wrapper">
             <div id="rookie-score"></div>
@@ -96,6 +77,38 @@
               </div>
             </div>
             <button id="share">Share Name That Part with friends</button>
+          </div>
+          <nav id="game-over-navigation"><a href="/">Home</a><a href="/about.html">About</a><a href="/scoreboard.html">Scoreboard</a></nav>
+        </section>
+        <section id="rookie-game-over">
+          <ol id="rookie-results"></ol>
+        </section>
+        <section id="scoreboard-container" aria-label="Scoreboard">
+          <div id="visual-table-headers" aria-hidden="true">
+            <div class="visual-th desktop-only">Rank</div>
+            <div class="visual-th mobile-only mobile-rank">#</div>
+            <div class="visual-th">Name</div>
+            <div class="visual-th">Final Score</div>
+            <div class="visual-th">Parts Named</div>
+            <div class="visual-th">Local Time</div>
+          </div>
+          <div id="table-scroll-wrapper">
+            <table id="scoreboard">
+              <caption class="sr-only">
+                Scoreboard - Top 100
+              </caption>
+              <thead class="sr-only">
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Final Score</th>
+                  <th scope="col">Parts Named</th>
+                  <th scope="col">Local Time</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
           </div>
         </section>
       </div>
@@ -143,8 +156,6 @@
       </div>
     </div>
 
-    <footer id="footer"></footer>
-
     <noscript>
       <div id="no-script-alert-container">You will need to allow Javascript to play this game.</div>
     </noscript>
@@ -155,6 +166,6 @@
     </script>
     <script src="./utils.js" type="module"></script>
     <script src="./play.js" type="module"></script>
-    <script src="./footer.js"></script>
+    <script src="./global.js" type="module"></script>
   </body>
 </html>

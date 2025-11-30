@@ -1,4 +1,4 @@
-import { apiHelper } from "./utils.js";
+import { apiHelper, defaultGameMode } from "./utils.js";
 const totalPartsElement = document.querySelector(`#total-parts`);
 const totalGamesElement = document.querySelector(`#total-games`);
 const dateUpdatedElement = document.querySelector(`#date-updated`);
@@ -47,7 +47,7 @@ gameModeSwitchElements.forEach((input) => {
 // Determine on load.
 const determineGameMode = () => {
     const currentGameMode = localStorage.getItem("gameMode");
-    setDOMGameSwitch(null, currentGameMode || "r");
+    setDOMGameSwitch(null, currentGameMode || defaultGameMode);
 };
 determineGameMode();
 fillGameData();

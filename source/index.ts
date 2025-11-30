@@ -1,5 +1,5 @@
 import { GameMode } from "./types";
-import { apiHelper } from "./utils.js";
+import { apiHelper, defaultGameMode } from "./utils.js";
 
 const totalPartsElement = document.querySelector(`#total-parts`)! as HTMLSpanElement;
 const totalGamesElement = document.querySelector(`#total-games`)! as HTMLDivElement;
@@ -61,7 +61,7 @@ gameModeSwitchElements.forEach((input) => {
 // Determine on load.
 const determineGameMode = () => {
   const currentGameMode = localStorage.getItem("gameMode") as GameMode | undefined;
-  setDOMGameSwitch(null, currentGameMode || "r");
+  setDOMGameSwitch(null, currentGameMode || defaultGameMode);
 };
 
 determineGameMode();

@@ -90,6 +90,36 @@ router.get(`${apiRoute}/parts/`, async (req, res) => {
   res.json(response);
 });
 
+// For testing if strings fit in button space.
+router.get(`${apiRoute}/admin/longest-answer/`, async (req, res) => {
+  const answers = allParts.map(part => {
+    return part.answers;
+  }).flat();
+
+  let longestAnswerLength = 0;
+  let longestAnswer = "";
+
+  answers.forEach(answer => {
+    const lengthOfAnswer = answer.length;
+
+    if (lengthOfAnswer > longestAnswerLength) {
+      longestAnswerLength = lengthOfAnswer;
+      longestAnswer = answer;
+    }
+  });
+
+  const response = {
+    message: "Longest length answer in parts.",
+    status: 200,
+    data: {
+      longestAnswerLength,
+      longestAnswer 
+    }
+  };
+
+  res.json(response);
+});
+
 router.get(`${apiRoute}/parts/correct-answers`, async (req, res) => {
   const response = {
     message: "All correct answers.",

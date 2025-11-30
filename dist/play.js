@@ -1,7 +1,7 @@
 const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
-import { apiHelper } from "./utils.js";
+import { apiHelper, defaultGameMode } from "./utils.js";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+// const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const getDaySuffix = (dayOfMonth) => {
     const lastNumberInDay = Number(dayOfMonth.toString().charAt(dayOfMonth < 10 ? 0 : 1));
     if (lastNumberInDay === 0)
@@ -54,7 +54,7 @@ const imageLoadState = {
 };
 const determineGameMode = () => {
     if (!localStorage.getItem("gameMode"))
-        localStorage.setItem("gameMode", "r");
+        localStorage.setItem("gameMode", defaultGameMode);
     state.gameMode = localStorage.getItem("gameMode");
     document.body.setAttribute("data-game-mode", state.gameMode);
 };
@@ -106,7 +106,7 @@ const removeRookieDOM = () => {
 const removeVeteranDOM = () => {
     dom.get("scoreboard-container").remove();
 };
-const pullData = async () => {
+const pullAllPartsData = async () => {
     try {
         const allPartsRequest = await apiHelper("/api/parts");
         state.parts = allPartsRequest?.data.parts;
@@ -135,7 +135,7 @@ const pullData = async () => {
         console.error(error);
     }
 };
-pullData();
+pullAllPartsData();
 const updateGameProgressBar = () => {
     if (state.currentPart === 0) {
         dom.get("progress-bar").setAttribute("max", state.parts.length + "");
@@ -205,7 +205,7 @@ const handleRookieAnswer = (answer) => {
         return;
     }
     state.currentPart++;
-    clearAnswers();
+    setBlankAnswerButtons();
     blurPartImages(true);
     imageLoadListeners("add");
     loadPartImages(state.currentPart);
@@ -273,8 +273,8 @@ const verifyAnswer = (answer, target) => {
         state.currentPart++;
         updateTotalPoints();
         clearInterval(state.playTimer);
-        clearAnswers();
-        clearCurrentPoints();
+        setBlankAnswerButtons();
+        emptyCurrentPointElement();
         blurPartImages(true);
         imageLoadListeners("add");
         loadPartImages(state.currentPart);
@@ -284,12 +284,10 @@ const verifyAnswer = (answer, target) => {
         gameOver("selection");
     }
 };
-// Clear DOM element.
-const clearCurrentPoints = () => {
+const emptyCurrentPointElement = () => {
     dom.get("current-points").innerText = "";
 };
-// Blank out current button answers.
-const clearAnswers = () => {
+const setBlankAnswerButtons = () => {
     quizButtonElements.forEach((answer) => (answer.innerText = ""));
 };
 // Mostly useful for slower connections.
@@ -369,7 +367,7 @@ const getDeviceInfo = () => {
 // Builds human readable string for the scoreboard table.
 const getHumanReadableLocalTime = () => {
     const rightNow = new Date();
-    const dayOfWeek = daysOfWeek[rightNow.getDay()];
+    // const dayOfWeek = daysOfWeek[rightNow.getDay()];
     const month = monthsOfYear[rightNow.getMonth()];
     const date = rightNow.getDate();
     const suffix = getDaySuffix(date);
@@ -511,12 +509,14 @@ const closePlayerNameModal = () => {
 // Name is already updated in the database, but here we are just finding
 // the corresponding table cell and updating its innerText property.
 const displayFakeData = (playerName) => {
+    const recordTableRow = document.querySelector(`#scoreboard-${state.databaseInsertId}`);
     const recordNameCell = document.querySelector(`#scoreboard-${state.databaseInsertId} .player-name`);
     const recordDateCell = document.querySelector(`#scoreboard-${state.databaseInsertId} .date`);
     recordNameCell.innerText = playerName;
     recordDateCell.innerHTML = getHumanReadableLocalTime();
     closePlayerNameModal();
-    document.documentElement.scrollTo({ behavior: "smooth", top: recordNameCell.offsetTop - 100 });
+    recordTableRow?.scrollIntoView({ behavior: "smooth" });
+    // document.documentElement.scrollTo({ behavior: "smooth", top: recordNameCell.offsetTop - 100 });
 };
 // Only listening for this event when the input play name <dialog> is open.
 const submitPlayerNameWithEnterKey = (event) => {
@@ -546,7 +546,7 @@ const gameOver = async (type) => {
     const gameStats = {
         correct_answers: type === "win" ? state.parts.length : state.currentPart,
         losing_part: type !== "win" ? state.correctAnswer : "",
-        final_score: state.totalPoints,
+        final_score: isDevSpace ? Math.round(Math.random() * 100) + state.totalPoints : state.totalPoints,
         total_parts: state.parts.length,
         game_duration_in_seconds: totalGameDuration(),
         game_end_type: type.charAt(0),
@@ -916,25 +916,6 @@ const handleModeSwitchClick = async (event) => {
         console.error(error);
     }
 };
-// This is overengineered. I don't care.
-const sizeImageHeight = () => {
-    const answerButtonsContainerElement = document.querySelector(`[aria-label="Answers"]`);
-    const imagesContainerElement = document.querySelector(`[aria-label="Images"]`);
-    const scoreContainerElement = document.querySelector(`[aria-label="Score"]`);
-    const answerButtonsHeight = answerButtonsContainerElement.offsetHeight;
-    const imagesHeight = imagesContainerElement.offsetHeight;
-    const scoreHeight = scoreContainerElement.offsetHeight;
-    const footerHeight = footerElement.offsetHeight;
-    const totalElementHeight = answerButtonsHeight + imagesHeight + scoreHeight + footerHeight;
-    if (totalElementHeight > window.innerHeight) {
-        const heightDifference = totalElementHeight - window.innerHeight;
-        for (const image of quizImageElements) {
-            const currentImageHeight = image.offsetHeight;
-            image.style.maxHeight = `${currentImageHeight - heightDifference - scoreHeight}px`;
-        }
-    }
-};
-sizeImageHeight();
 imageLoadListeners("add");
 answerButtonListeners("add");
 if (state.gameMode === "v")

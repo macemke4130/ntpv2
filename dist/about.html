@@ -23,6 +23,20 @@
   </head>
   <body>
     <header>
+      <button id="nav-hamburger" aria-label="Open Site Navigation">
+        <div class="hamburger-layer" aria-label="hidden"></div>
+        <div class="hamburger-layer" aria-label="hidden"></div>
+        <div class="hamburger-layer" aria-label="hidden"></div>
+      </button>
+      <div id="site-nav-container">
+        <nav id="site-nav">
+          <a href="/">Home</a>
+          <a href="/about.html">About</a>
+          <a href="/scoreboard.html">Scoreboard</a>
+          <button id="close-nav-button">Close Menu</button>
+        </nav>
+      </div>
+      <div id="site-nav-curtain" aria-hidden="true"></div>
       <div id="camera">
         <div id="film-roll">
           <div class="roll">
@@ -454,7 +468,7 @@
           <div class="press-words" style="margin-top: 0.5rem">
             "Challenging." -
             <a
-              href="https://theradavist.com/2022/03/radar-roundup-reeb-full-suspension-sustainable-cambium-giro-flat-latch-engin-cranks-and-colored-xc-iii/"
+              href="https://theradavist.com/radar-roundup-reeb-full-suspension-sustainable-cambium-giro-flat-latch-engin-cranks-and-colored-xc-iii"
               target="_blank"
               >The Radavist</a
             >
@@ -471,15 +485,12 @@
                 >
         </div>
       </div>
-      <!-- <a class="start-game" href="./play.html">Start Game</a> -->
     </main>
-
-    <footer id="footer"></footer>
 
     <script>
       // TS Hack. Fix later.
       var exports = {};
     </script>
-    <script src="./footer.js"></script>
+    <script src="./global.js" type="module"></script>
   </body>
 </html>
