@@ -1,5 +1,7 @@
 import { DBResponse } from "./types";
 
+export const $ = (selector: string) => document.querySelector(selector);
+
 export const defaultGameMode = "v";
 
 export const apiHelper = async (url: string, method: "GET" | "POST" = "GET", data?: any) => {

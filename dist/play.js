@@ -1,5 +1,5 @@
+import { apiHelper, defaultGameMode, $ } from "./utils.js";
 const isDevSpace = false; //window.location.hostname.includes("localhost") || window.location.hostname.includes("192");
-import { apiHelper, defaultGameMode } from "./utils.js";
 const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 // const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const getDaySuffix = (dayOfMonth) => {
@@ -15,15 +15,10 @@ const getDaySuffix = (dayOfMonth) => {
     if (lastNumberInDay >= 4)
         return "th";
 };
-const dom = new Map();
-const allNamedElements = document.querySelectorAll(`[id]`);
-allNamedElements.forEach((element) => {
-    dom.set(element.id, element);
-});
 const quizImageElements = document.querySelectorAll(`[data-quiz-image]`);
 const quizButtonElements = document.querySelectorAll(`[data-quiz-button]`);
 const preloadImageElements = document.querySelectorAll(`#preload img`);
-const currentModeButton = document.querySelector(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`);
+const currentModeButton = $(`[data-game-mode="${localStorage.getItem("gameMode") || "r"}"]`);
 currentModeButton.classList.add("active");
 const startPoints = 500;
 const secondsPerTurn = 20;
@@ -100,11 +95,11 @@ const frontLoadEasyParts = () => {
     state.parts = allPartsWithEasyPartsFrontLoaded;
 };
 const removeRookieDOM = () => {
-    dom.get("rookie-game-over").remove();
-    dom.get("rookie-score").remove();
+    $("#rookie-game-over").remove();
+    $("#rookie-score").remove();
 };
 const removeVeteranDOM = () => {
-    dom.get("scoreboard-container").remove();
+    $("#scoreboard-container").remove();
 };
 const pullAllPartsData = async () => {
     try {
@@ -138,11 +133,11 @@ const pullAllPartsData = async () => {
 pullAllPartsData();
 const updateGameProgressBar = () => {
     if (state.currentPart === 0) {
-        dom.get("progress-bar").setAttribute("max", state.parts.length + "");
+        $("#progress-bar").setAttribute("max", state.parts.length + "");
     }
-    dom.get("progress-text").innerText = `${state.currentPart + 1} out of ${state.parts.length}`;
-    dom.get("progress-bar").setAttribute("value", state.currentPart + 1 + "");
-    dom.get("fake-progress-bar").style.width = `${(state.currentPart / state.parts.length) * 100}%`;
+    $("#progress-text").textContent = `${state.currentPart + 1} out of ${state.parts.length}`;
+    $("#progress-bar").setAttribute("value", state.currentPart + 1 + "");
+    $("#fake-progress-bar").style.width = `${(state.currentPart / state.parts.length) * 100}%`;
 };
 const explode = () => {
     quizButtonElements[quizButtonElements.length - 1].addEventListener("transitionend", (event) => {
@@ -159,10 +154,10 @@ const explode = () => {
 // Called after every correct answer from imageLoaded().
 // Double check: Maybe not after final correct answer.
 const resetTimer = () => {
-    dom.get("current-points").innerText = startPoints + "";
+    $("#current-points").textContent = startPoints + "";
     state.currentPoints = startPoints;
     state.currentPointsDOMValue = startPoints;
-    dom.get("current-points").classList.remove("flare");
+    $("#current-points").classList.remove("flare");
     state.playTimer = setInterval(() => {
         if (state.timerOff)
             return; // For Dev.
@@ -178,10 +173,10 @@ const resetTimer = () => {
 const updateCurrentPointsDOM = (currentPoints) => {
     if (currentPoints < state.currentPointsDOMValue - updateDOMInterval) {
         state.currentPointsDOMValue = currentPoints;
-        dom.get("current-points").innerText = state.currentPointsDOMValue + "";
+        $("#current-points").textContent = state.currentPointsDOMValue + "";
         // Low point warning.
         if (state.currentPointsDOMValue < 150) {
-            dom.get("current-points").classList.add("flare");
+            $("#current-points").classList.add("flare");
         }
     }
 };
@@ -216,8 +211,8 @@ const answerWasCorrect = (selectedAnswer) => {
 // After first correct answer, remove hint and glows.
 // I'm only removing text content to avoid layout shift.
 const removeGlowAndHint = () => {
-    const hintElement = document.querySelector("#hint");
-    hintElement.innerText = "";
+    const hintElement = $("#hint");
+    hintElement.textContent = "";
     quizButtonElements.forEach((answer) => {
         answer.classList.remove("glow");
     });
@@ -231,13 +226,13 @@ const handleEnterKey = (event) => {
         const answerButtonHasFocus = target.hasAttribute("data-quiz-button");
         if (answerButtonHasFocus) {
             const targetButton = target;
-            verifyAnswer(targetButton.innerText, targetButton);
+            verifyAnswer(targetButton.textContent, targetButton);
         }
     }
 };
 const handleAnswerClick = (event) => {
     const target = event.currentTarget;
-    const answer = target.innerText;
+    const answer = target.textContent;
     verifyAnswer(answer, target);
 };
 // User has chosen an answer.
@@ -285,10 +280,10 @@ const verifyAnswer = (answer, target) => {
     }
 };
 const emptyCurrentPointElement = () => {
-    dom.get("current-points").innerText = "";
+    $("#current-points").textContent = "";
 };
 const setBlankAnswerButtons = () => {
-    quizButtonElements.forEach((answer) => (answer.innerText = ""));
+    quizButtonElements.forEach((answer) => (answer.textContent = ""));
 };
 // Mostly useful for slower connections.
 const blurPartImages = (blur) => {
@@ -333,17 +328,17 @@ const fillAnswerButtons = (partNumber) => {
             }
             const acceptedWrongAnswer = proposedWrongAnswer;
             validAnswers.add(acceptedWrongAnswer);
-            button.innerText = acceptedWrongAnswer;
+            button.textContent = acceptedWrongAnswer;
         }
         else {
-            button.innerText = answer;
+            button.textContent = answer;
         }
     });
 };
 // On correct answer, update totalPoints state.
 const updateTotalPoints = () => {
     state.totalPoints = state.totalPoints + state.currentPoints;
-    dom.get("total-points").innerText = state.totalPoints.toLocaleString();
+    $("#total-points").textContent = state.totalPoints.toLocaleString();
 };
 // Logs duration of game in seconds.
 // Used for stat table in database.
@@ -382,8 +377,8 @@ const printRookieScore = () => {
     const rookieCorrectAnswers = state.rookieScore.reduce((acc, current) => {
         return acc + Number(current.correct);
     }, 0);
-    const rookieScoreElement = document.querySelector("#rookie-score");
-    rookieScoreElement.innerText = `${rookieCorrectAnswers} correct out of ${state.parts.length}`;
+    const rookieScoreElement = $("#rookie-score");
+    rookieScoreElement.textContent = `${rookieCorrectAnswers} correct out of ${state.parts.length}`;
 };
 const reportScoreToPlayer = () => {
     printRookieScore();
@@ -409,14 +404,14 @@ const reportScoreToPlayer = () => {
         answerContainerElement.classList.add("answer-container");
         const answerTextOutputElement = document.createElement("div");
         answerTextOutputElement.classList.add("answer");
-        answerTextOutputElement.innerText = part.correct ? "Correct" : "Wrong";
+        answerTextOutputElement.textContent = part.correct ? "Correct" : "Wrong";
         const answerBackgroundElement = document.createElement("div");
         answerBackgroundElement.classList.add("answer-background");
         answerContainerElement.appendChild(answerBackgroundElement);
         answerContainerElement.appendChild(answerTextOutputElement);
         liElement.appendChild(imagesContainerElement);
         liElement.appendChild(answerContainerElement);
-        dom.get("rookie-results").appendChild(liElement);
+        $("#rookie-results").appendChild(liElement);
     });
     // Hide address bar on mobile.
     window.scrollTo(0, 1);
@@ -428,8 +423,8 @@ const clearPlayScreen = (type) => {
     answerButtonListeners("remove");
     imageLoadListeners("remove");
     buildGameOverScreen(type);
-    dom.get("rookie-mode").addEventListener("click", handleModeSwitchClick);
-    dom.get("veteran-mode").addEventListener("click", handleModeSwitchClick);
+    $("#rookie-mode").addEventListener("click", handleModeSwitchClick);
+    $("#veteran-mode").addEventListener("click", handleModeSwitchClick);
     buildShareButton();
     if (state.gameMode === "v") {
         buildScoreboard();
@@ -440,36 +435,36 @@ const clearPlayScreen = (type) => {
     }
 };
 const checkFunScore = () => {
-    const funScoreElement = document.querySelector("#fun-score");
+    const funScoreElement = $("#fun-score");
     if (state.totalPoints === 0) {
-        funScoreElement.innerText = "Don't Give Up!";
+        funScoreElement.textContent = "Don't Give Up!";
         return;
     }
     if (state.totalPoints === 13) {
-        funScoreElement.innerText = "Bad Luck.";
+        funScoreElement.textContent = "Bad Luck.";
         return;
     }
     if (state.totalPoints === 69) {
-        funScoreElement.innerText = "Nice.";
+        funScoreElement.textContent = "Nice.";
         return;
     }
     if (state.totalPoints === 420) {
-        funScoreElement.innerText = "Blaze It.";
+        funScoreElement.textContent = "Blaze It.";
         return;
     }
     if (state.totalPoints === 666) {
-        funScoreElement.innerText = "Hail Satan.";
+        funScoreElement.textContent = "Hail Satan.";
         return;
     }
     // Suggested by Brennan
     if (state.totalPoints === 777) {
-        funScoreElement.innerText = "Jackpot.";
+        funScoreElement.textContent = "Jackpot.";
         return;
     }
 };
 // Builds logic for share api or removes if browser does not support.
 const buildShareButton = () => {
-    const shareButtonElement = document.querySelector("#share");
+    const shareButtonElement = $("#share");
     const canShare = navigator.canShare;
     if (!canShare) {
         shareButtonElement.remove();
@@ -493,26 +488,26 @@ const buildShareButton = () => {
 // Shows <dialog> for inputing player name and assigns functions to buttons.
 const showInputPlayerNameModal = () => {
     window.addEventListener("keydown", submitPlayerNameWithEnterKey);
-    const playerNameDialogElement = document.querySelector(`#player-name`);
+    const playerNameDialogElement = $(`#player-name`);
     playerNameDialogElement.showModal();
-    const submitPlayerNameButton = document.querySelector(`#submit-player-name`);
+    const submitPlayerNameButton = $(`#submit-player-name`);
     submitPlayerNameButton.addEventListener("click", submitPlayerNameToDatabaseFromModal);
-    const cancelPlayerNameButton = document.querySelector(`#cancel-player-name`);
+    const cancelPlayerNameButton = $(`#cancel-player-name`);
     cancelPlayerNameButton.addEventListener("click", closePlayerNameModal);
 };
 // Close <dialog> for player name and clean up listener.
 const closePlayerNameModal = () => {
-    const playerNameDialogElement = document.querySelector(`#player-name`);
+    const playerNameDialogElement = $(`#player-name`);
     playerNameDialogElement.close();
     window.removeEventListener("keydown", submitPlayerNameWithEnterKey);
 };
 // Name is already updated in the database, but here we are just finding
-// the corresponding table cell and updating its innerText property.
+// the corresponding table cell and updating its textContent property.
 const displayFakeData = (playerName) => {
-    const recordTableRow = document.querySelector(`#scoreboard-${state.databaseInsertId}`);
-    const recordNameCell = document.querySelector(`#scoreboard-${state.databaseInsertId} .player-name`);
-    const recordDateCell = document.querySelector(`#scoreboard-${state.databaseInsertId} .date`);
-    recordNameCell.innerText = playerName;
+    const recordTableRow = $(`#scoreboard-${state.databaseInsertId}`);
+    const recordNameCell = $(`#scoreboard-${state.databaseInsertId} .player-name`);
+    const recordDateCell = $(`#scoreboard-${state.databaseInsertId} .date`);
+    recordNameCell.textContent = playerName;
     recordDateCell.innerHTML = getHumanReadableLocalTime();
     closePlayerNameModal();
     recordTableRow?.scrollIntoView({ behavior: "smooth" });
@@ -584,7 +579,7 @@ const updateDatabaseUserNamesList = async () => {
     }
 };
 const submitPlayerNameToDatabaseFromModal = async () => {
-    const playerNameInputElement = document.querySelector(`#player-name-text`);
+    const playerNameInputElement = $(`#player-name-text`);
     // @ts-ignore - replaceAll()
     const playerName = playerNameInputElement.value.trim().replaceAll(",", "");
     updateLocalPlayerNameList(playerName);
@@ -629,27 +624,27 @@ const calculatePointDifference = (type, score) => {
     switch (type) {
         case "first-tie": {
             const tiedFirstTimeDifference = timerInterval / 1000;
-            dom.get("scoreboard-offset").innerText = `Tied for first place! 
+            $("#scoreboard-offset").textContent = `Tied for first place! 
       1 point (${tiedFirstTimeDifference.toFixed(2)} seconds) away from being alone in first place!`;
             break;
         }
         case "new-first": {
             const aheadOfSecondPlace = state.totalPoints - score;
             const newFirstScoreTimeDifference = (aheadOfSecondPlace * timerInterval) / 1000;
-            dom.get("scoreboard-offset").innerText = `New first place! 
+            $("#scoreboard-offset").textContent = `New first place! 
       ${aheadOfSecondPlace.toLocaleString()} point${aheadOfSecondPlace === 1 ? "" : "s"} (${newFirstScoreTimeDifference.toFixed(2)} seconds) ahead of previous first place!`;
             break;
         }
         case "on-scoreboard": {
             const pointDifference = score + 1 - state.totalPoints;
             const timeDifference = (pointDifference * timerInterval) / 1000;
-            dom.get("scoreboard-offset").innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from first place!`;
+            $("#scoreboard-offset").textContent = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from first place!`;
             break;
         }
         case "off-scoreboard": {
             const pointDifference = score + 1 - state.totalPoints;
             const timeDifference = (pointDifference * timerInterval) / 1000;
-            dom.get("scoreboard-offset").innerText = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from the scoreboard!`;
+            $("#scoreboard-offset").textContent = `${pointDifference.toLocaleString()} points (${timeDifference.toFixed(2)} seconds) from the scoreboard!`;
             break;
         }
         default:
@@ -669,12 +664,12 @@ const logLocalTime = async () => {
 };
 const buildGameOverScreen = (type) => {
     document.body.setAttribute("data-game-end-type", type);
-    dom.get("game-over-title").innerText = `You ${type === "win" ? "Win" : "Lose"}!`;
-    dom.get("final-score").innerText = state.totalPoints.toLocaleString();
+    $("#game-over-title").textContent = `You ${type === "win" ? "Win" : "Lose"}!`;
+    $("#final-score").textContent = state.totalPoints.toLocaleString();
     // currentPart does not advance after last part on gameOver("win")
     // so I check here before displaying the score.
-    dom.get("correct").innerText = `${type === "win" ? state.currentPart + 1 : state.currentPart} out of ${state.parts.length}`;
-    dom.get("play-again").addEventListener("click", playAgainClick);
+    $("#correct").textContent = `${type === "win" ? state.currentPart + 1 : state.currentPart} out of ${state.parts.length}`;
+    $("#play-again").addEventListener("click", playAgainClick);
 };
 // This API adds 1 to the current play_again column when a user clicks the Play Again <button>.
 const playAgainClick = async () => {
@@ -717,7 +712,7 @@ const buildScoreboard = async () => {
         // Off Scoreboard
         calculatePointDifference("off-scoreboard", lowestHighScore);
     }
-    const tableBodyElement = document.querySelector(`#scoreboard tbody`);
+    const tableBodyElement = $(`#scoreboard tbody`);
     // Building rank numbers for scoreboard.
     // Useful for tie scores.
     let previousRank = 0;
@@ -743,10 +738,10 @@ const buildScoreboard = async () => {
         scoreCell.classList.add("score");
         partsCell.classList.add("parts");
         dateCell.classList.add("date");
-        rankCell.innerText = ranking + "";
-        nameCell.innerText = stat.display_name;
-        scoreCell.innerText = stat.final_score.toLocaleString();
-        partsCell.innerText = `${stat.correct_answers} out of ${stat.total_parts}`;
+        rankCell.textContent = ranking + "";
+        nameCell.textContent = stat.display_name;
+        scoreCell.textContent = stat.final_score.toLocaleString();
+        partsCell.textContent = `${stat.correct_answers} out of ${stat.total_parts}`;
         dateCell.innerHTML = `<span class="day-of-week">${dayOfWeekOfGame}, </span><span>${dateOfGame}</span>`;
         tr.appendChild(rankCell);
         tr.appendChild(nameCell);
@@ -762,7 +757,7 @@ const buildScoreboard = async () => {
 // Shows user where their score is on the database.
 // TODO: Add scrollTo()
 const highlightMyScore = () => {
-    const myRow = document.querySelector(`#scoreboard-${state.databaseInsertId}`);
+    const myRow = $(`#scoreboard-${state.databaseInsertId}`);
     if (myRow) {
         myRow.style.outline = `2px solid red`;
     }
@@ -845,22 +840,30 @@ const startGame = () => {
     updateGameProgressBar();
 };
 const removeCountdownElement = () => {
-    dom.get("countdown-to-start").remove();
+    $("#countdown-to-start").remove();
     clearInterval(state.countdownTimer);
 };
 const beginCountdownToStart = () => {
     let secondsUntilStart = 3;
-    dom.get("countdown-seconds").innerText = secondsUntilStart + "";
+    const countdownSeconds = $("#countdown-seconds");
+    countdownSeconds.textContent = secondsUntilStart + "";
     state.countdownTimer = setInterval(() => {
         if (secondsUntilStart === 1) {
             removeCountdownElement();
             // Start game.
             startGame();
+            return;
         }
         secondsUntilStart--;
-        const bgColor = secondsUntilStart === 3 ? "red" : secondsUntilStart === 2 ? "yellow" : "green";
-        dom.get("countdown-seconds").innerText = secondsUntilStart + "";
-        dom.get("countdown-seconds").setAttribute("data-color", bgColor);
+        const bgColor = (() => {
+            if (secondsUntilStart === 3)
+                return "red";
+            if (secondsUntilStart === 2)
+                return "yellow";
+            return "green";
+        })();
+        countdownSeconds.textContent = secondsUntilStart + "";
+        countdownSeconds.setAttribute("data-color", bgColor);
     }, 1250);
 };
 const focusStage = () => {

@@ -1,7 +1,9 @@
-const navHamburger = document.querySelector(`#nav-hamburger`);
-const siteNavElement = document.querySelector(`#site-nav-container`);
-const closeSiteNavButton = document.querySelector(`#close-nav-button`);
-const siteNavCurtain = document.querySelector(`#site-nav-curtain`);
+import { $ } from "./utils.js";
+
+const navHamburger = $(`#nav-hamburger`);
+const siteNavElement = $(`#site-nav-container`);
+const closeSiteNavButton = $(`#close-nav-button`);
+const siteNavCurtain = $(`#site-nav-curtain`);
 
 const handleHamburgerClick = () => {
   toggleNavMenu();
